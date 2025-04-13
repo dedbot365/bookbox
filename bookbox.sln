@@ -1,6 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bookbox", "bookbox.csproj", "{9C596823-2D75-45B4-85A8-950C3CBE130D}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bookbox", "bookbox\bookbox.csproj", "{9C596823-2D75-45B4-85A8-950C3CBE130D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +15,8 @@ Global
 		{9C596823-2D75-45B4-85A8-950C3CBE130D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C596823-2D75-45B4-85A8-950C3CBE130D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C596823-2D75-45B4-85A8-950C3CBE130D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
