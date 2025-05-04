@@ -29,6 +29,7 @@ namespace bookbox.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Users))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateUser(Users user)
         {
             // Debug info
@@ -42,6 +43,21 @@ namespace bookbox.Controllers
 
             try
             {
+                // Check if user already exists
+                var existsCheck = await _userService.CheckUserExistsAsync(user.Username, user.Email);
+                if (existsCheck.userExists)
+                {
+                    string message;
+                    if (existsCheck.usernameExists && existsCheck.emailExists)
+                        message = "Registration failed. Both username and email already exist.";
+                    else if (existsCheck.usernameExists)
+                        message = "Registration failed. Username already exists.";
+                    else
+                        message = "Registration failed. Email already exists.";
+                    
+                    return Conflict(new { message });
+                }
+
                 // Do NOT create a new address - use what was sent from frontend
                 if (user.Addresses == null)
                 {

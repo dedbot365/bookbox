@@ -17,7 +17,7 @@ namespace bookbox.Services
             _context = context;
         }
 
-        public async Task<Users> CreateUserAsync(Users user)
+        public async Task<Users?> CreateUserAsync(Users user)
         {
             // Save the addresses temporarily
             var addresses = user.Addresses?.ToList() ?? new List<Address>();
@@ -49,14 +49,30 @@ namespace bookbox.Services
             }
             
             // Return the complete user with addresses
-            return await _context.Users
+            var createdUser = await _context.Users
                 .Include(u => u.Addresses)
                 .FirstOrDefaultAsync(u => u.Id == user.Id);
+                
+            if (createdUser == null)
+            {
+                throw new Exception($"User with ID {user.Id} was not found after creation.");
+            }
+            
+            return createdUser;
         }
         
         public async Task<int> GetActiveUsersCountAsync()
         {
             return await _context.Users.CountAsync(u => u.IsActive);
+        }
+
+        public async Task<(bool userExists, bool usernameExists, bool emailExists)> CheckUserExistsAsync(string username, string email)
+        {
+            bool usernameExists = await _context.Users.AnyAsync(u => u.Username == username);
+            bool emailExists = await _context.Users.AnyAsync(u => u.Email == email);
+            bool userExists = usernameExists || emailExists;
+            
+            return (userExists, usernameExists, emailExists);
         }
     }
 }
