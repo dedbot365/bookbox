@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -47,17 +48,16 @@ namespace bookbox.Entities
         [StringLength(100)]
         public string MembershipId { get; set; }
         
-        public DateTime RegistrationDate { get; set; } = DateTime.Now; // Changed from  Now
+        public DateTime RegistrationDate { get; set; } = DateTime.Now; // Default to current date
         
         // For discount tracking
         public int SuccessfulOrders { get; set; } = 0;
         
         public bool HasDiscount { get; set; } = false;
         
-        [StringLength(255)]
-        public string Address { get; set; }
+        // Remove direct address storage and replace with collection of addresses
+        public virtual ICollection<Address> Addresses { get; set; }
         
-        [Required]
-        public bool IsActive { get; set; } = true; // Default to active when user is created
+        public bool IsActive { get; set; } 
     }
 }

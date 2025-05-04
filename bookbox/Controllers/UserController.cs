@@ -1,14 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using bookbox.Entities;
 using bookbox.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace bookbox.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/register-[controller]")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -18,16 +21,83 @@ namespace bookbox.Controllers
             _userService = userService;
         }
 
+        /// <summary>
+        /// Creates a new user
+        /// </summary>
+        /// <param name="user">User information</param>
+        /// <returns>The newly created user</returns>
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] Users user)
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Users))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateUser(Users user)
         {
+            // Debug info
+            Console.WriteLine($"Received registration for: {user.Email}");
+            Console.WriteLine($"Addresses count: {user.Addresses?.Count ?? 0}");
+            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var createdUser = await _userService.CreateUserAsync(user);
-            return CreatedAtAction(nameof(CreateUser), new { id = createdUser.Id }, createdUser);
+            try
+            {
+                // Do NOT create a new address - use what was sent from frontend
+                if (user.Addresses == null)
+                {
+                    user.Addresses = new List<Address>();
+                }
+                
+                // Don't set User property on addresses - it will cause circular reference
+                foreach (var address in user.Addresses)
+                {
+                    // Ensure address has required properties
+                    if (string.IsNullOrEmpty(address.Address1))
+                    {
+                        return BadRequest(new { message = "Address Line 1 is required" });
+                    }
+                    if (string.IsNullOrEmpty(address.City))
+                    {
+                        return BadRequest(new { message = "City is required" });
+                    }
+                    if (string.IsNullOrEmpty(address.State))
+                    {
+                        return BadRequest(new { message = "State is required" });
+                    }
+                    if (string.IsNullOrEmpty(address.Zip))
+                    {
+                        return BadRequest(new { message = "Zip code is required" });
+                    }
+                    
+                    // Clear any incoming UserId to avoid conflicts
+                    address.UserId = 0;
+                    
+                    // Important: Don't set address.User here
+                }
+                
+                var createdUser = await _userService.CreateUserAsync(user);
+                return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating user: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, new { message = "Failed to register user", error = ex.Message });
+            }
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Users))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetUser(int id)
+        {
+            // Implement this method if it doesn't exist
+            // var user = await _userService.GetUserByIdAsync(id);
+            // if (user == null) return NotFound();
+            // return Ok(user);
+            
+            // Temporary placeholder
+            return Ok(new { Id = id, Message = "User found" });
         }
 
         [HttpGet("active-count")]

@@ -6,16 +6,40 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Configure JSON serialization to handle circular references
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+    });
 
-builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c => 
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo 
+    { 
+        Title = "BookBox API", 
+        Version = "v1",
+        Description = "API for BookBox application"
+    });
+});
 
 builder.Services.AddDbContext<ApplicationDbContext>(
     d => d.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IUserService, UserService>();
+
+// Add after other service configurations
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", 
+        builder => builder
+            .WithOrigins("http://localhost:3000") // React app default port
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
 
 var app = builder.Build();
 
@@ -24,11 +48,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    
-    //log the swagger URL to the console
-    var swaggerUrl = app.Urls.FirstOrDefault() ?? "http://localhost:5070/swagger";
-    Console.WriteLine($"Swagger UI available at: {swaggerUrl}");
 }
+
+// Add this before app.UseHttpsRedirection()
+app.UseCors("AllowReactApp");
 
 app.UseHttpsRedirection();
 
