@@ -1,4 +1,7 @@
 using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using bookbox.Data;
 using bookbox.Entities;
 using bookbox.Services.Interfaces;
@@ -19,6 +22,11 @@ namespace bookbox.Services
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return user;
+        }
+        
+        public async Task<int> GetActiveUsersCountAsync()
+        {
+            return await _context.Users.CountAsync(u => u.IsActive);
         }
     }
 }
