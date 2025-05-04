@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35825.156 d17.13
+VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bookbox", "bookbox\bookbox.csproj", "{9C596823-2D75-45B4-85A8-950C3CBE130D}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "bookboxfrontend", "bookboxfrontend\bookboxfrontend.esproj", "{1A672F74-C5B0-4710-A712-8E6783C1E329}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,12 @@ Global
 		{9C596823-2D75-45B4-85A8-950C3CBE130D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C596823-2D75-45B4-85A8-950C3CBE130D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C596823-2D75-45B4-85A8-950C3CBE130D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A672F74-C5B0-4710-A712-8E6783C1E329}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A672F74-C5B0-4710-A712-8E6783C1E329}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A672F74-C5B0-4710-A712-8E6783C1E329}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{1A672F74-C5B0-4710-A712-8E6783C1E329}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A672F74-C5B0-4710-A712-8E6783C1E329}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A672F74-C5B0-4710-A712-8E6783C1E329}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
