@@ -29,7 +29,7 @@ namespace bookbox.Entities
         [ForeignKey("User")]
         public int UserId { get; set; }
 
-        public virtual Users User { get; set; }
+        public virtual Users? User { get; set; }
         
         [Required]
         public bool IsPrimary { get; set; } = false;
