@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 namespace bookbox.Controllers
 {
     [ApiController]
-    [Route("api/register-[controller]")]
+    [Route("api/register[controller]")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
