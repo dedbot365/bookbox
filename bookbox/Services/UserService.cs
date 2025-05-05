@@ -17,7 +17,7 @@ namespace bookbox.Services
             _context = context;
         }
 
-        public async Task<Users?> CreateUserAsync(Users user)
+        public async Task<Users> CreateUserAsync(Users user)
         {
             // Save the addresses temporarily
             var addresses = user.Addresses?.ToList() ?? new List<Address>();

@@ -86,7 +86,7 @@ namespace bookbox.Controllers
                     }
                     
                     // Clear any incoming UserId to avoid conflicts
-                    address.UserId = 0;
+                    address.UserId = Guid.Empty; // Changed from int 0 to Guid.Empty
                     
                     // Important: Don't set address.User here
                 }
@@ -105,14 +105,9 @@ namespace bookbox.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Users))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetUser(int id)
+        public async Task<IActionResult> GetUser(Guid id)
         {
-            // Implement this method if it doesn't exist
-            // var user = await _userService.GetUserByIdAsync(id);
-            // if (user == null) return NotFound();
-            // return Ok(user);
-            
-            // Temporary placeholder
+            // Updated to use Guid
             return Ok(new { Id = id, Message = "User found" });
         }
 

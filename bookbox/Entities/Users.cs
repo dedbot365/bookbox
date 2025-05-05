@@ -8,7 +8,7 @@ namespace bookbox.Entities
     public class Users
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid(); // Initialize with a new GUID for new users
         
         [Required]
         [StringLength(50)]
