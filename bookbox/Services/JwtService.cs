@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using bookbox.Entities;
+using bookbox.Models;
 using bookbox.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -19,7 +19,7 @@ namespace bookbox.Services
             _configuration = configuration;
         }
 
-        public string GenerateToken(Users user, bool rememberMe = false)
+        public string GenerateToken(User user, bool rememberMe = false)
         {
             // Generate a new session key (random GUID) for each login
             var sessionKey = Guid.NewGuid().ToString();
@@ -29,8 +29,8 @@ namespace bookbox.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User"),
-                new Claim("SessionKey", sessionKey) // Add the session key as a claim
+                new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "Member"), // Important: Role claim
+                new Claim("SessionKey", sessionKey)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]));
@@ -85,7 +85,7 @@ namespace bookbox.Services
                 ValidAudience = _configuration["JwtSettings:Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(
                     Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"])),
-                ClockSkew = TimeSpan.Zero // No clock skew to make the token expire exactly at the expiry time
+                ClockSkew = TimeSpan.Zero
             };
         }
     }

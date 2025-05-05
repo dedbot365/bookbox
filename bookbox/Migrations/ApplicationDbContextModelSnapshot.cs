@@ -22,7 +22,7 @@ namespace bookbox.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("bookbox.Entities.Address", b =>
+            modelBuilder.Entity("bookbox.Models.Address", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,7 +66,7 @@ namespace bookbox.Migrations
                     b.ToTable("Addresses");
                 });
 
-            modelBuilder.Entity("bookbox.Entities.Users", b =>
+            modelBuilder.Entity("bookbox.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -138,9 +138,9 @@ namespace bookbox.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("bookbox.Entities.Address", b =>
+            modelBuilder.Entity("bookbox.Models.Address", b =>
                 {
-                    b.HasOne("bookbox.Entities.Users", "User")
+                    b.HasOne("bookbox.Models.User", "User")
                         .WithMany("Addresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -149,7 +149,7 @@ namespace bookbox.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("bookbox.Entities.Users", b =>
+            modelBuilder.Entity("bookbox.Models.User", b =>
                 {
                     b.Navigation("Addresses");
                 });

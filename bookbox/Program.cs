@@ -1,71 +1,44 @@
-using bookbox.Data;
-using bookbox.Services.Interfaces;
-using bookbox.Services;
 using Microsoft.EntityFrameworkCore;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using bookbox.Data;
+using bookbox.Services;
+using bookbox.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        // Configure JSON serialization to handle circular references
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-    });
+builder.Services.AddControllersWithViews();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => 
-{
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo 
-    { 
-        Title = "BookBox API", 
-        Version = "v1",
-        Description = "API for BookBox application"
-    });
-});
+// Use PostgreSQL
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    )
+);
 
-builder.Services.AddDbContext<ApplicationDbContext>(
-    d => d.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+// Register services
 builder.Services.AddScoped<IUserService, UserService>();
-
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
-
-// Add this line after your other service registrations
 builder.Services.AddScoped<IJwtService, JwtService>();
-
-// Add after other service configurations
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowReactApp", 
-        builder => builder
-            .WithOrigins("http://localhost:3000") // React app default port
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
-});
+// Add other services as needed
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
 
-// Add this before app.UseHttpsRedirection()
-app.UseCors("AllowReactApp");
-
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
-app.UseAuthentication();
+app.UseRouting();
+
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
