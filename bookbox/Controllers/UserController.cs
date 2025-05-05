@@ -141,20 +141,14 @@ namespace bookbox.Controllers
                 Response.Cookies.Append("auth_token", token, cookieOptions);
 
                 // Return response with token and user data
-                return Ok(new 
-                { 
-                    token = token, // Including token in response for client-side storage options
+                return Ok(new {
+                    token,
                     tokenExpiry = loginDto.RememberMe ? DateTime.UtcNow.AddDays(30) : DateTime.UtcNow.AddMinutes(30),
                     rememberMe = loginDto.RememberMe,
-                    user = new {
-                        id = user.Id,
-                        name = user.Name,
-                        surname = user.Surname,
-                        email = user.Email,
-                        username = user.Username,
-                        isAdmin = user.IsAdmin
-                    }
+                    user = new { id = user.Id, isAdmin = user.IsAdmin, /*…*/ },
+                    redirectUrl = user.IsAdmin ? "/admin/dashboard" : "/user/home"
                 });
+                
             }
             catch (Exception ex)
             {
