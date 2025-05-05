@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using bookbox.Constants;
 
 namespace bookbox.Entities
 {
@@ -59,5 +60,8 @@ namespace bookbox.Entities
         public virtual ICollection<Address> Addresses { get; set; }
         
         public bool IsActive { get; set; } 
+        
+        // Add gender field
+        public GenderType Gender { get; set; } // Using the enum directly
     }
 }
