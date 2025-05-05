@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using bookbox.Data;
 using bookbox.Entities;
@@ -11,14 +12,19 @@ namespace bookbox.Services
     public class UserService : IUserService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IPasswordHashService _passwordHashService;
 
-        public UserService(ApplicationDbContext context)
+        public UserService(ApplicationDbContext context, IPasswordHashService passwordHashService)
         {
             _context = context;
+            _passwordHashService = passwordHashService;
         }
 
         public async Task<Users> CreateUserAsync(Users user)
         {
+            // Hash the password before saving
+            user.Password = _passwordHashService.HashPassword(user.Password);
+            
             // Convert explicitly to UTC time for PostgreSQL compatibility
             if (user.DateOfBirth != default && user.DateOfBirth.Kind != DateTimeKind.Utc)
                 user.DateOfBirth = DateTime.SpecifyKind(user.DateOfBirth, DateTimeKind.Utc);
@@ -89,14 +95,17 @@ namespace bookbox.Services
                 .Include(u => u.Addresses)
                 .FirstOrDefaultAsync(u => u.Email == email);
 
-            // Return null if user not found or password doesn't match
-            if (user == null || user.Password != password)
+            // Return null if user not found
+            if (user == null)
             {
                 return null;
             }
 
-            // TODO: In a production environment, you should use proper password hashing
-            // and not compare passwords directly
+            // Verify password using the hash service
+            if (!_passwordHashService.VerifyPassword(user.Password, password))
+            {
+                return null;
+            }
 
             return user;
         }

@@ -30,6 +30,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 
 builder.Services.AddScoped<IUserService, UserService>();
 
+builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
+
 // Add after other service configurations
 builder.Services.AddCors(options =>
 {
