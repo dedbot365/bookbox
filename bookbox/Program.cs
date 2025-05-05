@@ -1,39 +1,44 @@
-using bookbox.Data;
-using bookbox.Services.Interfaces;
-using bookbox.Services;
 using Microsoft.EntityFrameworkCore;
+using bookbox.Data;
+using bookbox.Services;
+using bookbox.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllersWithViews();
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Use PostgreSQL
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    )
+);
 
-builder.Services.AddDbContext<ApplicationDbContext>(
-    d => d.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+// Register services
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
+// Add other services as needed
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    
-    //log the swagger URL to the console
-    var swaggerUrl = app.Urls.FirstOrDefault() ?? "http://localhost:5070/swagger";
-    Console.WriteLine($"Swagger UI available at: {swaggerUrl}");
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
