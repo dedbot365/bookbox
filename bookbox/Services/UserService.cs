@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using bookbox.Data;
-using bookbox.Entities;
+using bookbox.Models;  // This should give you access to the User class
 using bookbox.Services.Interfaces;
 
 namespace bookbox.Services
@@ -20,7 +20,7 @@ namespace bookbox.Services
             _passwordHashService = passwordHashService;
         }
 
-        public async Task<Users> CreateUserAsync(Users user)
+        public async Task<User> CreateUserAsync(User user)
         {
             // Hash the password before saving
             user.Password = _passwordHashService.HashPassword(user.Password);
@@ -73,7 +73,7 @@ namespace bookbox.Services
                 
             return createdUser ?? throw new Exception($"User with ID {user.Id} was not found after creation.");
         }
-        
+
         public async Task<int> GetActiveUsersCountAsync()
         {
             return await _context.Users.CountAsync(u => u.IsActive);
@@ -88,7 +88,7 @@ namespace bookbox.Services
             return (userExists, usernameExists, emailExists);
         }
 
-        public async Task<Users> AuthenticateAsync(string email, string password)
+        public async Task<User> AuthenticateAsync(string email, string password)
         {
             // Find user by email
             var user = await _context.Users

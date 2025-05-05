@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
-using bookbox.Entities;
+using bookbox.Models;
 using bookbox.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using bookbox.DTOs;  // Add this line to import UserLoginDto
+using bookbox.DTOs; 
 using System.Security.Claims;
 
 namespace bookbox.Controllers
@@ -31,10 +31,10 @@ namespace bookbox.Controllers
         /// <param name="user">User information</param>
         /// <returns>The newly created user</returns>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Users))]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(User))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<IActionResult> CreateUser(Users user)
+        public async Task<IActionResult> CreateUser(User user)
         {
             // Debug info
             Console.WriteLine($"Received registration for: {user.Email}");
@@ -140,6 +140,7 @@ namespace bookbox.Controllers
                 
                 Response.Cookies.Append("auth_token", token, cookieOptions);
 
+<<<<<<< HEAD
                 // Return response with token and user data
                 return Ok(new {
                     token,
@@ -147,6 +148,23 @@ namespace bookbox.Controllers
                     rememberMe = loginDto.RememberMe,
                     user = new { id = user.Id, isAdmin = user.IsAdmin, /*…*/ },
                     redirectUrl = user.IsAdmin ? "/admin/dashboard" : "/user/home"
+=======
+                // Return response with token, user data, and dashboard URL
+                return Ok(new 
+                { 
+                    token = token,
+                    tokenExpiry = loginDto.RememberMe ? DateTime.UtcNow.AddDays(30) : DateTime.UtcNow.AddMinutes(30),
+                    rememberMe = loginDto.RememberMe,
+                    user = new {
+                        id = user.Id,
+                        name = user.Name,
+                        surname = user.Surname,
+                        email = user.Email,
+                        username = user.Username,
+                        isAdmin = user.IsAdmin
+                    },
+                    dashboardUrl = user.IsAdmin ? "/admin/dashboard" : "/member/dashboard" // Redirect URL based on role
+>>>>>>> f49bf312fbb2ed62061bc52673f51c37a3b1d2a5
                 });
                 
             }
@@ -167,7 +185,7 @@ namespace bookbox.Controllers
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Users))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUser(Guid id)
         {
@@ -176,7 +194,7 @@ namespace bookbox.Controllers
         }
 
         [HttpGet("active-count")]
-        public async Task<IActionResult> GetActiveUsersCount()
+        public async Task<IActionResult> GetActiveUserCount()
         {
             // This should be replaced with proper authorization check
             // For now, we're just checking the current user's admin status
@@ -187,12 +205,49 @@ namespace bookbox.Controllers
             }
 
             var count = await _userService.GetActiveUsersCountAsync();
-            return Ok(new { ActiveUsersCount = count });
+            return Ok(new { ActiveUserCount = count });
+        }
+
+        // Add a new endpoint to check current user's authorization status
+        [HttpGet("current-user")]
+        public IActionResult GetCurrentUserInfo()
+        {
+            var currentUser = GetCurrentUser();
+            if (currentUser == null)
+            {
+                return Unauthorized(new { authenticated = false });
+            }
+
+            return Ok(new { 
+                authenticated = true,
+                user = new {
+                    id = currentUser.Id,
+                    name = currentUser.Name,
+                    surname = currentUser.Surname,
+                    email = currentUser.Email,
+                    username = currentUser.Username,
+                    isAdmin = currentUser.IsAdmin
+                },
+                dashboardUrl = currentUser.IsAdmin ? "/admin/dashboard" : "/member/dashboard"
+            });
+        }
+
+        // Method to check if user can access admin dashboard
+        [HttpGet("check-admin-access")]
+        public IActionResult CheckAdminAccess()
+        {
+            var currentUser = GetCurrentUser();
+            if (currentUser == null)
+            {
+                return Unauthorized(new { hasAccess = false });
+            }
+
+            return Ok(new { hasAccess = currentUser.IsAdmin });
         }
 
         // Method to get the current authenticated user
         // Replace the placeholder with this implementation
-        private Users GetCurrentUser()
+        private User GetCurrentUser()
         {
             // Get token from cookie
             var token = Request.Cookies["auth_token"];
@@ -216,7 +271,7 @@ namespace bookbox.Controllers
             if (userId == null)
                 return null;
                 
-            return new Users
+            return new User
             {
                 Id = Guid.Parse(userId),
                 Username = username,

@@ -1,6 +1,0 @@
-@bookbox_HostAddress = http://localhost:5070
-
-GET {{bookbox_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
