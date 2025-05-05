@@ -2,6 +2,9 @@ using bookbox.Data;
 using bookbox.Services.Interfaces;
 using bookbox.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +35,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 
+// Add this line after your other service registrations
+builder.Services.AddScoped<IJwtService, JwtService>();
+
 // Add after other service configurations
 builder.Services.AddCors(options =>
 {
@@ -57,6 +63,7 @@ app.UseCors("AllowReactApp");
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

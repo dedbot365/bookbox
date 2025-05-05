@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using bookbox.DTOs;  // Add this line to import UserLoginDto
+using System.Security.Claims;
 
 namespace bookbox.Controllers
 {
@@ -16,10 +17,12 @@ namespace bookbox.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IJwtService _jwtService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IJwtService jwtService)
         {
             _userService = userService;
+            _jwtService = jwtService;
         }
 
         /// <summary>
@@ -104,9 +107,9 @@ namespace bookbox.Controllers
         }
 
         /// <summary>
-        /// Authenticates a user
+        /// Authenticates a user and returns a JWT token
         /// </summary>
-        /// <param name="loginDto">Login credentials</param>
+        /// <param name="loginDto">Login credentials with remember me option</param>
         /// <returns>User information with authentication token</returns>
         [HttpPost("login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -120,11 +123,29 @@ namespace bookbox.Controllers
                 if (user == null)
                     return Unauthorized(new { message = "Invalid email or password" });
 
-                // Create a basic response with user data
-                // In a real application, you'd generate a JWT token here
+                // Generate JWT token with dynamic session key
+                var token = _jwtService.GenerateToken(user, loginDto.RememberMe);
+
+                // Set the JWT token in a cookie
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true, // Set to true in production with HTTPS
+                    SameSite = SameSiteMode.Strict,
+                    // Set expiry based on "remember me" option
+                    Expires = loginDto.RememberMe 
+                        ? DateTimeOffset.UtcNow.AddDays(30) 
+                        : DateTimeOffset.UtcNow.AddMinutes(30)
+                };
+                
+                Response.Cookies.Append("auth_token", token, cookieOptions);
+
+                // Return response with token and user data
                 return Ok(new 
                 { 
-                    token = "dummy-token", // Replace with actual JWT token in production
+                    token = token, // Including token in response for client-side storage options
+                    tokenExpiry = loginDto.RememberMe ? DateTime.UtcNow.AddDays(30) : DateTime.UtcNow.AddMinutes(30),
+                    rememberMe = loginDto.RememberMe,
                     user = new {
                         id = user.Id,
                         name = user.Name,
@@ -140,6 +161,15 @@ namespace bookbox.Controllers
                 Console.WriteLine($"Login error: {ex.Message}");
                 return StatusCode(500, new { message = "An error occurred during login" });
             }
+        }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            // Clear the authentication cookie
+            Response.Cookies.Delete("auth_token");
+            
+            return Ok(new { message = "Logged out successfully" });
         }
 
         [HttpGet("{id}")]
@@ -166,12 +196,39 @@ namespace bookbox.Controllers
             return Ok(new { ActiveUsersCount = count });
         }
 
-        // Helper method to get current user - replace with your authentication implementation
+        // Method to get the current authenticated user
+        // Replace the placeholder with this implementation
         private Users GetCurrentUser()
         {
-            // In a real implementation, you would get the user from your auth context
-            // This is just a placeholder
-            return null;
+            // Get token from cookie
+            var token = Request.Cookies["auth_token"];
+            if (string.IsNullOrEmpty(token))
+                return null;
+
+            var principal = _jwtService.ValidateToken(token);
+            if (principal == null)
+                return null;
+
+            // This is simplified; in a real implementation, you would:
+            // 1. Get the user ID from claims
+            // 2. Use _userService to fetch the complete user from the database
+            
+            // For now, we'll return a minimal user object based on claims
+            var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var username = principal.FindFirst(ClaimTypes.Name)?.Value;
+            var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+            var isAdmin = principal.IsInRole("Admin");
+            
+            if (userId == null)
+                return null;
+                
+            return new Users
+            {
+                Id = Guid.Parse(userId),
+                Username = username,
+                Email = email,
+                IsAdmin = isAdmin
+            };
         }
     }
 }
