@@ -81,5 +81,24 @@ namespace bookbox.Services
             
             return (userExists, usernameExists, emailExists);
         }
+
+        public async Task<Users> AuthenticateAsync(string email, string password)
+        {
+            // Find user by email
+            var user = await _context.Users
+                .Include(u => u.Addresses)
+                .FirstOrDefaultAsync(u => u.Email == email);
+
+            // Return null if user not found or password doesn't match
+            if (user == null || user.Password != password)
+            {
+                return null;
+            }
+
+            // TODO: In a production environment, you should use proper password hashing
+            // and not compare passwords directly
+
+            return user;
+        }
     }
 }

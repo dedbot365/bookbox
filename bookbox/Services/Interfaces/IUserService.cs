@@ -1,4 +1,5 @@
 using bookbox.Entities;
+using bookbox.DTOs;
 
 namespace bookbox.Services.Interfaces
 {
@@ -7,5 +8,6 @@ namespace bookbox.Services.Interfaces
         Task<Users> CreateUserAsync(Users user);
         Task<int> GetActiveUsersCountAsync();
         Task<(bool userExists, bool usernameExists, bool emailExists)> CheckUserExistsAsync(string username, string email);
+        Task<Users> AuthenticateAsync(string email, string password);
     }
 }

@@ -7,11 +7,12 @@ using bookbox.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using bookbox.DTOs;  // Add this line to import UserLoginDto
 
 namespace bookbox.Controllers
 {
     [ApiController]
-    [Route("api/register[controller]")]
+    [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -99,6 +100,45 @@ namespace bookbox.Controllers
                 Console.WriteLine($"Error creating user: {ex.Message}");
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 return StatusCode(500, new { message = "Failed to register user", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Authenticates a user
+        /// </summary>
+        /// <param name="loginDto">Login credentials</param>
+        /// <returns>User information with authentication token</returns>
+        [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Login([FromBody] UserLoginDto loginDto)
+        {
+            try
+            {
+                var user = await _userService.AuthenticateAsync(loginDto.Email, loginDto.Password);
+                
+                if (user == null)
+                    return Unauthorized(new { message = "Invalid email or password" });
+
+                // Create a basic response with user data
+                // In a real application, you'd generate a JWT token here
+                return Ok(new 
+                { 
+                    token = "dummy-token", // Replace with actual JWT token in production
+                    user = new {
+                        id = user.Id,
+                        name = user.Name,
+                        surname = user.Surname,
+                        email = user.Email,
+                        username = user.Username,
+                        isAdmin = user.IsAdmin
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Login error: {ex.Message}");
+                return StatusCode(500, new { message = "An error occurred during login" });
             }
         }
 
