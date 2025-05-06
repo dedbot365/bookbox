@@ -3,6 +3,7 @@ using Bookbox.Models;
 using Bookbox.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Bookbox.Controllers
 {
@@ -51,14 +52,23 @@ namespace Bookbox.Controllers
             {
                 try
                 {
-                    var book = await _bookService.AddBookAsync(bookDTO);
+                    // Get the current user's ID from the claims
+                    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                    if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+                    {
+                        ModelState.AddModelError("", "User identity could not be determined.");
+                        return View(bookDTO);
+                    }
+                    
+                    var book = await _bookService.AddBookAsync(bookDTO, userId);
                     TempData["SuccessMessage"] = "Book added successfully!";
-                    return RedirectToAction(nameof(Details), new { id = book.BookId });
+                    return RedirectToAction(nameof(Details), new { id = book!.BookId });
                 }
                 catch (InvalidOperationException ex)
                 {
                     ModelState.AddModelError("", ex.Message);
                 }
+                // Rest of your existing code...
                 catch (ArgumentException ex)
                 {
                     ModelState.AddModelError("ImageFile", ex.Message);
@@ -95,8 +105,9 @@ namespace Bookbox.Controllers
                 Stock = book.Stock,
                 Language = book.Language,
                 Awards = book.Awards,
-                PhysicalStock = book.PhysicalStock
+                PhysicalStock = book.PhysicalStock,
                 // ImageFile will be null here - can't map back from URL to file
+                UserId = book.UserId 
             };
 
             ViewData["CurrentImageUrl"] = book.ImageUrl;

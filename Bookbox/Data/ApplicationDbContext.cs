@@ -45,6 +45,12 @@ namespace Bookbox.Data
                 entity.HasKey(e => e.BookId);
                 entity.Property(e => e.BookId).ValueGeneratedOnAdd();
                 entity.HasIndex(e => e.ISBN).IsUnique();
+                
+                // Add relationship configuration for Book to User
+                entity.HasOne(b => b.User)
+                      .WithMany()  // User doesn't have a navigation property for books
+                      .HasForeignKey(b => b.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

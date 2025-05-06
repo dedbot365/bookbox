@@ -89,6 +89,69 @@ namespace Bookbox.Services
             }
         }
 
+        public async Task<Book?> AddBookAsync(BookDTO bookDTO, Guid userId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var existingBook = await _context.Books.FirstOrDefaultAsync(b => b.ISBN == bookDTO.ISBN);
+                if (existingBook != null)
+                    throw new InvalidOperationException("A book with this ISBN already exists");
+
+                var book = new Book
+                {
+                    Title = bookDTO.Title,
+                    Author = bookDTO.Author,
+                    Genre = bookDTO.Genre,
+                    Price = bookDTO.Price,
+                    Format = bookDTO.Format,
+                    Publisher = bookDTO.Publisher,
+                    ISBN = bookDTO.ISBN,
+                    Description = bookDTO.Description,
+                    Stock = bookDTO.Stock,
+                    Language = bookDTO.Language,
+                    Awards = bookDTO.Awards,
+                    PhysicalStock = bookDTO.PhysicalStock,
+                    UserId = userId  // Set the user ID from the parameter
+                };
+
+                var imagesPath = Path.Combine(_webHostEnvironment.WebRootPath, "images");
+                if (!Directory.Exists(imagesPath))
+                    Directory.CreateDirectory(imagesPath);
+
+                if (bookDTO.ImageFile != null)
+                {
+                    // Add validation
+                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                    var extension = Path.GetExtension(bookDTO.ImageFile.FileName).ToLowerInvariant();
+                    if (!allowedExtensions.Contains(extension) || bookDTO.ImageFile.Length > 5242880) // 5MB
+                        throw new ArgumentException("Invalid file type or size");
+                    // Continue with file handling
+
+                    string fileName = Guid.NewGuid() + Path.GetExtension(bookDTO.ImageFile.FileName);
+                    string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "images", fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await bookDTO.ImageFile.CopyToAsync(stream);
+                    }
+
+                    book.ImageUrl = "/images/" + fileName;
+                }
+
+                _context.Books.Add(book);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return book;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
         public async Task<Book?> UpdateBookAsync(Guid id, BookDTO bookDTO)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -113,6 +176,8 @@ namespace Bookbox.Services
                 book.Language = bookDTO.Language;
                 book.Awards = bookDTO.Awards;
                 book.PhysicalStock = bookDTO.PhysicalStock;
+                // Don't update UserId as it shouldn't change
+                // (book.UserId remains the same)
 
                 // Add this before file operations
                 var imagesPath = Path.Combine(_webHostEnvironment.WebRootPath, "images");

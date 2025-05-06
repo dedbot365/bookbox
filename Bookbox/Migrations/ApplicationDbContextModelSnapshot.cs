@@ -120,10 +120,15 @@ namespace Bookbox.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("BookId");
 
                     b.HasIndex("ISBN")
                         .IsUnique();
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Books");
                 });
@@ -192,6 +197,17 @@ namespace Bookbox.Migrations
                 {
                     b.HasOne("Bookbox.Models.User", "User")
                         .WithMany("Addresses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Bookbox.Models.Book", b =>
+                {
+                    b.HasOne("Bookbox.Models.User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

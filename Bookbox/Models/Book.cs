@@ -54,5 +54,11 @@ namespace Bookbox.Models
         public int PhysicalStock { get; set; }
 
         public string? ImageUrl { get; set; }
+        
+        [Required]
+        public Guid UserId { get; set; }
+        
+        [ForeignKey("UserId")]
+        public User? User { get; set; }
     }
 }

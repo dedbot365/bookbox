@@ -50,5 +50,8 @@ namespace Bookbox.DTOs
         public int PhysicalStock { get; set; }
 
         public IFormFile? ImageFile { get; set; }
+        
+        // UserId will be set from the current authenticated user
+        public Guid? UserId { get; set; }
     }
 }
