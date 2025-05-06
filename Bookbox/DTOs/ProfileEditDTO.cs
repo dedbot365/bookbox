@@ -5,6 +5,10 @@ namespace Bookbox.DTOs
 {
     public class ProfileEditDTO
     {
+        [Required(ErrorMessage = "Username is required")]
+        [StringLength(50, ErrorMessage = "Username cannot exceed 50 characters")]
+        public string Username { get; set; } = string.Empty;
+        
         [Required(ErrorMessage = "First name is required")]
         [StringLength(50, ErrorMessage = "First name cannot exceed 50 characters")]
         public string FirstName { get; set; } = string.Empty;
@@ -21,10 +25,18 @@ namespace Bookbox.DTOs
         [Phone(ErrorMessage = "Invalid phone number")]
         [StringLength(20)]
         public string? ContactNo { get; set; }
+        
+        [Display(Name = "Date of Birth")]
+        [DataType(DataType.Date)]
+        public DateTime? DateOfBirth { get; set; }
 
         public Gender Gender { get; set; }
 
         public string? CurrentImageUrl { get; set; }
+        
+        // Store original values for comparison
+        public string OriginalUsername { get; set; } = string.Empty;
+        public string OriginalEmail { get; set; } = string.Empty;
         
         public IFormFile? ImageFile { get; set; }
     }

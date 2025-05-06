@@ -41,11 +41,18 @@
                                         <label asp-for="ImageFile" class="form-label">Change Profile Picture</label>
                                         <input asp-for="ImageFile" class="form-control" type="file" accept=".jpg,.jpeg,.png,.gif">
                                         <span asp-validation-for="ImageFile" class="text-danger"></span>
-                                        <div class="form-text">Maximum size: 5MB. Supported formats: JPG, JPEG, PNG, GIF.</div>
+                                        <div class="form-text">Maximum size: 10MB. Supported formats: JPG, JPEG, PNG, GIF.</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-9">
+                                <div class="mb-3">
+                                    <label asp-for="Username" class="form-label">Username</label>
+                                    <input asp-for="Username" class="form-control" />
+                                    <span asp-validation-for="Username" class="text-danger"></span>
+                                    <input type="hidden" asp-for="OriginalUsername" />
+                                </div>
+                                
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label asp-for="FirstName" class="form-label">First Name</label>
@@ -61,9 +68,9 @@
                                 
                                 <div class="mb-3">
                                     <label asp-for="Email" class="form-label">Email</label>
-                                    <input asp-for="Email" class="form-control" readonly />
+                                    <input asp-for="Email" class="form-control" />
                                     <span asp-validation-for="Email" class="text-danger"></span>
-                                    <div class="form-text">Email cannot be changed.</div>
+                                    <input type="hidden" asp-for="OriginalEmail" />
                                 </div>
                                 
                                 <div class="row mb-3">
@@ -77,6 +84,12 @@
                                         <select asp-for="Gender" class="form-select" asp-items="Html.GetEnumSelectList<Bookbox.Constants.Gender>()"></select>
                                         <span asp-validation-for="Gender" class="text-danger"></span>
                                     </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label asp-for="DateOfBirth" class="form-label">Date of Birth</label>
+                                    <input asp-for="DateOfBirth" class="form-control" type="date" />
+                                    <span asp-validation-for="DateOfBirth" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>

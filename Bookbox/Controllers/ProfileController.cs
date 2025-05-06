@@ -35,12 +35,16 @@ namespace Bookbox.Controllers
 
             var model = new ProfileEditDTO
             {
+                Username = user.Username,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
                 ContactNo = user.ContactNo,
+                DateOfBirth = user.DateOfBirth,
                 Gender = user.Gender,
-                CurrentImageUrl = user.ImageUrlText
+                CurrentImageUrl = user.ImageUrlText,
+                OriginalUsername = user.Username,
+                OriginalEmail = user.Email
             };
 
             return View(model);
@@ -64,10 +68,42 @@ namespace Bookbox.Controllers
                 return NotFound();
             }
 
+            // Check if username or email has changed and if they're already taken
+            if (model.Username != model.OriginalUsername || model.Email != model.OriginalEmail)
+            {
+                // Check if username or email is already taken
+                var existingUser = await _context.Users.FirstOrDefaultAsync(u => 
+                    (u.Username == model.Username && u.UserId != userId) || 
+                    (u.Email == model.Email && u.UserId != userId));
+                
+                if (existingUser != null)
+                {
+                    if (existingUser.Username == model.Username)
+                    {
+                        ModelState.AddModelError("Username", "This username is already taken.");
+                    }
+                    if (existingUser.Email == model.Email)
+                    {
+                        ModelState.AddModelError("Email", "This email is already registered.");
+                    }
+                    return View(model);
+                }
+            }
+
+            // FIX FOR POSTGRESQL DATETIME ERROR
+            // Convert DateOfBirth to UTC if it's not null
+            if (model.DateOfBirth.HasValue)
+            {
+                model.DateOfBirth = DateTime.SpecifyKind(model.DateOfBirth.Value, DateTimeKind.Utc);
+            }
+
             // Update user information
+            user.Username = model.Username;
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
+            user.Email = model.Email;
             user.ContactNo = model.ContactNo;
+            user.DateOfBirth = model.DateOfBirth;
             user.Gender = model.Gender;
 
             // Handle profile image upload
@@ -77,9 +113,10 @@ namespace Bookbox.Controllers
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
                 var extension = Path.GetExtension(model.ImageFile.FileName).ToLowerInvariant();
                 
-                if (!allowedExtensions.Contains(extension) || model.ImageFile.Length > 5242880) // 5MB
+                // Changed from 5MB to 10MB (10485760 bytes)
+                if (!allowedExtensions.Contains(extension) || model.ImageFile.Length > 10485760) 
                 {
-                    ModelState.AddModelError("ImageFile", "Invalid file type or size (max 5MB, allowed formats: JPG, PNG, GIF)");
+                    ModelState.AddModelError("ImageFile", "Invalid file type or size (max 10MB, allowed formats: JPG, PNG, GIF)");
                     return View(model);
                 }
 
@@ -115,7 +152,7 @@ namespace Bookbox.Controllers
             _context.Update(user);
             await _context.SaveChangesAsync();
 
-            // Update claims
+            // Update claims - includes the updated username and email
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
