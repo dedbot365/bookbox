@@ -90,20 +90,16 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="btn-group btn-group-sm">
+                                        <div class="btn-group">
                                             <a asp-action="Details" asp-route-id="@book.BookId" 
                                                class="btn btn-info" title="Details">
-                                                <i class="fas fa-info-circle"></i>
+                                                <i class="fas fa-info-circle"></i> Details
                                             </a>
                                             @if (User.IsInRole("Admin"))
                                             {
                                                 <a asp-action="Edit" asp-route-id="@book.BookId" 
                                                    class="btn btn-primary" title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a asp-action="Delete" asp-route-id="@book.BookId" 
-                                                   class="btn btn-danger" title="Delete">
-                                                    <i class="fas fa-trash"></i>
+                                                    <i class="fas fa-edit"></i> Edit
                                                 </a>
                                             }
                                         </div>
@@ -142,13 +138,26 @@
     </div>
 </div>
 
-@section Scripts {
+<!--@section Scripts {
     <script>
         $(document).ready(function() {
             $('#booksTable').DataTable({
                 "pageLength": 10,
                 "responsive": true
             });
+            
+            // Delete book confirmation - simplified version
+            $('.delete-book').click(function() {
+                const bookId = $(this).data('id');
+                const bookTitle = $(this).data('title');
+                
+                if (confirm(`Are you sure you want to delete "${bookTitle}"? This action cannot be undone.`)) {
+                    window.location.href = '@Url.Action("Delete", "Book")/' + bookId;
+                }
+            });
         });
-    </script>
+    </script>-->
+    
+    <!-- Add anti-forgery token -->
+    @Html.AntiForgeryToken()
 }

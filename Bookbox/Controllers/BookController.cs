@@ -153,14 +153,26 @@ namespace Bookbox.Controllers
             var book = await _bookService.GetBookByIdAsync(id);
             if (book == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Book not found.";
+                return RedirectToAction(nameof(Index));
             }
 
-            return View(book);
+            // Delete the book directly
+            var result = await _bookService.DeleteBookAsync(id);
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Book deleted successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Failed to delete the book.";
+            }
+            
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: Book/Delete/5
-        [HttpPost, ActionName("Delete")]
+        /*[HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
@@ -184,7 +196,7 @@ namespace Bookbox.Controllers
                 TempData["ErrorMessage"] = "Failed to delete the book.";
                 return RedirectToAction(nameof(Delete), new { id });
             }
-        }
+        }*/
 
         // GET: Book/Search
         public async Task<IActionResult> Search(string searchTerm)

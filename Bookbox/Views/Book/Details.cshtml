@@ -1,0 +1,131 @@
+@model Bookbox.Models.Book
+
+@{
+    ViewData["Title"] = "Book Details";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold">@Model.Title</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl" alt="@Model.Title" class="img-fluid mb-3" style="max-height: 300px;" />
+                    }
+                    else
+                    {
+                        <div class="bg-light p-5 mb-3">
+                            <i class="fas fa-book fa-5x text-secondary"></i>
+                            <p class="mt-3">No cover image available</p>
+                        </div>
+                    }
+                    
+                    <div class="mt-3">
+                        <div class="badge @(Model.Stock > 0 ? "bg-success" : "bg-danger") text-white p-2">
+                            @(Model.Stock > 0 ? $"In Stock ({Model.Stock})" : "Out of Stock")
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Author:</div>
+                        <div class="col-md-9">@Model.Author</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Genre:</div>
+                        <div class="col-md-9">@Model.Genre</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Price:</div>
+                        <div class="col-md-9">$@Model.Price.ToString("F2")</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Format:</div>
+                        <div class="col-md-9">@Model.Format</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Publisher:</div>
+                        <div class="col-md-9">@Model.Publisher</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">ISBN:</div>
+                        <div class="col-md-9">@Model.ISBN</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Language:</div>
+                        <div class="col-md-9">@Model.Language</div>
+                    </div>
+                    
+                    @if (!string.IsNullOrEmpty(Model.Awards))
+                    {
+                        <div class="row mb-3">
+                            <div class="col-md-3 fw-bold">Awards:</div>
+                            <div class="col-md-9">@Model.Awards</div>
+                        </div>
+                    }
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Physical Stock:</div>
+                        <div class="col-md-9">@Model.PhysicalStock</div>
+                    </div>
+                    
+                    <hr />
+                    
+                    <div class="row mb-3">
+                        <div class="col-12 fw-bold">Description:</div>
+                        <div class="col-12 mt-2">
+                            <p class="text-justify">@Model.Description</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@Model.BookId" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <button type="button" class="btn btn-danger delete-book" 
+                                data-id="@Model.BookId" data-title="@Model.Title">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Delete book confirmation
+            $('.delete-book').click(function() {
+                const bookId = $(this).data('id');
+                const bookTitle = $(this).data('title');
+                
+                if (confirm(`Are you sure you want to delete "${bookTitle}"? This action cannot be undone.`)) {
+                    window.location.href = '@Url.Action("Delete", "Book")/' + bookId;
+                }
+            });
+        });
+    </script>
+    
+    @Html.AntiForgeryToken()
+}
