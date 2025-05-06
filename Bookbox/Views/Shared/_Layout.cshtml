@@ -60,8 +60,8 @@
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="profileDropdown">
                                     <li><div class="dropdown-header fw-bold">Hello, @User.Identity.Name!</div></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#"><i class="fas fa-id-card text-primary me-2"></i>Change Profile</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="fas fa-key text-primary me-2"></i>Change Password</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Profile" asp-action="EditProfile"><i class="fas fa-id-card text-primary me-2"></i>Change Profile</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Profile" asp-action="ChangePassword"><i class="fas fa-key text-primary me-2"></i>Change Password</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" asp-controller="Auth" asp-action="Logout"><i class="fas fa-sign-out-alt text-danger me-2"></i>Logout</a></li>
                                 </ul>

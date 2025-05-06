@@ -1,0 +1,116 @@
+@model Bookbox.DTOs.ProfileEditDTO
+
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Edit Profile</h3>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
+
+                    <form asp-action="EditProfile" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="mb-3 profile-image-container">
+                                        @if (!string.IsNullOrEmpty(Model.CurrentImageUrl))
+                                        {
+                                            <img src="@Model.CurrentImageUrl" alt="Profile" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                                        }
+                                        else
+                                        {
+                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 150px; height: 150px; margin: auto;">
+                                                <i class="fas fa-user fa-4x text-secondary"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="mb-3">
+                                        <label asp-for="ImageFile" class="form-label">Change Profile Picture</label>
+                                        <input asp-for="ImageFile" class="form-control" type="file" accept=".jpg,.jpeg,.png,.gif">
+                                        <span asp-validation-for="ImageFile" class="text-danger"></span>
+                                        <div class="form-text">Maximum size: 5MB. Supported formats: JPG, JPEG, PNG, GIF.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label asp-for="FirstName" class="form-label">First Name</label>
+                                        <input asp-for="FirstName" class="form-control" />
+                                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="LastName" class="form-label">Last Name</label>
+                                        <input asp-for="LastName" class="form-control" />
+                                        <span asp-validation-for="LastName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label asp-for="Email" class="form-label">Email</label>
+                                    <input asp-for="Email" class="form-control" readonly />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                    <div class="form-text">Email cannot be changed.</div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label asp-for="ContactNo" class="form-label">Phone Number</label>
+                                        <input asp-for="ContactNo" class="form-control" />
+                                        <span asp-validation-for="ContactNo" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="Gender" class="form-label">Gender</label>
+                                        <select asp-for="Gender" class="form-select" asp-items="Html.GetEnumSelectList<Bookbox.Constants.Gender>()"></select>
+                                        <span asp-validation-for="Gender" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            // Preview image when selected
+            $("#ImageFile").change(function () {
+                if (this.files && this.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        // Find the image or create one if it doesn't exist
+                        if ($(".profile-image-container img").length === 0) {
+                            $(".profile-image-container div").replaceWith('<img src="' + e.target.result + '" alt="Profile" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">');
+                        } else {
+                            $(".profile-image-container img").attr("src", e.target.result);
+                        }
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        });
+    </script>
+}
