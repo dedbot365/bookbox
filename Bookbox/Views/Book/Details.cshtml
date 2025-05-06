@@ -105,6 +105,11 @@
                                 data-id="@Model.BookId" data-title="@Model.Title">
                             <i class="fas fa-trash"></i> Delete
                         </button>
+                        
+                        <!-- Add the new discount button here -->
+                        <a asp-controller="Discount" asp-action="Create" asp-route-id="@Model.BookId" class="btn btn-success">
+                            <i class="fas fa-tag"></i> Add Discount
+                        </a>
                     </div>
                 }
             </div>

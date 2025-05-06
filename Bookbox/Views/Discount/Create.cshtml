@@ -1,0 +1,64 @@
+@model Bookbox.DTOs.DiscountDTO
+
+@{
+    ViewData["Title"] = "Add Discount";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Add Discount for "@Model.BookTitle"</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <input type="hidden" asp-for="BookId" />
+                        <input type="hidden" asp-for="BookTitle" />
+                        
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="DiscountPercentage" class="form-label">Discount Percentage (%)</label>
+                            <input asp-for="DiscountPercentage" class="form-control" type="number" min="1" max="90" />
+                            <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
+                            <small class="form-text text-muted">Enter a discount percentage between 1% and 90%</small>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="StartDate" class="form-label">Start Date</label>
+                                    <input asp-for="StartDate" class="form-control" type="date" />
+                                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="EndDate" class="form-label">End Date (Optional)</label>
+                                    <input asp-for="EndDate" class="form-control" type="date" />
+                                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                                    <small class="form-text text-muted">Leave blank for no end date</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input asp-for="IsOnSale" class="form-check-input" />
+                            <label asp-for="IsOnSale" class="form-check-label">Active</label>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a asp-controller="Book" asp-action="Details" asp-route-id="@Model.BookId" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Add Discount</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
