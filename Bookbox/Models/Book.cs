@@ -23,7 +23,6 @@ namespace Bookbox.Models
 
         [Required]
         [Column(TypeName = "decimal(18, 2)")]
-        [Range(0, 9999.99, ErrorMessage = "Price must be between 0 and 9999.99")]
         public decimal Price { get; set; }
 
         [Required]
@@ -59,5 +58,20 @@ namespace Bookbox.Models
         
         [ForeignKey("UserId")]
         public User? User { get; set; }
+
+        // New properties
+        [Required]
+        public DateTime PublicationDate { get; set; }
+        
+        [Required]
+        public DateTime ArrivalDate { get; set; } = DateTime.UtcNow;
+        
+        public bool IsComingSoon { get; set; } = false;
+        
+        public int SalesCount { get; set; } = 0;
+        
+        // Navigation properties
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public ICollection<Discount> Discounts { get; set; } = new List<Discount>();
     }
 }

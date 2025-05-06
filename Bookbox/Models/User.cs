@@ -6,6 +6,7 @@ namespace Bookbox.Models
 {
     public class User
     {
+        [Key]
         [Required]
         public Guid UserId { get; set; }
         
@@ -46,6 +47,13 @@ namespace Bookbox.Models
         
         public DateTime? DateOfBirth { get; set; }
         
+        // Add a counter for successful orders
+        public int SuccessfulOrderCount { get; set; } = 0;
+        
+        // Navigation properties
         public ICollection<Address> Addresses { get; set; } = new List<Address>();
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public ICollection<Bookmark> Bookmarks { get; set; } = new List<Bookmark>();
     }
 }
