@@ -1,8 +1,232 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<Bookbox.Models.Book>
+
+@{
+    ViewData["Title"] = "BookBox - Your Favorite Book Store";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Hero Section -->
+<div class="hero-section py-5 mb-4 bg-light rounded-3">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold">Discover Your Next Favorite Book</h1>
+                <p class="lead">Explore our collection of bestsellers, award winners, and exclusive editions.</p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <a href="@Url.Action("Index", "Shop")" class="btn btn-primary btn-lg px-4 me-md-2">Browse All Books</a>
+                    <a href="#featured" class="btn btn-outline-secondary btn-lg px-4">Featured Books</a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="/images/hero-books.jpg" alt="BookBox Collection" class="img-fluid rounded-3 shadow">
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Search and Filter Section -->
+<div class="container mb-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="row g-3">
+                <!-- Search Bar -->
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="searchTerm" name="searchTerm" 
+                               placeholder="Search by title, author, ISBN..." value="@ViewData["SearchTerm"]">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Genre Filter -->
+                <div class="col-md-3">
+                    <select class="form-select" id="genre" name="genre" onchange="this.form.submit()">
+                        <option value="">All Genres</option>
+                        @foreach (var genre in Enum.GetValues(typeof(Bookbox.Constants.Genre)))
+                        {
+                            <option value="@genre" selected="@(ViewData["SelectedGenre"]?.ToString() == genre.ToString())">
+                                @genre
+                            </option>
+                        }
+                    </select>
+                </div>
+                
+                <!-- Format Filter -->
+                <div class="col-md-3">
+                    <select class="form-select" id="format" name="format" onchange="this.form.submit()">
+                        <option value="">All Formats</option>
+                        @foreach (var format in Enum.GetValues(typeof(Bookbox.Constants.Format)))
+                        {
+                            <option value="@format" selected="@(ViewData["SelectedFormat"]?.ToString() == format.ToString())">
+                                @format
+                            </option>
+                        }
+                    </select>
+                </div>
+                
+                <!-- Hidden submit button for accessibility -->
+                <button type="submit" class="d-none">Apply Filters</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Books Section -->
+<div class="container mb-5" id="featured">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">@(ViewData["SearchTerm"] != null ? "Search Results" : "Featured Books")</h2>
+        <div class="d-flex align-items-center">
+            <label for="sortBy" class="me-2">Sort by:</label>
+            <select id="sortBy" name="sortBy" class="form-select form-select-sm" style="width: auto;" onchange="updateSort(this.value)">
+                <option value="newest" selected="@(ViewData["SortBy"]?.ToString() == "newest")">Newest Arrivals</option>
+                <option value="title" selected="@(ViewData["SortBy"]?.ToString() == "title")">Title (A-Z)</option>
+                <option value="price_asc" selected="@(ViewData["SortBy"]?.ToString() == "price_asc")">Price (Low to High)</option>
+                <option value="price_desc" selected="@(ViewData["SortBy"]?.ToString() == "price_desc")">Price (High to Low)</option>
+            </select>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
+            @foreach (var book in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 book-card">
+                        <div class="card-img-container">
+                            @if (!string.IsNullOrEmpty(book.ImageUrl))
+                            {
+                                <img src="@book.ImageUrl" class="card-img-top" alt="@book.Title">
+                            }
+                            else
+                            {
+                                <div class="placeholder-image">
+                                    <i class="fas fa-book fa-4x text-secondary"></i>
+                                </div>
+                            }
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title book-title">@book.Title</h5>
+                            <p class="card-text book-author">by @book.Author</p>
+                            <p class="card-text mb-0">
+                                <span class="badge bg-secondary">@book.Genre</span>
+                                <span class="badge bg-info">@book.Format</span>
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span class="book-price">$@book.Price.ToString("0.00")</span>
+                                <span class="badge @(book.Stock > 0 ? "bg-success" : "bg-danger")">
+                                    @(book.Stock > 0 ? "In Stock" : "Out of Stock")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <div class="d-grid gap-2">
+                                <a href="@Url.Action("Details", "Book", new { id = book.BookId })" class="btn btn-outline-primary">
+                                    <i class="fas fa-info-circle"></i> View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <p class="mb-0">
+                @if (ViewData["SearchTerm"] != null || ViewData["SelectedGenre"] != null || ViewData["SelectedFormat"] != null)
+                {
+                    <span>No books match your filter criteria. <a href="@Url.Action("Index", "Home")">Clear filters</a> to see all books.</span>
+                }
+                else
+                {
+                    <span>No books have been added to our catalog yet. Please check back soon!</span>
+                }
+            </p>
+        </div>
+    }
+</div>
+
+<!-- Categories Section -->
+<div class="container mb-5">
+    <h2 class="fw-bold mb-4">Browse by Category</h2>
+    <div class="row g-4">
+        <div class="col-6 col-md-4 col-lg-2">
+            <a href="@Url.Action("Index", "Shop", new { category = "bestsellers" })" class="text-decoration-none">
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h5>Bestsellers</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <a href="@Url.Action("Index", "Shop", new { category = "award-winners" })" class="text-decoration-none">
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h5>Award Winners</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <a href="@Url.Action("Index", "Shop", new { category = "new-releases" })" class="text-decoration-none">
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h5>New Releases</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <a href="@Url.Action("Index", "Shop", new { category = "new-arrivals" })" class="text-decoration-none">
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <h5>New Arrivals</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <a href="@Url.Action("Index", "Shop", new { category = "coming-soon" })" class="text-decoration-none">
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h5>Coming Soon</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <a href="@Url.Action("Index", "Shop")" class="text-decoration-none">
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h5>All Books</h5>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updateSort(sortValue) {
+            // Get current URL
+            var url = new URL(window.location.href);
+            
+            // Update or add sort parameter
+            url.searchParams.set('sortBy', sortValue);
+            
+            // Redirect to new URL
+            window.location.href = url.toString();
+        }
+    </script>
+}

@@ -25,7 +25,12 @@ namespace Bookbox.Controllers
         // GET: Profile/EditProfile
         public async Task<IActionResult> EditProfile()
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized("User identity could not be determined");
+            }
+
             var user = await _context.Users.FindAsync(userId);
 
             if (user == null)
@@ -60,7 +65,12 @@ namespace Bookbox.Controllers
                 return View(model);
             }
 
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized("User identity could not be determined");
+            }
+
             var user = await _context.Users.FindAsync(userId);
 
             if (user == null)
@@ -195,7 +205,12 @@ namespace Bookbox.Controllers
                 return View(model);
             }
 
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized("User identity could not be determined");
+            }
+
             var user = await _context.Users.FindAsync(userId);
 
             if (user == null)
