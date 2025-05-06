@@ -12,6 +12,7 @@ namespace Bookbox.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Address> Addresses { get; set; }
+        public DbSet<Book> Books { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,6 +38,13 @@ namespace Bookbox.Data
                       .WithMany(u => u.Addresses)
                       .HasForeignKey(e => e.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Book>(entity =>
+            {
+                entity.HasKey(e => e.BookId);
+                entity.Property(e => e.BookId).ValueGeneratedOnAdd();
+                entity.HasIndex(e => e.ISBN).IsUnique();
             });
         }
     }
