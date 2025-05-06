@@ -506,3 +506,5 @@ iv.bin
 key.bin
 .github
 /instructions
+.appsettings.json
+.appsettings.Development.json

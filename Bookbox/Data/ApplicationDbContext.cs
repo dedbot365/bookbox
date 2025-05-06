@@ -12,6 +12,7 @@ namespace Bookbox.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Address> Addresses { get; set; }
+        public DbSet<Book> Books { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,6 +37,19 @@ namespace Bookbox.Data
                 entity.HasOne(e => e.User)
                       .WithMany(u => u.Addresses)
                       .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Book>(entity =>
+            {
+                entity.HasKey(e => e.BookId);
+                entity.Property(e => e.BookId).ValueGeneratedOnAdd();
+                entity.HasIndex(e => e.ISBN).IsUnique();
+                
+                // Add relationship configuration for Book to User
+                entity.HasOne(b => b.User)
+                      .WithMany()  // User doesn't have a navigation property for books
+                      .HasForeignKey(b => b.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
         }
