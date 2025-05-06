@@ -1,15 +1,11 @@
-using System;
-using System.Threading.Tasks;
-using bookbox.Entities;
-using bookbox.DTOs;
+using Bookbox.Models;
 
-namespace bookbox.Services.Interfaces
+namespace Bookbox.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<Users> CreateUserAsync(Users user);
-        Task<int> GetActiveUsersCountAsync();
-        Task<(bool userExists, bool usernameExists, bool emailExists)> CheckUserExistsAsync(string username, string email);
-        Task<Users> AuthenticateAsync(string email, string password);
+        Task<User?> RegisterAsync(User user, string password, Address address);
+        Task<User?> LoginAsync(string usernameOrEmail, string password);
+        Task<bool> UserExistsAsync(string username, string email);
     }
 }

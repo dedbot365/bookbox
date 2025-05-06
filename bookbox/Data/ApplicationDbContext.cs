@@ -1,32 +1,43 @@
-﻿using bookbox.Entities;
+using Bookbox.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace bookbox.Data
+namespace Bookbox.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
         {
         }
-        
-        public DbSet<Users> Users { get; set; }
+
+        public DbSet<User> Users { get; set; }
         public DbSet<Address> Addresses { get; set; }
-        
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            base.OnConfiguring(optionsBuilder);
-        }
-        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
-            // Configure the one-to-many relationship
-            modelBuilder.Entity<Users>()
-                .HasMany(u => u.Addresses)
-                .WithOne(a => a.User)
-                .HasForeignKey(a => a.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure User entity
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.UserId);
+                entity.Property(e => e.UserId).ValueGeneratedOnAdd();
+                entity.HasIndex(e => e.Username).IsUnique();
+                entity.HasIndex(e => e.Email).IsUnique();
+            });
+
+            // Configure Address entity
+            modelBuilder.Entity<Address>(entity =>
+            {
+                entity.HasKey(e => e.AddressId);
+                entity.Property(e => e.AddressId).ValueGeneratedOnAdd();
+                
+                // Configure the relationship
+                entity.HasOne(e => e.User)
+                      .WithMany(u => u.Addresses)
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }
