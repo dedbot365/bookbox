@@ -59,6 +59,12 @@ namespace Bookbox.Controllers
                 new Claim(ClaimTypes.Role, role)
             };
 
+            // Add the image URL claim if it exists
+            if (!string.IsNullOrEmpty(user.ImageUrlText))
+            {
+                claims.Add(new Claim("ImageUrl", user.ImageUrlText));
+            }
+
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var authProperties = new AuthenticationProperties
             {
