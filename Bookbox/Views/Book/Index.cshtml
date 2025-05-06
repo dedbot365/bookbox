@@ -1,0 +1,154 @@
+@model IEnumerable<Bookbox.Models.Book>
+
+@{
+    ViewData["Title"] = "Book Management";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0 text-gray-800">Book Management</h1>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Book
+            </a>
+        }
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold">Book Inventory</h6>
+            <form asp-action="Search" method="get" class="d-flex">
+                <div class="input-group">
+                    <input type="text" name="searchTerm" class="form-control" 
+                           placeholder="Search books..." value="@ViewData["SearchTerm"]">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    @if (ViewData["SearchTerm"] != null)
+                    {
+                        <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+                    }
+                </div>
+            </form>
+        </div>
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="booksTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px">Cover</th>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Genre</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th style="width: 150px">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var book in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        @if (!string.IsNullOrEmpty(book.ImageUrl))
+                                        {
+                                            <img src="@book.ImageUrl" alt="@book.Title" style="height: 60px; max-width: 50px; object-fit: contain;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light text-center p-2">
+                                                <i class="fas fa-book text-secondary"></i>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>@book.Title</td>
+                                    <td>@book.Author</td>
+                                    <td>@book.Genre</td>
+                                    <td>$@book.Price.ToString("F2")</td>
+                                    <td>
+                                        <span class="badge @(book.Stock > 0 ? "bg-success" : "bg-danger") text-white">
+                                            @(book.Stock > 0 ? $"In Stock ({book.Stock})" : "Out of Stock")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="Details" asp-route-id="@book.BookId" 
+                                               class="btn btn-info" title="Details">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                            @if (User.IsInRole("Admin"))
+                                            {
+                                                <a asp-action="Edit" asp-route-id="@book.BookId" 
+                                                   class="btn btn-primary" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a asp-action="Delete" asp-route-id="@book.BookId" 
+                                                   class="btn btn-danger" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-book fa-4x text-muted mb-3"></i>
+                    <h4>No books found</h4>
+                    <p class="text-muted">
+                        @if (ViewData["SearchTerm"] != null)
+                        {
+                            <span>No books match the search term "@ViewData["SearchTerm"]"</span>
+                            <br />
+                            <a asp-action="Index" class="btn btn-outline-primary mt-3">Clear Search</a>
+                        }
+                        else
+                        {
+                            <span>No books have been added to the system yet.</span>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <br />
+                                <a asp-action="Create" class="btn btn-outline-primary mt-3">Add Your First Book</a>
+                            }
+                        }
+                    </p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#booksTable').DataTable({
+                "pageLength": 10,
+                "responsive": true
+            });
+        });
+    </script>
+}
