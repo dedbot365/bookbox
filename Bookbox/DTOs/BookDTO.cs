@@ -21,8 +21,7 @@ namespace Bookbox.DTOs
         public decimal Price { get; set; }
 
         [Required]
-        [StringLength(50)]
-        public string Format { get; set; } = string.Empty;
+        public Format Format { get; set; }
 
         [Required]
         [StringLength(100)]

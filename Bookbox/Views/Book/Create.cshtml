@@ -42,7 +42,9 @@
                         </div>
                         <div class="mb-3">
                             <label asp-for="Format" class="form-label">Format</label>
-                            <input asp-for="Format" class="form-control" />
+                            <select asp-for="Format" class="form-select" asp-items="Html.GetEnumSelectList<Bookbox.Constants.Format>()">
+                                <option value="">Select Format</option>
+                            </select>
                             <span asp-validation-for="Format" class="text-danger"></span>
                         </div>
                         <div class="mb-3">

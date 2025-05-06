@@ -27,8 +27,7 @@ namespace Bookbox.Models
         public decimal Price { get; set; }
 
         [Required]
-        [StringLength(50, ErrorMessage = "Format cannot exceed 50 characters")]
-        public string Format { get; set; } = string.Empty;
+        public Format Format { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "Publisher name cannot exceed 100 characters")]
