@@ -1,140 +1,299 @@
 @model IEnumerable<Bookbox.Models.Book>
 @inject Bookbox.Services.Interfaces.IDiscountService DiscountService
+
 @{
     ViewData["Title"] = "Book Management";
+    int currentPage = ViewData["CurrentPage"] != null ? (int)ViewData["CurrentPage"] : 1;
+    int totalPages = ViewData["TotalPages"] != null ? (int)ViewData["TotalPages"] : 1;
+    int totalItems = ViewData["TotalItems"] != null ? (int)ViewData["TotalItems"] : 0;
 }
 
-<div class="container-fluid mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0 text-gray-800">Book Management</h1>
-        @if (User.IsInRole("Admin"))
-        {
-            <a asp-action="Create" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Add New Book
-            </a>
-        }
-    </div>
-
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<div class="container-fluid mt-4 mb-5">
+    <div class="row">
+        <!-- Left Sidebar with Filters -->
+        <div class="col-lg-3">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Filters</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Index" method="get" id="filterForm">
+                        <!-- Search -->
+                        <div class="mb-3">
+                            <label for="searchTerm" class="form-label fw-bold">Search</label>
+                            <input type="text" class="form-control" id="searchTerm" name="searchTerm" 
+                                   placeholder="Title, author, ISBN..." value="@ViewData["SearchTerm"]">
+                        </div>
+                        
+                        <hr />
+                        
+                        <!-- Genre -->
+                        <div class="mb-3">
+                            <label for="genre" class="form-label fw-bold">Genre</label>
+                            <select class="form-select" id="genre" name="genre">
+                                <option value="">All Genres</option>
+                                @foreach (var genre in Enum.GetValues(typeof(Bookbox.Constants.Genre)))
+                                {
+                                    <option value="@genre" selected="@(ViewData["SelectedGenre"]?.ToString() == genre.ToString())">
+                                        @genre
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <!-- Format -->
+                        <div class="mb-3">
+                            <label for="format" class="form-label fw-bold">Format</label>
+                            <select class="form-select" id="format" name="format">
+                                <option value="">All Formats</option>
+                                @foreach (var format in Enum.GetValues(typeof(Bookbox.Constants.Format)))
+                                {
+                                    <option value="@format" selected="@(ViewData["SelectedFormat"]?.ToString() == format.ToString())">
+                                        @format
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <!-- Price Range -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Price Range</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <div class="input-group">
+                                        <span class="input-group-text">NPR</span>
+                                        <input type="number" class="form-control" name="minPrice" id="minPrice" 
+                                               placeholder="Min" min="0" step="0.01" value="@ViewData["MinPrice"]">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="input-group">
+                                        <span class="input-group-text">NPR</span>
+                                        <input type="number" class="form-control" name="maxPrice" id="maxPrice" 
+                                               placeholder="Max" min="0" step="0.01" value="@ViewData["MaxPrice"]">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Stock Status -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="inStock" name="inStock" value="true" 
+                                       @(ViewData["InStock"] != null && (bool)ViewData["InStock"] ? "checked" : "")>
+                                <label class="form-check-label" for="inStock">
+                                    In Stock Only
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter"></i> Apply Filters
+                            </button>
+                            <a href="@Url.Action("Index", "Book")" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Clear Filters
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Categories Menu -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Categories</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="@Url.Action("Index", "Book")" class="list-group-item list-group-item-action @(string.IsNullOrEmpty(ViewData["Category"]?.ToString()) ? "active" : "")">
+                        All Books
+                    </a>
+                    <a href="@Url.Action("Index", "Book", new { category = "bestsellers" })" class="list-group-item list-group-item-action @(ViewData["Category"]?.ToString() == "bestsellers" ? "active" : "")">
+                        Bestsellers
+                    </a>
+                    <a href="@Url.Action("Index", "Book", new { category = "award-winners" })" class="list-group-item list-group-item-action @(ViewData["Category"]?.ToString() == "award-winners" ? "active" : "")">
+                        Award Winners
+                    </a>
+                    <a href="@Url.Action("Index", "Book", new { category = "new-releases" })" class="list-group-item list-group-item-action @(ViewData["Category"]?.ToString() == "new-releases" ? "active" : "")">
+                        New Releases
+                    </a>
+                    <a href="@Url.Action("Index", "Book", new { category = "new-arrivals" })" class="list-group-item list-group-item-action @(ViewData["Category"]?.ToString() == "new-arrivals" ? "active" : "")">
+                        New Arrivals
+                    </a>
+                    <a href="@Url.Action("Index", "Book", new { category = "coming-soon" })" class="list-group-item list-group-item-action @(ViewData["Category"]?.ToString() == "coming-soon" ? "active" : "")">
+                        Coming Soon
+                    </a>
+                </div>
+            </div>
         </div>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold">Book Inventory</h6>
-            <form asp-action="Search" method="get" class="d-flex">
-                <div class="input-group">
-                    <input type="text" name="searchTerm" class="form-control" 
-                           placeholder="Search books..." value="@ViewData["SearchTerm"]">
-                    <button class="btn btn-primary" type="submit">
-                        <i class="fas fa-search fa-lg"></i>Search
-                    </button>
-                    @if (ViewData["SearchTerm"] != null)
+        
+        <!-- Main Content Area -->
+        <div class="col-lg-9">
+            <!-- Results Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Book Management</h1>
+                    @if (TempData["SuccessMessage"] != null)
                     {
-                        <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+                        <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                            @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    <p class="text-muted mt-2">
+                        @if (Model != null && Model.Any())
+                        {
+                            <span>Showing @Model.Count() book@(Model.Count() != 1 ? "s" : "")</span>
+                            @if (!string.IsNullOrEmpty(ViewData["SearchTerm"]?.ToString()))
+                            {
+                                <span>for "<strong>@ViewData["SearchTerm"]</strong>"</span>
+                            }
+                        }
+                    </p>
+                </div>
+                <div class="d-flex align-items-center">
+                    <label for="sortBy" class="me-2">Sort by:</label>
+                    <select id="sortBy" name="sortBy" class="form-select" style="width: auto;" onchange="updateSort(this.value)">
+                        <option value="newest" selected="@(ViewData["SortBy"]?.ToString() == "newest")">Newest Arrivals</option>
+                        <option value="bestselling" selected="@(ViewData["SortBy"]?.ToString() == "bestselling")">Bestselling</option>
+                        <option value="title" selected="@(ViewData["SortBy"]?.ToString() == "title")">Title (A-Z)</option>
+                        <option value="price_asc" selected="@(ViewData["SortBy"]?.ToString() == "price_asc")">Price (Low to High)</option>
+                        <option value="price_desc" selected="@(ViewData["SortBy"]?.ToString() == "price_desc")">Price (High to Low)</option>
+                    </select>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Create" class="btn btn-primary ms-3">
+                            <i class="fas fa-plus"></i> Add Book
+                        </a>
                     }
                 </div>
-            </form>
-        </div>
-        <div class="card-body">
+            </div>
+
+            <!-- Books Grid -->
             @if (Model != null && Model.Any())
             {
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="booksTable" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th style="width: 80px">Cover</th>
-                                <th>Title</th>
-                                <th>Author</th>
-                                <th>Genre</th>
-                                <th>Price</th>
-                                <th>Stock</th>
-                                <th style="width: 150px">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var book in Model)
-                            {
-                                <tr>
-                                    <td class="text-center">
-                                        @if (!string.IsNullOrEmpty(book.ImageUrl))
-                                        {
-                                            <img src="@book.ImageUrl" alt="@book.Title" style="height: 60px; max-width: 50px; object-fit: contain;" />
-                                        }
-                                        else
-                                        {
-                                            <div class="bg-light text-center p-2">
-                                                <i class="fas fa-book text-secondary"></i>
-                                            </div>
-                                        }
-                                    </td>
-                                    <td>@book.Title</td>
-                                    <td>@book.Author</td>
-                                    <td>@book.Genre</td>
-                                    <td>
-                                        @{
-                                            var bookDiscount = await DiscountService.GetActiveDiscountForBookAsync(book.BookId);
-                                            var discountedPrice = bookDiscount != null ? 
-                                                DiscountService.CalculateDiscountedPrice(book.Price, bookDiscount.DiscountPercentage) : book.Price;
-                                        }
-                                        
-                                        @if (bookDiscount != null)
-                                        {
-                                            <div>
-                                                <span class="text-muted"><s>NPR @book.Price.ToString("F2")</s></span>
-                                                <span class="text-danger">NPR @discountedPrice.ToString("F2")</span>
-                                                @if (bookDiscount?.EndDate != null)
-                                                {
-                                                    var daysRemaining = DiscountService.GetRemainingDays(bookDiscount.EndDate);
-                                                    if (daysRemaining > 0)
-                                                    {
-                                                        <span class="badge bg-warning ms-1">@daysRemaining days</span>
-                                                    }
-                                                }
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <span>NPR @book.Price.ToString("F2")</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        <span class="badge @(book.Stock > 0 ? "bg-success" : "bg-danger") text-white">
-                                            @(book.Stock > 0 ? $"In Stock ({book.Stock})" : "Out of Stock")
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <a asp-action="Details" asp-route-id="@book.BookId" 
-                                               class="btn btn-info" title="Details">
-                                                <i class="fas fa-info-circle"></i> Details
-                                            </a>
-                                            @if (User.IsInRole("Admin"))
+                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                    @foreach (var book in Model)
+                    {
+                        <div class="col">
+                            <div class="card h-100 book-card">
+                                <div class="row g-0">
+                                    <div class="col-md-4">
+                                        <div class="card-img-container h-100">
+                                            @if (!string.IsNullOrEmpty(book.ImageUrl))
                                             {
-                                                <a asp-action="Edit" asp-route-id="@book.BookId" 
-                                                   class="btn btn-primary" title="Edit">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </a>
+                                                <img src="@book.ImageUrl" class="img-fluid rounded-start" alt="@book.Title">
+                                            }
+                                            else
+                                            {
+                                                <div class="placeholder-image h-100">
+                                                    <i class="fas fa-book fa-3x text-secondary"></i>
+                                                </div>
                                             }
                                         </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="card-body">
+                                            <h5 class="card-title book-title">@book.Title</h5>
+                                            <p class="card-text book-author">by @book.Author</p>
+                                            <p class="card-text mb-1">
+                                                <span class="badge bg-secondary">@book.Genre</span>
+                                                <span class="badge bg-info">@book.Format</span>
+                                            </p>
+                                            
+                                            <div class="mb-2">
+                                                @{
+                                                    var bookDiscount = await DiscountService.GetActiveDiscountForBookAsync(book.BookId);
+                                                    var discountedPrice = bookDiscount != null ? 
+                                                        DiscountService.CalculateDiscountedPrice(book.Price, bookDiscount.DiscountPercentage) : book.Price;
+                                                    var daysRemaining = bookDiscount?.EndDate != null ? 
+                                                        DiscountService.GetRemainingDays(bookDiscount.EndDate) : -1;
+                                                }
+                                                
+                                                @if (bookDiscount != null)
+                                                {
+                                                    <div>
+                                                        <span class="text-muted"><s>NPR @book.Price.ToString("F2")</s></span>
+                                                        <span class="text-danger">NPR @discountedPrice.ToString("F2")</span>
+                                                        @if (daysRemaining > 0)
+                                                        {
+                                                            <span class="badge bg-warning ms-1">@daysRemaining days</span>
+                                                        }
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <span>NPR @book.Price.ToString("F2")</span>
+                                                }
+                                            </div>
+                                            
+                                            <p class="mb-1">
+                                                <span class="badge @(book.Stock > 0 ? "bg-success" : "bg-danger") text-white">
+                                                    @(book.Stock > 0 ? $"In Stock ({book.Stock})" : "Out of Stock")
+                                                </span>
+                                            </p>
+                                            
+                                            <div class="d-flex mt-2 gap-2">
+                                                <a asp-action="Details" asp-route-id="@book.BookId" 
+                                                   class="btn btn-sm btn-info" title="Details">
+                                                    <i class="fas fa-info-circle"></i> Details
+                                                </a>
+                                                @if (User.IsInRole("Admin"))
+                                                {
+                                                    <a asp-action="Edit" asp-route-id="@book.BookId" 
+                                                       class="btn btn-sm btn-primary" title="Edit">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                    <a asp-controller="Discount" asp-action="@(bookDiscount != null ? "Edit" : "Create")" 
+                                                       asp-route-id="@(bookDiscount?.DiscountId)" asp-route-bookId="@book.BookId"
+                                                       class="btn btn-sm @(bookDiscount != null ? "btn-warning" : "btn-success")">
+                                                        <i class="fas fa-tag"></i> @(bookDiscount != null ? "Edit Discount" : "Add Discount")
+                                                    </a>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
+                
+                <!-- Pagination -->
+                @if (totalPages > 1)
+                {
+                    <nav class="mt-4" aria-label="Book pagination">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <a class="page-link" href="@Url.Action("Index", "Book", new { page = currentPage - 1, searchTerm = ViewData["SearchTerm"], genre = ViewData["SelectedGenre"], format = ViewData["SelectedFormat"], minPrice = ViewData["MinPrice"], maxPrice = ViewData["MaxPrice"], sortBy = ViewData["SortBy"], category = ViewData["Category"] })">
+                                    Previous
+                                </a>
+                            </li>
+                            
+                            @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                            {
+                                <li class="page-item @(i == currentPage ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("Index", "Book", new { page = i, searchTerm = ViewData["SearchTerm"], genre = ViewData["SelectedGenre"], format = ViewData["SelectedFormat"], minPrice = ViewData["MinPrice"], maxPrice = ViewData["MaxPrice"], sortBy = ViewData["SortBy"], category = ViewData["Category"] })">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+                            
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link" href="@Url.Action("Index", "Book", new { page = currentPage + 1, searchTerm = ViewData["SearchTerm"], genre = ViewData["SelectedGenre"], format = ViewData["SelectedFormat"], minPrice = ViewData["MinPrice"], maxPrice = ViewData["MaxPrice"], sortBy = ViewData["SortBy"], category = ViewData["Category"] })">
+                                    Next
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
             }
             else
             {
@@ -142,7 +301,7 @@
                     <i class="fas fa-book fa-4x text-muted mb-3"></i>
                     <h4>No books found</h4>
                     <p class="text-muted">
-                        @if (ViewData["SearchTerm"] != null)
+                        @if (ViewData["SearchTerm"] != null || ViewData["SelectedGenre"] != null || ViewData["SelectedFormat"] != null)
                         {
                             <span>No books match the search term "@ViewData["SearchTerm"]"</span>
                             <br />
@@ -164,26 +323,17 @@
     </div>
 </div>
 
-<!--@section Scripts {
+@section Scripts {
     <script>
-        $(document).ready(function() {
-            $('#booksTable').DataTable({
-                "pageLength": 10,
-                "responsive": true
-            });
+        function updateSort(sortValue) {
+            // Get current URL
+            var url = new URL(window.location.href);
             
-            // Delete book confirmation - simplified version
-            $('.delete-book').click(function() {
-                const bookId = $(this).data('id');
-                const bookTitle = $(this).data('title');
-                
-                if (confirm(`Are you sure you want to delete "${bookTitle}"? This action cannot be undone.`)) {
-                    window.location.href = '@Url.Action("Delete", "Book")/' + bookId;
-                }
-            });
-        });
-    </script>-->
-    
-    <!-- Add anti-forgery token -->
-    @Html.AntiForgeryToken()
+            // Update or add sort parameter
+            url.searchParams.set('sortBy', sortValue);
+            
+            // Redirect to new URL
+            window.location.href = url.toString();
+        }
+    </script>
 }
