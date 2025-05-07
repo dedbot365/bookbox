@@ -24,5 +24,8 @@
         <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.11" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
     </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\images\Placeholder\" />
+  </ItemGroup>
 
 </Project>

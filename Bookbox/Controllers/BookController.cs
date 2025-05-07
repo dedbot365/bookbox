@@ -82,6 +82,7 @@ namespace Bookbox.Controllers
         }
 
         // GET: Book/Edit/5
+        [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Guid id)
         {
@@ -158,6 +159,7 @@ namespace Bookbox.Controllers
         }
 
         // GET: Book/Delete/5
+        [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
