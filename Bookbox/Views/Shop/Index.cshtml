@@ -3,9 +3,9 @@
 
 @{
     ViewData["Title"] = "Shop Books - " + ViewData["CategoryName"];
-    int currentPage = ViewData["CurrentPage"] != null ? (int)ViewData["CurrentPage"] : 1;
-    int totalPages = ViewData["TotalPages"] != null ? (int)ViewData["TotalPages"] : 1;
-    int totalItems = ViewData["TotalItems"] != null ? (int)ViewData["TotalItems"] : 0;
+    int currentPage = ViewData["CurrentPage"] != null ? Convert.ToInt32(ViewData["CurrentPage"]) : 1;
+    int totalPages = ViewData["TotalPages"] != null ? Convert.ToInt32(ViewData["TotalPages"]) : 1;
+    int totalItems = ViewData["TotalItems"] != null ? Convert.ToInt32(ViewData["TotalItems"]) : 0;
     
     // Create parameters for sidebar partial
     var sidebarParams = new Dictionary<string, object>
