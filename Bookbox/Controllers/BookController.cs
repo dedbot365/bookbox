@@ -145,8 +145,9 @@ namespace Bookbox.Controllers
                 Language = book.Language,
                 Awards = book.Awards,
                 PhysicalStock = book.PhysicalStock,
-                // ImageFile will be null here - can't map back from URL to file
-                UserId = book.UserId 
+                UserId = book.UserId,
+                IsComingSoon = book.IsComingSoon,
+                PublicationDate = book.PublicationDate
             };
 
             ViewData["CurrentImageUrl"] = book.ImageUrl;
