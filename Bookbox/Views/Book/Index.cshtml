@@ -83,7 +83,7 @@
                                     <td>@book.Title</td>
                                     <td>@book.Author</td>
                                     <td>@book.Genre</td>
-                                    <td>$@book.Price.ToString("F2")</td>
+                                    <td>NPR @book.Price.ToString("F2")</td>
                                     <td>
                                         <span class="badge @(book.Stock > 0 ? "bg-success" : "bg-danger") text-white">
                                             @(book.Stock > 0 ? $"In Stock ({book.Stock})" : "Out of Stock")

@@ -114,7 +114,7 @@
                                 <span class="badge bg-info">@book.Format</span>
                             </p>
                             <div class="d-flex justify-content-between align-items-center mt-2">
-                                <span class="book-price">$@book.Price.ToString("0.00")</span>
+                                <span class="book-price">NPR @book.Price.ToString("0.00")</span>
                                 <span class="badge @(book.Stock > 0 ? "bg-success" : "bg-danger")">
                                     @(book.Stock > 0 ? "In Stock" : "Out of Stock")
                                 </span>

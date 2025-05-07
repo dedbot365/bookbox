@@ -54,8 +54,8 @@
                         <div class="col-md-9">
                             @if (discount != null)
                             {
-                                <span class="text-muted"><s>$@Model.Price.ToString("F2")</s></span>
-                                <span class="text-danger">$@discountedPrice.ToString("F2")</span>
+                                <span class="text-muted"><s>NPR @Model.Price.ToString("F2")</s></span>
+                                <span class="text-danger">NPR @discountedPrice.ToString("F2")</span>
                                 @if (daysRemaining > 0)
                                 {
                                     <span class="badge bg-warning ms-2">@daysRemaining days remaining</span>
@@ -63,7 +63,7 @@
                             }
                             else
                             {
-                                <span>$@Model.Price.ToString("F2")</span>
+                                <span>NPR @Model.Price.ToString("F2")</span>
                             }
                         </div>
                     </div>
