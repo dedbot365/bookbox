@@ -2,9 +2,9 @@
 
 @{
     ViewData["Title"] = "Shop Books - " + ViewData["CategoryName"];
-    int currentPage = (int)ViewData["CurrentPage"];
-    int totalPages = (int)ViewData["TotalPages"];
-    int totalItems = (int)ViewData["TotalItems"];
+    int currentPage = ViewData["CurrentPage"] != null ? (int)ViewData["CurrentPage"] : 1;
+    int totalPages = ViewData["TotalPages"] != null ? (int)ViewData["TotalPages"] : 1;
+    int totalItems = ViewData["TotalItems"] != null ? (int)ViewData["TotalItems"] : 0;
 }
 
 <div class="container-fluid mt-4 mb-5">

@@ -18,22 +18,18 @@ namespace Bookbox.Services
             _context = context;
         }
 
-        public async Task<Discount> GetDiscountByIdAsync(Guid id)
+        public async Task<Discount?> GetDiscountByIdAsync(Guid id)
         {
             return await _context.Discounts
                 .Include(d => d.Book)
                 .FirstOrDefaultAsync(d => d.DiscountId == id);
         }
 
-        public async Task<Discount> GetActiveDiscountForBookAsync(Guid bookId)
+        public async Task<Discount?> GetActiveDiscountForBookAsync(Guid bookId)
         {
-            var today = DateTime.UtcNow;
             return await _context.Discounts
-                .Where(d => d.BookId == bookId && 
-                           d.IsOnSale && 
-                           d.StartDate <= today && 
-                           (!d.EndDate.HasValue || d.EndDate >= today))
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(d => d.BookId == bookId && d.IsOnSale && 
+                            (d.EndDate == null || d.EndDate > DateTime.UtcNow));
         }
 
         public async Task<IEnumerable<Discount>> GetAllActiveDiscountsAsync()
