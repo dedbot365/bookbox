@@ -20,7 +20,14 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0; /* Remove the margin-bottom */
+}
+
+main {
+  flex: 1; /* This makes the main content expand to push footer down */
 }
 
 /* Book Card Styling */

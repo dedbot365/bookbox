@@ -7,8 +7,8 @@ namespace Bookbox.Services.Interfaces
 {
     public interface IDiscountService
     {
-        Task<Discount> GetDiscountByIdAsync(Guid id);
-        Task<Discount> GetActiveDiscountForBookAsync(Guid bookId);
+        Task<Discount?> GetDiscountByIdAsync(Guid id);
+        Task<Discount?> GetActiveDiscountForBookAsync(Guid bookId);
         Task<IEnumerable<Discount>> GetAllActiveDiscountsAsync();
         Task<bool> CreateDiscountAsync(Discount discount);
         Task<bool> UpdateDiscountAsync(Discount discount);
