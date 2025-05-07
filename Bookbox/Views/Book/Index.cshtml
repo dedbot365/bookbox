@@ -18,6 +18,18 @@
                 </div>
                 <div class="card-body">
                     <form asp-action="Index" method="get" id="filterForm">
+                        <!-- Preserve category in form -->
+                        @if (!string.IsNullOrEmpty(ViewData["Category"]?.ToString()))
+                        {
+                            <input type="hidden" name="category" value="@ViewData["Category"]" />
+                        }
+                        
+                        <!-- Preserve sorting -->
+                        @if (!string.IsNullOrEmpty(ViewData["SortBy"]?.ToString()))
+                        {
+                            <input type="hidden" name="sortBy" value="@ViewData["SortBy"]" />
+                        }
+                        
                         <!-- Search -->
                         <div class="mb-3">
                             <label for="searchTerm" class="form-label fw-bold">Search</label>
@@ -91,7 +103,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-filter"></i> Apply Filters
                             </button>
-                            <a href="@Url.Action("Index", "Book")" class="btn btn-outline-secondary">
+                            <a href="@Url.Action("Index", "Book", new { category = ViewData["Category"], sortBy = ViewData["SortBy"] })" class="btn btn-outline-secondary">
                                 <i class="fas fa-times"></i> Clear Filters
                             </a>
                         </div>
@@ -331,6 +343,12 @@
             
             // Update or add sort parameter
             url.searchParams.set('sortBy', sortValue);
+            
+            // Make sure we preserve category
+            var category = '@ViewData["Category"]';
+            if (category) {
+                url.searchParams.set('category', category);
+            }
             
             // Redirect to new URL
             window.location.href = url.toString();

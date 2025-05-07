@@ -4,6 +4,7 @@ using Bookbox.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Bookbox.Constants;  // Add this import for Genre and Format enums
 
 namespace Bookbox.Controllers
 {
@@ -17,10 +18,117 @@ namespace Bookbox.Controllers
         }
 
         // GET: Book
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchTerm = "", string genre = "", string format = "", 
+            decimal? minPrice = null, decimal? maxPrice = null, bool? inStock = null, string sortBy = "newest", 
+            string category = "", int page = 1)
         {
-            var books = await _bookService.GetAllBooksAsync();
-            return View(books);
+            int pageSize = 12; // Match the page size used in ShopController
+            
+            // Get all books for filtering
+            var allBooks = await _bookService.GetAllBooksAsync();
+            
+            // Apply filters
+            var filteredBooks = allBooks.AsQueryable();
+            
+            // Text search
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                filteredBooks = filteredBooks.Where(b => 
+                    b.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) || 
+                    b.Author.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    b.ISBN.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    b.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                    
+                ViewData["SearchTerm"] = searchTerm;
+            }
+            
+            // Genre filter
+            if (!string.IsNullOrWhiteSpace(genre) && Enum.TryParse<Genre>(genre, out var genreEnum))
+            {
+                filteredBooks = filteredBooks.Where(b => b.Genre == genreEnum);
+                ViewData["SelectedGenre"] = genre;
+            }
+            
+            // Format filter
+            if (!string.IsNullOrWhiteSpace(format) && Enum.TryParse<Format>(format, out var formatEnum))
+            {
+                filteredBooks = filteredBooks.Where(b => b.Format == formatEnum);
+                ViewData["SelectedFormat"] = format;
+            }
+            
+            // Price range
+            if (minPrice.HasValue)
+            {
+                filteredBooks = filteredBooks.Where(b => b.Price >= minPrice.Value);
+                ViewData["MinPrice"] = minPrice.Value;
+            }
+            
+            if (maxPrice.HasValue)
+            {
+                filteredBooks = filteredBooks.Where(b => b.Price <= maxPrice.Value);
+                ViewData["MaxPrice"] = maxPrice.Value;
+            }
+            
+            // Stock availability
+            if (inStock.HasValue && inStock.Value)
+            {
+                filteredBooks = filteredBooks.Where(b => b.Stock > 0);
+                ViewData["InStock"] = true;
+            }
+
+            // Category filters for special collections
+            ViewData["Category"] = category;
+            
+            switch (category)
+            {
+                case "bestsellers":
+                    filteredBooks = filteredBooks.OrderByDescending(b => b.SalesCount).Take(50);
+                    break;
+                case "award-winners":
+                    filteredBooks = filteredBooks.Where(b => !string.IsNullOrEmpty(b.Awards));
+                    break;
+                case "new-releases":
+                    DateTime threeMonthsAgo = DateTime.Now.AddMonths(-3);
+                    filteredBooks = filteredBooks.Where(b => b.PublicationDate >= threeMonthsAgo);
+                    break;
+                case "new-arrivals":
+                    DateTime oneMonthAgo = DateTime.Now.AddMonths(-1);
+                    filteredBooks = filteredBooks.Where(b => b.ArrivalDate >= oneMonthAgo);
+                    break;
+                case "coming-soon":
+                    filteredBooks = filteredBooks.Where(b => b.IsComingSoon);
+                    break;
+            }
+            
+            // Apply sorting
+            filteredBooks = sortBy switch
+            {
+                "price_asc" => filteredBooks.OrderBy(b => b.Price),
+                "price_desc" => filteredBooks.OrderByDescending(b => b.Price),
+                "title" => filteredBooks.OrderBy(b => b.Title),
+                "bestselling" => filteredBooks.OrderByDescending(b => b.SalesCount),
+                _ => filteredBooks.OrderByDescending(b => b.ArrivalDate) // Default: newest
+            };
+            
+            ViewData["SortBy"] = sortBy;
+            
+            // Pagination
+            int totalItems = filteredBooks.Count();
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            
+            if (page < 1) page = 1;
+            if (page > totalPages && totalPages > 0) page = totalPages;
+            
+            var paginatedBooks = filteredBooks
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+            
+            ViewData["CurrentPage"] = page;
+            ViewData["TotalPages"] = totalPages;
+            ViewData["TotalItems"] = totalItems;
+            
+            return View(paginatedBooks);
         }
 
         // GET: Book/Details/5
