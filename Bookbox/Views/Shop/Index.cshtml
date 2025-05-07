@@ -1,4 +1,5 @@
 @model IEnumerable<Bookbox.Models.Book>
+@inject Bookbox.Services.Interfaces.IDiscountService DiscountService
 
 @{
     ViewData["Title"] = "Shop Books - " + ViewData["CategoryName"];
@@ -187,11 +188,35 @@
                                         <span class="badge bg-info">@book.Format</span>
                                     </p>
                                     <div class="d-flex justify-content-between align-items-center mt-2">
-                                        <span class="book-price">NPR @book.Price.ToString("0.00")</span>
+                                        @{
+                                            var bookDiscount = await DiscountService.GetActiveDiscountForBookAsync(book.BookId);
+                                            var discountedPrice = bookDiscount != null ? 
+                                                DiscountService.CalculateDiscountedPrice(book.Price, bookDiscount.DiscountPercentage) : book.Price;
+                                            var daysRemaining = bookDiscount?.EndDate != null ? 
+                                                DiscountService.GetRemainingDays(bookDiscount.EndDate) : -1;
+                                        }
+                                        
+                                        @if (bookDiscount != null)
+                                        {
+                                            <div>
+                                                <span class="text-muted"><s>NPR @book.Price.ToString("0.00")</s></span>
+                                                <span class="book-price text-danger">NPR @discountedPrice.ToString("0.00")</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="book-price">NPR @book.Price.ToString("0.00")</span>
+                                        }
                                         <span class="badge @(book.Stock > 0 ? "bg-success" : "bg-danger")">
                                             @(book.Stock > 0 ? "In Stock" : "Out of Stock")
                                         </span>
                                     </div>
+                                    @if (bookDiscount != null && daysRemaining > 0)
+                                    {
+                                        <div class="mt-1">
+                                            <span class="badge bg-warning">Sale ends in @daysRemaining days</span>
+                                        </div>
+                                    }
                                 </div>
                                 <div class="card-footer bg-white border-top-0">
                                     <div class="d-grid gap-2">

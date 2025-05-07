@@ -1,5 +1,5 @@
 @model IEnumerable<Bookbox.Models.Book>
-
+@inject Bookbox.Services.Interfaces.IDiscountService DiscountService
 @{
     ViewData["Title"] = "Book Management";
 }
@@ -83,7 +83,33 @@
                                     <td>@book.Title</td>
                                     <td>@book.Author</td>
                                     <td>@book.Genre</td>
-                                    <td>NPR @book.Price.ToString("F2")</td>
+                                    <td>
+                                        @{
+                                            var bookDiscount = await DiscountService.GetActiveDiscountForBookAsync(book.BookId);
+                                            var discountedPrice = bookDiscount != null ? 
+                                                DiscountService.CalculateDiscountedPrice(book.Price, bookDiscount.DiscountPercentage) : book.Price;
+                                        }
+                                        
+                                        @if (bookDiscount != null)
+                                        {
+                                            <div>
+                                                <span class="text-muted"><s>NPR @book.Price.ToString("F2")</s></span>
+                                                <span class="text-danger">NPR @discountedPrice.ToString("F2")</span>
+                                                @if (bookDiscount?.EndDate != null)
+                                                {
+                                                    var daysRemaining = DiscountService.GetRemainingDays(bookDiscount.EndDate);
+                                                    if (daysRemaining > 0)
+                                                    {
+                                                        <span class="badge bg-warning ms-1">@daysRemaining days</span>
+                                                    }
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span>NPR @book.Price.ToString("F2")</span>
+                                        }
+                                    </td>
                                     <td>
                                         <span class="badge @(book.Stock > 0 ? "bg-success" : "bg-danger") text-white">
                                             @(book.Stock > 0 ? $"In Stock ({book.Stock})" : "Out of Stock")
