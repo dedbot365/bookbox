@@ -10,10 +10,12 @@ namespace Bookbox.Controllers
     public class ShopController : Controller
     {
         private readonly IBookService _bookService;
+        private readonly IBookFilterService _filterService;
 
-        public ShopController(IBookService bookService)
+        public ShopController(IBookService bookService, IBookFilterService filterService)
         {
             _bookService = bookService;
+            _filterService = filterService;
         }
 
         public async Task<IActionResult> Index(string searchTerm = "", string genre = "", string format = "", 
@@ -25,115 +27,16 @@ namespace Bookbox.Controllers
             // Get all books for filtering
             var allBooks = await _bookService.GetAllBooksAsync();
             
-            // Apply filters
+            // Apply filters through the filter service
             var filteredBooks = allBooks.AsQueryable();
+            filteredBooks = _filterService.ApplyFilters(filteredBooks, ViewData, searchTerm, genre, format, publisher, language, minPrice, maxPrice, inStock);
             
-            // Text search
-            if (!string.IsNullOrWhiteSpace(searchTerm))
-            {
-                filteredBooks = filteredBooks.Where(b => 
-                    b.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) || 
-                    b.Author.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    b.ISBN.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    b.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
-                    
-                ViewData["SearchTerm"] = searchTerm;
-            }
-            
-            // Genre filter
-            if (!string.IsNullOrWhiteSpace(genre) && Enum.TryParse<Genre>(genre, out var genreEnum))
-            {
-                filteredBooks = filteredBooks.Where(b => b.Genre == genreEnum);
-                ViewData["SelectedGenre"] = genre;
-            }
-            
-            // Format filter
-            if (!string.IsNullOrWhiteSpace(format) && Enum.TryParse<Format>(format, out var formatEnum))
-            {
-                filteredBooks = filteredBooks.Where(b => b.Format == formatEnum);
-                ViewData["SelectedFormat"] = format;
-            }
-            
-            // Publisher filter
-            if (!string.IsNullOrWhiteSpace(publisher))
-            {
-                filteredBooks = filteredBooks.Where(b => b.Publisher.Contains(publisher, StringComparison.OrdinalIgnoreCase));
-                ViewData["SelectedPublisher"] = publisher;
-            }
-            
-            // Language filter
-            if (!string.IsNullOrWhiteSpace(language))
-            {
-                filteredBooks = filteredBooks.Where(b => b.Language.Equals(language, StringComparison.OrdinalIgnoreCase));
-                ViewData["SelectedLanguage"] = language;
-            }
-            
-            // Price range
-            if (minPrice.HasValue)
-            {
-                filteredBooks = filteredBooks.Where(b => b.Price >= minPrice.Value);
-                ViewData["MinPrice"] = minPrice.Value;
-            }
-            
-            if (maxPrice.HasValue)
-            {
-                filteredBooks = filteredBooks.Where(b => b.Price <= maxPrice.Value);
-                ViewData["MaxPrice"] = maxPrice.Value;
-            }
-            
-            // Stock availability
-            if (inStock.HasValue && inStock.Value)
-            {
-                filteredBooks = filteredBooks.Where(b => b.Stock > 0);
-                ViewData["InStock"] = true;
-            }
-
-            // Category filters for special collections
+            // Category filters
             string category = Request.Query["category"].ToString();
-            ViewData["Category"] = category;
-            
-            switch (category)
-            {
-                case "bestsellers":
-                    filteredBooks = filteredBooks.OrderByDescending(b => b.SalesCount).Take(50);
-                    ViewData["CategoryName"] = "Bestsellers";
-                    break;
-                case "award-winners":
-                    filteredBooks = filteredBooks.Where(b => !string.IsNullOrEmpty(b.Awards));
-                    ViewData["CategoryName"] = "Award Winners";
-                    break;
-                case "new-releases":
-                    DateTime threeMonthsAgo = DateTime.Now.AddMonths(-3);
-                    filteredBooks = filteredBooks.Where(b => b.PublicationDate >= threeMonthsAgo);
-                    ViewData["CategoryName"] = "New Releases";
-                    break;
-                case "new-arrivals":
-                    DateTime oneMonthAgo = DateTime.Now.AddMonths(-1);
-                    filteredBooks = filteredBooks.Where(b => b.ArrivalDate >= oneMonthAgo);
-                    ViewData["CategoryName"] = "New Arrivals";
-                    break;
-                case "coming-soon":
-                    filteredBooks = filteredBooks.Where(b => b.IsComingSoon);
-                    ViewData["CategoryName"] = "Coming Soon";
-                    break;
-                default:
-                    ViewData["CategoryName"] = "All Books";
-                    break;
-            }
+            filteredBooks = _filterService.ApplyCategory(filteredBooks, ViewData, category);
             
             // Apply sorting
-            filteredBooks = sortBy switch
-            {
-                "price_asc" => filteredBooks.OrderBy(b => b.Price),
-                "price_desc" => filteredBooks.OrderByDescending(b => b.Price),
-                "title" => filteredBooks.OrderBy(b => b.Title),
-                "author" => filteredBooks.OrderBy(b => b.Author),
-                "bestselling" => filteredBooks.OrderByDescending(b => b.SalesCount),
-                "publication_date" => filteredBooks.OrderByDescending(b => b.PublicationDate),
-                _ => filteredBooks.OrderByDescending(b => b.ArrivalDate) // Default: newest
-            };
-            
-            ViewData["SortBy"] = sortBy;
+            filteredBooks = _filterService.ApplySorting(filteredBooks, ViewData, sortBy);
             
             // Pagination
             int totalItems = filteredBooks.Count();

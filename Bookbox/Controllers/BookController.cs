@@ -4,17 +4,22 @@ using Bookbox.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Bookbox.Constants;  // Add this import for Genre and Format enums
+using Bookbox.Constants;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Bookbox.Controllers
 {
     public class BookController : Controller
     {
         private readonly IBookService _bookService;
+        private readonly IBookFilterService _filterService;
 
-        public BookController(IBookService bookService)
+        public BookController(IBookService bookService, IBookFilterService filterService)
         {
             _bookService = bookService;
+            _filterService = filterService;
         }
 
         // GET: Book
@@ -22,95 +27,20 @@ namespace Bookbox.Controllers
             decimal? minPrice = null, decimal? maxPrice = null, bool? inStock = null, string sortBy = "newest", 
             string category = "", int page = 1)
         {
-            int pageSize = 12; // Match the page size used in ShopController
+            int pageSize = 12;
             
             // Get all books for filtering
             var allBooks = await _bookService.GetAllBooksAsync();
             
-            // Apply filters
+            // Apply filters through the filter service
             var filteredBooks = allBooks.AsQueryable();
+            filteredBooks = _filterService.ApplyFilters(filteredBooks, ViewData, searchTerm, genre, format, null, null, minPrice, maxPrice, inStock);
             
-            // Text search
-            if (!string.IsNullOrWhiteSpace(searchTerm))
-            {
-                filteredBooks = filteredBooks.Where(b => 
-                    b.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) || 
-                    b.Author.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    b.ISBN.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    b.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
-                    
-                ViewData["SearchTerm"] = searchTerm;
-            }
-            
-            // Genre filter
-            if (!string.IsNullOrWhiteSpace(genre) && Enum.TryParse<Genre>(genre, out var genreEnum))
-            {
-                filteredBooks = filteredBooks.Where(b => b.Genre == genreEnum);
-                ViewData["SelectedGenre"] = genre;
-            }
-            
-            // Format filter
-            if (!string.IsNullOrWhiteSpace(format) && Enum.TryParse<Format>(format, out var formatEnum))
-            {
-                filteredBooks = filteredBooks.Where(b => b.Format == formatEnum);
-                ViewData["SelectedFormat"] = format;
-            }
-            
-            // Price range
-            if (minPrice.HasValue)
-            {
-                filteredBooks = filteredBooks.Where(b => b.Price >= minPrice.Value);
-                ViewData["MinPrice"] = minPrice.Value;
-            }
-            
-            if (maxPrice.HasValue)
-            {
-                filteredBooks = filteredBooks.Where(b => b.Price <= maxPrice.Value);
-                ViewData["MaxPrice"] = maxPrice.Value;
-            }
-            
-            // Stock availability
-            if (inStock.HasValue && inStock.Value)
-            {
-                filteredBooks = filteredBooks.Where(b => b.Stock > 0);
-                ViewData["InStock"] = true;
-            }
-
-            // Category filters for special collections
-            ViewData["Category"] = category;
-            
-            switch (category)
-            {
-                case "bestsellers":
-                    filteredBooks = filteredBooks.OrderByDescending(b => b.SalesCount).Take(50);
-                    break;
-                case "award-winners":
-                    filteredBooks = filteredBooks.Where(b => !string.IsNullOrEmpty(b.Awards));
-                    break;
-                case "new-releases":
-                    DateTime threeMonthsAgo = DateTime.Now.AddMonths(-3);
-                    filteredBooks = filteredBooks.Where(b => b.PublicationDate >= threeMonthsAgo);
-                    break;
-                case "new-arrivals":
-                    DateTime oneMonthAgo = DateTime.Now.AddMonths(-1);
-                    filteredBooks = filteredBooks.Where(b => b.ArrivalDate >= oneMonthAgo);
-                    break;
-                case "coming-soon":
-                    filteredBooks = filteredBooks.Where(b => b.IsComingSoon);
-                    break;
-            }
+            // Category filters
+            filteredBooks = _filterService.ApplyCategory(filteredBooks, ViewData, category);
             
             // Apply sorting
-            filteredBooks = sortBy switch
-            {
-                "price_asc" => filteredBooks.OrderBy(b => b.Price),
-                "price_desc" => filteredBooks.OrderByDescending(b => b.Price),
-                "title" => filteredBooks.OrderBy(b => b.Title),
-                "bestselling" => filteredBooks.OrderByDescending(b => b.SalesCount),
-                _ => filteredBooks.OrderByDescending(b => b.ArrivalDate) // Default: newest
-            };
-            
-            ViewData["SortBy"] = sortBy;
+            filteredBooks = _filterService.ApplySorting(filteredBooks, ViewData, sortBy);
             
             // Pagination
             int totalItems = filteredBooks.Count();
