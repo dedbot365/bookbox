@@ -15,8 +15,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Register services
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IAuthService, AuthService>(); // Add this line
-builder.Services.AddScoped<IBookService, BookService>(); // Add this line with your other service registrations
+builder.Services.AddScoped<IAuthService, AuthService>(); 
+builder.Services.AddScoped<IBookService, BookService>(); 
+builder.Services.AddScoped<IDiscountService, DiscountService>();
 
 // Authentication and authorization services
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

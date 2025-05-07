@@ -1,19 +1,16 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Bookbox.Models
+namespace Bookbox.DTOs
 {
-    public class Discount
+    public class DiscountDTO
     {
-        [Key]
-        public Guid DiscountId { get; set; }
+        public Guid? DiscountId { get; set; }
         
         [Required]
         public Guid BookId { get; set; }
         
-        [ForeignKey("BookId")]
-        public Book? Book { get; set; }
+        public string? BookTitle { get; set; }
         
         [Required]
         [Range(1, 90, ErrorMessage = "Discount percentage must be between 1 and 90")]

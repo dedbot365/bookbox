@@ -1,7 +1,15 @@
 @model Bookbox.Models.Book
-
+@inject Bookbox.Services.Interfaces.IDiscountService DiscountService
 @{
-    ViewData["Title"] = "Book Details";
+    ViewData["Title"] = Model.Title;
+    var discount = await DiscountService.GetActiveDiscountForBookAsync(Model.BookId);
+    var isAdmin = User.IsInRole("Admin");
+    var discountedPrice = discount != null ? 
+        DiscountService.CalculateDiscountedPrice(Model.Price, discount.DiscountPercentage) : 
+        Model.Price;
+    var daysRemaining = discount?.EndDate != null ? 
+        DiscountService.GetRemainingDays(discount.EndDate) : 
+        -1;
 }
 
 <div class="container-fluid mt-4">
@@ -41,9 +49,23 @@
                         <div class="col-md-9">@Model.Genre</div>
                     </div>
                     
-                    <div class="row mb-3">
+                    <div class="row mb-2">
                         <div class="col-md-3 fw-bold">Price:</div>
-                        <div class="col-md-9">$@Model.Price.ToString("F2")</div>
+                        <div class="col-md-9">
+                            @if (discount != null)
+                            {
+                                <span class="text-muted"><s>$@Model.Price.ToString("F2")</s></span>
+                                <span class="text-danger">$@discountedPrice.ToString("F2")</span>
+                                @if (daysRemaining > 0)
+                                {
+                                    <span class="badge bg-warning ms-2">@daysRemaining days remaining</span>
+                                }
+                            }
+                            else
+                            {
+                                <span>$@Model.Price.ToString("F2")</span>
+                            }
+                        </div>
                     </div>
                     
                     <div class="row mb-3">
@@ -87,6 +109,24 @@
                             <p class="text-justify">@Model.Description</p>
                         </div>
                     </div>
+                    
+                    @if (isAdmin)
+                    {
+                        <div class="mt-3">
+                            @if (discount != null)
+                            {
+                                <a asp-controller="Discount" asp-action="Edit" asp-route-id="@discount.DiscountId" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-tag"></i> Edit Discount
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Discount" asp-action="Create" asp-route-bookId="@Model.BookId" class="btn btn-sm btn-success">
+                                    <i class="bi bi-tag"></i> Add Discount
+                                </a>
+                            }
+                        </div>
+                    }
                 </div>
             </div>
         </div>
