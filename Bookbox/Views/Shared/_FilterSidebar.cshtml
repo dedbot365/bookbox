@@ -1,0 +1,142 @@
+@model Dictionary<string, object>
+
+@{
+    // Extract parameters from model
+    string controller = Model["Controller"].ToString();
+    string category = Model["Category"]?.ToString();
+    string sortBy = Model["SortBy"]?.ToString();
+    string searchTerm = Model["SearchTerm"]?.ToString();
+    string selectedGenre = Model["SelectedGenre"]?.ToString();
+    string selectedFormat = Model["SelectedFormat"]?.ToString(); 
+    decimal? minPrice = Model["MinPrice"] as decimal?;
+    decimal? maxPrice = Model["MaxPrice"] as decimal?;
+    bool? inStock = Model["InStock"] as bool?;
+    bool showAdminCategories = Model.ContainsKey("ShowAdminCategories") ? (bool)Model["ShowAdminCategories"] : false;
+}
+
+<!-- Filter Card -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Filters</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Index" asp-controller="@controller" method="get" id="filterForm">
+            <!-- Preserve category in form -->
+            @if (!string.IsNullOrEmpty(category))
+            {
+                <input type="hidden" name="category" value="@category" />
+            }
+            
+            <!-- Preserve sorting -->
+            @if (!string.IsNullOrEmpty(sortBy))
+            {
+                <input type="hidden" name="sortBy" value="@sortBy" />
+            }
+            
+            <!-- Search -->
+            <div class="mb-3">
+                <label for="searchTerm" class="form-label fw-bold">Search</label>
+                <input type="text" class="form-control" id="searchTerm" name="searchTerm" 
+                       placeholder="Title, author, ISBN..." value="@searchTerm">
+            </div>
+            
+            <hr />
+            
+            <!-- Genre -->
+            <div class="mb-3">
+                <label for="genre" class="form-label fw-bold">Genre</label>
+                <select class="form-select" id="genre" name="genre">
+                    <option value="">All Genres</option>
+                    @foreach (var genre in Enum.GetValues(typeof(Bookbox.Constants.Genre)))
+                    {
+                        <option value="@genre" selected="@(selectedGenre == genre.ToString())">
+                            @genre
+                        </option>
+                    }
+                </select>
+            </div>
+            
+            <!-- Format -->
+            <div class="mb-3">
+                <label for="format" class="form-label fw-bold">Format</label>
+                <select class="form-select" id="format" name="format">
+                    <option value="">All Formats</option>
+                    @foreach (var format in Enum.GetValues(typeof(Bookbox.Constants.Format)))
+                    {
+                        <option value="@format" selected="@(selectedFormat == format.ToString())">
+                            @format
+                        </option>
+                    }
+                </select>
+            </div>
+            
+            <!-- Price Range -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">Price Range</label>
+                <div class="row g-2">
+                    <div class="col">
+                        <div class="input-group">
+                            <span class="input-group-text">NPR</span>
+                            <input type="number" class="form-control" name="minPrice" id="minPrice" 
+                                   placeholder="Min" min="0" step="0.01" value="@minPrice">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="input-group">
+                            <span class="input-group-text">NPR</span>
+                            <input type="number" class="form-control" name="maxPrice" id="maxPrice" 
+                                   placeholder="Max" min="0" step="0.01" value="@maxPrice">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stock Status -->
+            <div class="mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="inStock" name="inStock" value="true" 
+                           @(inStock == true ? "checked" : "")>
+                    <label class="form-check-label" for="inStock">
+                        In Stock Only
+                    </label>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-filter"></i> Apply Filters
+                </button>
+                <a href="@Url.Action("Index", controller, new { category, sortBy })" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i> Clear Filters
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Categories Menu -->
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Categories</h5>
+    </div>
+    <div class="list-group list-group-flush">
+        <a href="@Url.Action("Index", controller)" class="list-group-item list-group-item-action @(string.IsNullOrEmpty(category) ? "active" : "")">
+            All Books
+        </a>
+        <a href="@Url.Action("Index", controller, new { category = "bestsellers" })" class="list-group-item list-group-item-action @(category == "bestsellers" ? "active" : "")">
+            Bestsellers
+        </a>
+        <a href="@Url.Action("Index", controller, new { category = "award-winners" })" class="list-group-item list-group-item-action @(category == "award-winners" ? "active" : "")">
+            Award Winners
+        </a>
+        <a href="@Url.Action("Index", controller, new { category = "new-releases" })" class="list-group-item list-group-item-action @(category == "new-releases" ? "active" : "")">
+            New Releases
+        </a>
+        <a href="@Url.Action("Index", controller, new { category = "new-arrivals" })" class="list-group-item list-group-item-action @(category == "new-arrivals" ? "active" : "")">
+            New Arrivals
+        </a>
+        <a href="@Url.Action("Index", controller, new { category = "coming-soon" })" class="list-group-item list-group-item-action @(category == "coming-soon" ? "active" : "")">
+            Coming Soon
+        </a>
+    </div>
+</div>

@@ -6,137 +6,27 @@
     int currentPage = ViewData["CurrentPage"] != null ? (int)ViewData["CurrentPage"] : 1;
     int totalPages = ViewData["TotalPages"] != null ? (int)ViewData["TotalPages"] : 1;
     int totalItems = ViewData["TotalItems"] != null ? (int)ViewData["TotalItems"] : 0;
+    
+    // Create parameters for sidebar partial
+    var sidebarParams = new Dictionary<string, object>
+    {
+        { "Controller", "Book" },
+        { "Category", ViewData["Category"] },
+        { "SortBy", ViewData["SortBy"] },
+        { "SearchTerm", ViewData["SearchTerm"] },
+        { "SelectedGenre", ViewData["SelectedGenre"] },
+        { "SelectedFormat", ViewData["SelectedFormat"] },
+        { "MinPrice", ViewData["MinPrice"] },
+        { "MaxPrice", ViewData["MaxPrice"] },
+        { "InStock", ViewData["InStock"] }
+    };
 }
 
 <div class="container-fluid mt-4 mb-5">
     <div class="row">
         <!-- Left Sidebar with Filters -->
         <div class="col-lg-3">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Filters</h5>
-                </div>
-                <div class="card-body">
-                    <form asp-action="Index" method="get" id="filterForm">
-                        <!-- Preserve category in form -->
-                        @if (!string.IsNullOrEmpty(ViewData["Category"]?.ToString()))
-                        {
-                            <input type="hidden" name="category" value="@ViewData["Category"]" />
-                        }
-                        
-                        <!-- Preserve sorting -->
-                        @if (!string.IsNullOrEmpty(ViewData["SortBy"]?.ToString()))
-                        {
-                            <input type="hidden" name="sortBy" value="@ViewData["SortBy"]" />
-                        }
-                        
-                        <!-- Search -->
-                        <div class="mb-3">
-                            <label for="searchTerm" class="form-label fw-bold">Search</label>
-                            <input type="text" class="form-control" id="searchTerm" name="searchTerm" 
-                                   placeholder="Title, author, ISBN..." value="@ViewData["SearchTerm"]">
-                        </div>
-                        
-                        <hr />
-                        
-                        <!-- Genre -->
-                        <div class="mb-3">
-                            <label for="genre" class="form-label fw-bold">Genre</label>
-                            <select class="form-select" id="genre" name="genre">
-                                <option value="">All Genres</option>
-                                @foreach (var genre in Enum.GetValues(typeof(Bookbox.Constants.Genre)))
-                                {
-                                    <option value="@genre" selected="@(ViewData["SelectedGenre"]?.ToString() == genre.ToString())">
-                                        @genre
-                                    </option>
-                                }
-                            </select>
-                        </div>
-                        
-                        <!-- Format -->
-                        <div class="mb-3">
-                            <label for="format" class="form-label fw-bold">Format</label>
-                            <select class="form-select" id="format" name="format">
-                                <option value="">All Formats</option>
-                                @foreach (var format in Enum.GetValues(typeof(Bookbox.Constants.Format)))
-                                {
-                                    <option value="@format" selected="@(ViewData["SelectedFormat"]?.ToString() == format.ToString())">
-                                        @format
-                                    </option>
-                                }
-                            </select>
-                        </div>
-                        
-                        <!-- Price Range -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Price Range</label>
-                            <div class="row g-2">
-                                <div class="col">
-                                    <div class="input-group">
-                                        <span class="input-group-text">NPR</span>
-                                        <input type="number" class="form-control" name="minPrice" id="minPrice" 
-                                               placeholder="Min" min="0" step="0.01" value="@ViewData["MinPrice"]">
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="input-group">
-                                        <span class="input-group-text">NPR</span>
-                                        <input type="number" class="form-control" name="maxPrice" id="maxPrice" 
-                                               placeholder="Max" min="0" step="0.01" value="@ViewData["MaxPrice"]">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Stock Status -->
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="inStock" name="inStock" value="true" 
-                                       @(ViewData["InStock"] != null && (bool)ViewData["InStock"] ? "checked" : "")>
-                                <label class="form-check-label" for="inStock">
-                                    In Stock Only
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-filter"></i> Apply Filters
-                            </button>
-                            <a href="@Url.Action("Index", "Book", new { category = ViewData["Category"], sortBy = ViewData["SortBy"] })" class="btn btn-outline-secondary">
-                                <i class="fas fa-times"></i> Clear Filters
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <!-- Categories Menu -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Categories</h5>
-                </div>
-                <div class="list-group list-group-flush">
-                    <a href="@Url.Action("Index", "Book")" class="list-group-item list-group-item-action @(string.IsNullOrEmpty(ViewData["Category"]?.ToString()) ? "active" : "")">
-                        All Books
-                    </a>
-                    <a href="@Url.Action("Index", "Book", new { category = "bestsellers" })" class="list-group-item list-group-item-action @(ViewData["Category"]?.ToString() == "bestsellers" ? "active" : "")">
-                        Bestsellers
-                    </a>
-                    <a href="@Url.Action("Index", "Book", new { category = "award-winners" })" class="list-group-item list-group-item-action @(ViewData["Category"]?.ToString() == "award-winners" ? "active" : "")">
-                        Award Winners
-                    </a>
-                    <a href="@Url.Action("Index", "Book", new { category = "new-releases" })" class="list-group-item list-group-item-action @(ViewData["Category"]?.ToString() == "new-releases" ? "active" : "")">
-                        New Releases
-                    </a>
-                    <a href="@Url.Action("Index", "Book", new { category = "new-arrivals" })" class="list-group-item list-group-item-action @(ViewData["Category"]?.ToString() == "new-arrivals" ? "active" : "")">
-                        New Arrivals
-                    </a>
-                    <a href="@Url.Action("Index", "Book", new { category = "coming-soon" })" class="list-group-item list-group-item-action @(ViewData["Category"]?.ToString() == "coming-soon" ? "active" : "")">
-                        Coming Soon
-                    </a>
-                </div>
-            </div>
+            <partial name="_FilterSidebar" model="sidebarParams" />
         </div>
         
         <!-- Main Content Area -->

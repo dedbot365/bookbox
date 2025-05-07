@@ -34,7 +34,7 @@ namespace Bookbox.Controllers
             
             // Apply filters through the filter service
             var filteredBooks = allBooks.AsQueryable();
-            filteredBooks = _filterService.ApplyFilters(filteredBooks, ViewData, searchTerm, genre, format, null, null, minPrice, maxPrice, inStock);
+            filteredBooks = _filterService.ApplyFilters(filteredBooks, ViewData, searchTerm, genre, format, "", "", minPrice, maxPrice, inStock);
             
             // Category filters
             filteredBooks = _filterService.ApplyCategory(filteredBooks, ViewData, category);
