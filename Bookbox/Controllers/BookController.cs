@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 
 namespace Bookbox.Controllers
 {
-    [Authorize(Roles = "Admin")]
     public class BookController : Controller
     {
         private readonly IBookService _bookService;
@@ -24,6 +23,7 @@ namespace Bookbox.Controllers
         }
 
         // GET: Book
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index(string searchTerm = "", string genre = "", string format = "", 
             decimal? minPrice = null, decimal? maxPrice = null, bool? inStock = null, string sortBy = "newest", 
             string category = "", int page = 1)
@@ -63,6 +63,7 @@ namespace Bookbox.Controllers
         }
 
         // GET: Book/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(Guid id)
         {
             var book = await _bookService.GetBookByIdAsync(id);
@@ -75,7 +76,7 @@ namespace Bookbox.Controllers
         }
 
         // GET: Book/Create
-        // [Authorize(Roles = "Admin")] - Removed as it's now at the class level
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -84,7 +85,7 @@ namespace Bookbox.Controllers
         // POST: Book/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // [Authorize(Roles = "Admin")] - Removed as it's now at the class level
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(BookDTO bookDTO)
         {
             if (ModelState.IsValid)
@@ -121,7 +122,7 @@ namespace Bookbox.Controllers
 
         // GET: Book/Edit/5
         [HttpGet]
-        // [Authorize(Roles = "Admin")] - Removed as it's now at the class level
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var book = await _bookService.GetBookByIdAsync(id);
@@ -157,7 +158,7 @@ namespace Bookbox.Controllers
         // POST: Book/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // [Authorize(Roles = "Admin")] - Removed as it's now at the class level
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Guid id, BookDTO bookDTO)
         {
             if (ModelState.IsValid)
@@ -199,7 +200,7 @@ namespace Bookbox.Controllers
 
         // GET: Book/Delete/5
         [HttpGet]
-        // [Authorize(Roles = "Admin")] - Removed as it's now at the class level
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var book = await _bookService.GetBookByIdAsync(id);
@@ -224,6 +225,7 @@ namespace Bookbox.Controllers
         }
 
         // GET: Book/Search
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Search(string searchTerm)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
