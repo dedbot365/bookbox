@@ -142,6 +142,19 @@
                                                 </span>
                                             </p>
                                             
+                                            @if (book.Discounts.Any(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow)))
+                                            {
+                                                var discount = book.Discounts.First(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow));
+                                                <div class="position-absolute top-0 end-0 d-flex">
+                                                    <span class="badge bg-danger me-1">ON SALE</span>
+                                                    @if (discount.EndDate.HasValue)
+                                                    {
+                                                        var daysRemaining = (discount.EndDate.Value - DateTime.UtcNow).Days;
+                                                        <span class="badge bg-warning text-dark">@daysRemaining @(daysRemaining == 1 ? "day" : "days") left</span>
+                                                    }
+                                                </div>
+                                            }
+
                                             <div class="d-flex mt-2 gap-2">
                                                 <a asp-action="Details" asp-route-id="@book.BookId" 
                                                    class="btn btn-sm btn-info" title="Details">

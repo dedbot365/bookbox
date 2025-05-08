@@ -137,6 +137,19 @@
                             }
                         </div>
                     }
+
+                    @if (Model.Discounts.Any(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow)))
+                    {
+                        var discount = Model.Discounts.First(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow));
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-danger me-2">ON SALE</span>
+                            @if (discount.EndDate.HasValue)
+                            {
+                                var daysRemaining = (discount.EndDate.Value - DateTime.UtcNow).Days;
+                                <span class="badge bg-warning text-dark">@daysRemaining @(daysRemaining == 1 ? "day" : "days") left</span>
+                            }
+                        </div>
+                    }
                 </div>
             </div>
         </div>
