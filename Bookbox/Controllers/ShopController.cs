@@ -22,6 +22,12 @@ namespace Bookbox.Controllers
             string publisher = "", string language = "", decimal? minPrice = null, decimal? maxPrice = null, 
             bool? inStock = null, bool? isOnSale = null, string sortBy = "newest", int page = 1)
         {
+            // Only redirect Admin users, allow Members to view the shop page
+            if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+            {
+                return RedirectToAction("Dashboard", "Admin");
+            }
+            
             int pageSize = 12;
             
             // Get all books for filtering

@@ -22,12 +22,10 @@ public class HomeController : Controller
     public async Task<IActionResult> Index(string searchTerm = "", string genre = "", string format = "", 
         decimal? minPrice = null, decimal? maxPrice = null, string sortBy = "newest")
     {
-        if (User.Identity?.IsAuthenticated == true)
+        // Only redirect Admin users, allow Members to view the homepage
+        if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
         {
-            if (User.IsInRole("Admin"))
-                return RedirectToAction("Dashboard", "Admin");
-            else
-                return RedirectToAction("Index", "Member");
+            return RedirectToAction("Dashboard", "Admin");
         }
         
         // Get all books for filtering
