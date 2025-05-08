@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Bookbox.Controllers
 {
+    [Authorize(Roles = "Admin")] // Added this attribute to restrict the entire controller to admin users only
     public class BookController : Controller
     {
         private readonly IBookService _bookService;
@@ -74,7 +75,7 @@ namespace Bookbox.Controllers
         }
 
         // GET: Book/Create
-        [Authorize(Roles = "Admin")]
+        // [Authorize(Roles = "Admin")] - Removed as it's now at the class level
         public IActionResult Create()
         {
             return View();
@@ -83,7 +84,7 @@ namespace Bookbox.Controllers
         // POST: Book/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        // [Authorize(Roles = "Admin")] - Removed as it's now at the class level
         public async Task<IActionResult> Create(BookDTO bookDTO)
         {
             if (ModelState.IsValid)
@@ -106,7 +107,6 @@ namespace Bookbox.Controllers
                 {
                     ModelState.AddModelError("", ex.Message);
                 }
-                // Rest of your existing code...
                 catch (ArgumentException ex)
                 {
                     ModelState.AddModelError("ImageFile", ex.Message);
@@ -121,7 +121,7 @@ namespace Bookbox.Controllers
 
         // GET: Book/Edit/5
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        // [Authorize(Roles = "Admin")] - Removed as it's now at the class level
         public async Task<IActionResult> Edit(Guid id)
         {
             var book = await _bookService.GetBookByIdAsync(id);
@@ -157,7 +157,7 @@ namespace Bookbox.Controllers
         // POST: Book/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        // [Authorize(Roles = "Admin")] - Removed as it's now at the class level
         public async Task<IActionResult> Edit(Guid id, BookDTO bookDTO)
         {
             if (ModelState.IsValid)
@@ -199,7 +199,7 @@ namespace Bookbox.Controllers
 
         // GET: Book/Delete/5
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        // [Authorize(Roles = "Admin")] - Removed as it's now at the class level
         public async Task<IActionResult> Delete(Guid id)
         {
             var book = await _bookService.GetBookByIdAsync(id);
@@ -222,33 +222,6 @@ namespace Bookbox.Controllers
             
             return RedirectToAction(nameof(Index));
         }
-
-        // POST: Book/Delete/5
-        /*[HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
-        {
-            try
-            {
-                var result = await _bookService.DeleteBookAsync(id);
-                if (result)
-                {
-                    TempData["SuccessMessage"] = "Book deleted successfully.";
-                    return RedirectToAction(nameof(Index));
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "Book not found.";
-                    return RedirectToAction(nameof(Index));
-                }
-            }
-            catch (Exception)
-            {
-                TempData["ErrorMessage"] = "Failed to delete the book.";
-                return RedirectToAction(nameof(Delete), new { id });
-            }
-        }*/
 
         // GET: Book/Search
         public async Task<IActionResult> Search(string searchTerm)
