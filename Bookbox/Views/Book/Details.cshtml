@@ -2,13 +2,13 @@
 @inject Bookbox.Services.Interfaces.IDiscountService DiscountService
 @{
     ViewData["Title"] = Model.Title;
-    var discount = await DiscountService.GetActiveDiscountForBookAsync(Model.BookId);
+    var discountInfo = await DiscountService.GetActiveDiscountForBookAsync(Model.BookId);
     var isAdmin = User.IsInRole("Admin");
-    var discountedPrice = discount != null ? 
-        DiscountService.CalculateDiscountedPrice(Model.Price, discount.DiscountPercentage) : 
+    var discountedPrice = discountInfo != null ? 
+        DiscountService.CalculateDiscountedPrice(Model.Price, discountInfo.DiscountPercentage) : 
         Model.Price;
-    var daysRemaining = discount?.EndDate != null ? 
-        DiscountService.GetRemainingDays(discount.EndDate) : 
+    var daysRemaining = discountInfo?.EndDate != null ? 
+        DiscountService.GetRemainingDays(discountInfo.EndDate) : 
         -1;
 }
 
@@ -52,10 +52,11 @@
                     <div class="row mb-2">
                         <div class="col-md-3 fw-bold">Price:</div>
                         <div class="col-md-9">
-                            @if (discount != null)
+                            @if (discountInfo != null)
                             {
                                 <span class="text-muted"><s>NPR @Model.Price.ToString("F2")</s></span>
                                 <span class="text-danger">NPR @discountedPrice.ToString("F2")</span>
+                                <span class="badge bg-danger ms-2">ON SALE</span>
                                 @if (daysRemaining > 0)
                                 {
                                     <span class="badge bg-warning ms-2">@daysRemaining days remaining</span>
@@ -119,34 +120,16 @@
                             <p class="text-justify">@Model.Description</p>
                         </div>
                     </div>
-                    
-                    @if (isAdmin)
-                    {
-                        <div class="mt-3">
-                            @if (discount != null)
-                            {
-                                <a asp-controller="Discount" asp-action="Edit" asp-route-id="@discount.DiscountId" class="btn btn-sm btn-warning">
-                                    <i class="bi bi-tag"></i> Edit Discount
-                                </a>
-                            }
-                            else
-                            {
-                                <a asp-controller="Discount" asp-action="Create" asp-route-bookId="@Model.BookId" class="btn btn-sm btn-success">
-                                    <i class="bi bi-tag"></i> Add Discount
-                                </a>
-                            }
-                        </div>
-                    }
 
                     @if (Model.Discounts.Any(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow)))
                     {
-                        var discount = Model.Discounts.First(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow));
+                        var saleDiscount = Model.Discounts.First(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow));
                         <div class="d-flex align-items-center mb-2">
                             <span class="badge bg-danger me-2">ON SALE</span>
-                            @if (discount.EndDate.HasValue)
+                            @if (saleDiscount.EndDate.HasValue)
                             {
-                                var daysRemaining = (discount.EndDate.Value - DateTime.UtcNow).Days;
-                                <span class="badge bg-warning text-dark">@daysRemaining @(daysRemaining == 1 ? "day" : "days") left</span>
+                                var saleDaysRemaining = (saleDiscount.EndDate.Value - DateTime.UtcNow).Days;
+                                <span class="badge bg-warning text-dark">@saleDaysRemaining @(saleDaysRemaining == 1 ? "day" : "days") left</span>
                             }
                         </div>
                     }
@@ -164,6 +147,18 @@
                         <a asp-action="Edit" asp-route-id="@Model.BookId" class="btn btn-primary">
                             <i class="fas fa-edit"></i> Edit
                         </a>
+                        @if (discountInfo != null)
+                        {
+                            <a asp-controller="Discount" asp-action="Edit" asp-route-id="@discountInfo.DiscountId" class="btn btn-warning">
+                                <i class="fas fa-tag"></i> Edit Discount
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Discount" asp-action="Create" asp-route-bookId="@Model.BookId" class="btn btn-success">
+                                <i class="fas fa-tag"></i> Add Discount
+                            </a>
+                        }
                         <button type="button" class="btn btn-danger delete-book" 
                                 data-id="@Model.BookId" data-title="@Model.Title">
                             <i class="fas fa-trash"></i> Delete

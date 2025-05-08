@@ -113,8 +113,8 @@
                                     <span class="badge bg-danger me-1">ON SALE</span>
                                     @if (discount.EndDate.HasValue)
                                     {
-                                        var daysRemaining = (discount.EndDate.Value - DateTime.UtcNow).Days;
-                                        <span class="badge bg-warning text-dark">@daysRemaining @(daysRemaining == 1 ? "day" : "days") left</span>
+                                        var badgeDaysRemaining = (discount.EndDate.Value - DateTime.UtcNow).Days;
+                                        <span class="badge bg-warning text-dark">@badgeDaysRemaining @(badgeDaysRemaining == 1 ? "day" : "days") left</span>
                                     }
                                 </div>
                             }
