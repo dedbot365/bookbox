@@ -52,5 +52,11 @@ namespace Bookbox.DTOs
         
         // UserId will be set from the current authenticated user
         public Guid? UserId { get; set; }
+        
+        // New properties
+        public bool IsComingSoon { get; set; } = false;
+
+        [Required]
+        public DateTime PublicationDate { get; set; } = DateTime.UtcNow;
     }
 }
