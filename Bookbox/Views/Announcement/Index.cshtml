@@ -1,0 +1,131 @@
+@model IEnumerable<Bookbox.Models.Announcement>
+
+@{
+    ViewData["Title"] = "Manage Announcements";
+}
+
+<div class="container-fluid mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">Manage Announcements</h1>
+            <p class="text-muted">Create and manage announcements for your store.</p>
+            
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <div>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Announcement
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold">All Announcements</h6>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped" id="announcementTable">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Created By</th>
+                                <th>Last Modified</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Title</td>
+                                    <td>
+                                        @{
+                                            bool isActive = item.IsActive;
+                                            bool isCurrentlyActive = item.IsActive && 
+                                                item.StartDate <= DateTime.UtcNow && 
+                                                (item.EndDate == null || item.EndDate >= DateTime.UtcNow);
+                                            
+                                            if (isCurrentlyActive)
+                                            {
+                                                <span class="badge bg-success">Active</span>
+                                            }
+                                            else if (isActive && item.StartDate > DateTime.UtcNow)
+                                            {
+                                                <span class="badge bg-warning">Scheduled</span>
+                                            }
+                                            else if (isActive && item.EndDate < DateTime.UtcNow)
+                                            {
+                                                <span class="badge bg-secondary">Expired</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Inactive</span>
+                                            }
+                                        }
+                                    </td>
+                                    <td>@item.StartDate.ToString("MMM dd, yyyy")</td>
+                                    <td>@(item.EndDate.HasValue ? item.EndDate.Value.ToString("MMM dd, yyyy") : "No End Date")</td>
+                                    <td>@(item.User?.Username ?? "Unknown")</td>
+                                    <td>@item.LastModified.ToString("MMM dd, yyyy HH:mm")</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Edit" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-bullhorn fa-4x text-muted mb-3"></i>
+                    <h4>No announcements found</h4>
+                    <p class="text-muted">
+                        There are no announcements in the system yet.
+                    </p>
+                    <a asp-action="Create" class="btn btn-outline-primary mt-3">
+                        <i class="fas fa-plus"></i> Create Your First Announcement
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#announcementTable').DataTable({
+                "order": [[5, "desc"]]
+            });
+        });
+    </script>
+}

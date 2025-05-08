@@ -19,6 +19,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBookService, BookService>(); 
 builder.Services.AddScoped<IDiscountService, DiscountService>();
 builder.Services.AddScoped<IBookFilterService, BookFilterService>();
+builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 
 // Authentication and authorization services
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
