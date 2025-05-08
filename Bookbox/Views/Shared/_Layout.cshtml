@@ -1,5 +1,6 @@
 ﻿@{
     bool isAdmin = User.Identity?.IsAuthenticated == true && User.IsInRole("Admin");
+    bool isMember = User.Identity?.IsAuthenticated == true && User.IsInRole("Member");
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -96,6 +97,17 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Handle AJAX errors for unauthorized or forbidden requests
+        $(document).ajaxError(function (event, xhr, settings) {
+            if (xhr.status === 401) {
+                window.location.href = '@Url.Action("Login", "Auth")';
+            } else if (xhr.status === 403) {
+                window.location.href = '@Url.Action("AccessDenied", "Auth")';
+            }
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

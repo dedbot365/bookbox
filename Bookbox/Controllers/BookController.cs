@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Bookbox.Controllers
 {
-    [Authorize(Roles = "Admin")] // Added this attribute to restrict the entire controller to admin users only
+    [Authorize(Roles = "Admin")]
     public class BookController : Controller
     {
         private readonly IBookService _bookService;

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Bookbox.Models;
+using Microsoft.AspNetCore.Authorization;
 using Bookbox.Services.Interfaces;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using Bookbox.Constants;
 
 namespace Bookbox.Controllers;
 
+[AllowAnonymous]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
