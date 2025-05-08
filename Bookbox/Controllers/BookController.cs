@@ -4,23 +4,61 @@ using Bookbox.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Bookbox.Constants;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Bookbox.Controllers
 {
     public class BookController : Controller
     {
         private readonly IBookService _bookService;
+        private readonly IBookFilterService _filterService;
 
-        public BookController(IBookService bookService)
+        public BookController(IBookService bookService, IBookFilterService filterService)
         {
             _bookService = bookService;
+            _filterService = filterService;
         }
 
         // GET: Book
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchTerm = "", string genre = "", string format = "", 
+            decimal? minPrice = null, decimal? maxPrice = null, bool? inStock = null, string sortBy = "newest", 
+            string category = "", int page = 1)
         {
-            var books = await _bookService.GetAllBooksAsync();
-            return View(books);
+            int pageSize = 12;
+            
+            // Get all books for filtering
+            var allBooks = await _bookService.GetAllBooksAsync();
+            
+            // Apply filters through the filter service
+            var filteredBooks = allBooks.AsQueryable();
+            filteredBooks = _filterService.ApplyFilters(filteredBooks, ViewData, searchTerm, genre, format, "", "", minPrice, maxPrice, inStock);
+            
+            // Category filters
+            filteredBooks = _filterService.ApplyCategory(filteredBooks, ViewData, category);
+            
+            // Apply sorting
+            filteredBooks = _filterService.ApplySorting(filteredBooks, ViewData, sortBy);
+            
+            // Pagination
+            int totalItems = filteredBooks.Count();
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            
+            if (page < 1) page = 1;
+            if (page > totalPages && totalPages > 0) page = totalPages;
+            
+            var paginatedBooks = filteredBooks
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+            
+            ViewData["CurrentPage"] = page;
+            ViewData["TotalPages"] = totalPages;
+            ViewData["TotalItems"] = totalItems;
+            
+            return View(paginatedBooks);
         }
 
         // GET: Book/Details/5
@@ -107,8 +145,9 @@ namespace Bookbox.Controllers
                 Language = book.Language,
                 Awards = book.Awards,
                 PhysicalStock = book.PhysicalStock,
-                // ImageFile will be null here - can't map back from URL to file
-                UserId = book.UserId 
+                UserId = book.UserId,
+                IsComingSoon = book.IsComingSoon,
+                PublicationDate = book.PublicationDate
             };
 
             ViewData["CurrentImageUrl"] = book.ImageUrl;

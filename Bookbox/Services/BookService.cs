@@ -49,7 +49,9 @@ namespace Bookbox.Services
                     Stock = bookDTO.Stock,
                     Language = bookDTO.Language,
                     Awards = bookDTO.Awards,
-                    PhysicalStock = bookDTO.PhysicalStock
+                    PhysicalStock = bookDTO.PhysicalStock,
+                    IsComingSoon = bookDTO.IsComingSoon,
+                    PublicationDate = DateTime.SpecifyKind(bookDTO.PublicationDate, DateTimeKind.Utc)
                 };
 
                 var imagesPath = Path.Combine(_webHostEnvironment.WebRootPath, "images");
@@ -112,7 +114,9 @@ namespace Bookbox.Services
                     Language = bookDTO.Language,
                     Awards = bookDTO.Awards,
                     PhysicalStock = bookDTO.PhysicalStock,
-                    UserId = userId  // Set the user ID from the parameter
+                    UserId = userId,  // Set the user ID from the parameter
+                    IsComingSoon = bookDTO.IsComingSoon,
+                    PublicationDate = DateTime.SpecifyKind(bookDTO.PublicationDate, DateTimeKind.Utc)
                 };
 
                 var imagesPath = Path.Combine(_webHostEnvironment.WebRootPath, "images");
@@ -176,6 +180,11 @@ namespace Bookbox.Services
                 book.Language = bookDTO.Language;
                 book.Awards = bookDTO.Awards;
                 book.PhysicalStock = bookDTO.PhysicalStock;
+                book.IsComingSoon = bookDTO.IsComingSoon;
+                
+                // Fix for PostgreSQL datetime error - convert to UTC kind
+                book.PublicationDate = DateTime.SpecifyKind(bookDTO.PublicationDate, DateTimeKind.Utc);
+                
                 // Don't update UserId as it shouldn't change
                 // (book.UserId remains the same)
 

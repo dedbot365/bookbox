@@ -24,12 +24,12 @@
                         </div>
                         <div class="mb-3">
                             <label asp-for="StartDate" class="form-label">Start Date</label>
-                            <input asp-for="StartDate" class="form-control" type="datetime-local" required />
+                            <input asp-for="StartDate" class="form-control" type="date" required />
                             <span asp-validation-for="StartDate" class="text-danger"></span>
                         </div>
                         <div class="mb-3">
                             <label asp-for="EndDate" class="form-label">End Date (Optional)</label>
-                            <input asp-for="EndDate" class="form-control" type="datetime-local" />
+                            <input asp-for="EndDate" class="form-control" type="date" />
                             <span asp-validation-for="EndDate" class="text-danger"></span>
                         </div>
                         <div class="mb-3 form-check">
