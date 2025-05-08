@@ -28,10 +28,13 @@ namespace Bookbox.Controllers
         // GET: Announcement/Create
         public IActionResult Create()
         {
+            TimeZoneInfo nepalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu");
+            DateTime localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, nepalTimeZone);
+            
             return View(new AnnouncementDTO
             {
-                StartDate = DateTime.Today,
-                EndDate = DateTime.Today.AddDays(7)
+                StartDate = localNow,
+                EndDate = localNow.AddDays(7)
             });
         }
 
@@ -73,13 +76,19 @@ namespace Bookbox.Controllers
                 return NotFound();
             }
 
+            // Convert UTC times to Nepal time for display
+            TimeZoneInfo nepalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu");
+            DateTime localStartDate = TimeZoneInfo.ConvertTimeFromUtc(announcement.StartDate, nepalTimeZone);
+            DateTime? localEndDate = announcement.EndDate.HasValue ? 
+                TimeZoneInfo.ConvertTimeFromUtc(announcement.EndDate.Value, nepalTimeZone) : null;
+
             var announcementDTO = new AnnouncementDTO
             {
                 AnnouncementId = announcement.AnnouncementId,
                 Title = announcement.Title,
                 Content = announcement.Content,
-                StartDate = announcement.StartDate,
-                EndDate = announcement.EndDate,
+                StartDate = localStartDate,
+                EndDate = localEndDate,
                 IsActive = announcement.IsActive
             };
 

@@ -29,6 +29,7 @@ namespace Bookbox.Services
 
         public async Task<IEnumerable<Announcement>> GetActiveAnnouncementsAsync()
         {
+            // Use UTC time for database queries
             DateTime now = DateTime.UtcNow;
             return await _context.Announcements
                 .Where(a => a.IsActive && 
@@ -47,18 +48,27 @@ namespace Bookbox.Services
 
         public async Task<Announcement> CreateAnnouncementAsync(AnnouncementDTO announcementDTO, Guid userId)
         {
-            // Convert dates to UTC for PostgreSQL
-            DateTime startDate = DateTime.SpecifyKind(announcementDTO.StartDate, DateTimeKind.Utc);
-            DateTime? endDate = announcementDTO.EndDate.HasValue 
-                ? DateTime.SpecifyKind(announcementDTO.EndDate.Value, DateTimeKind.Utc)
+            // Convert local dates to UTC for storage
+            TimeZoneInfo nepalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu");
+            
+            // First ensure dates are treated as Nepal time
+            DateTime localStartDate = DateTime.SpecifyKind(announcementDTO.StartDate, DateTimeKind.Unspecified);
+            DateTime? localEndDate = announcementDTO.EndDate.HasValue 
+                ? DateTime.SpecifyKind(announcementDTO.EndDate.Value, DateTimeKind.Unspecified)
+                : null;
+            
+            // Then convert to UTC
+            DateTime utcStartDate = TimeZoneInfo.ConvertTimeToUtc(localStartDate, nepalTimeZone);
+            DateTime? utcEndDate = localEndDate.HasValue 
+                ? TimeZoneInfo.ConvertTimeToUtc(localEndDate.Value, nepalTimeZone)
                 : null;
 
             var announcement = new Announcement
             {
                 Title = announcementDTO.Title,
                 Content = announcementDTO.Content,
-                StartDate = startDate,
-                EndDate = endDate,
+                StartDate = utcStartDate,
+                EndDate = utcEndDate,
                 IsActive = announcementDTO.IsActive,
                 UserId = userId,
                 LastModified = DateTime.UtcNow
@@ -71,23 +81,28 @@ namespace Bookbox.Services
 
         public async Task<Announcement?> UpdateAnnouncementAsync(AnnouncementDTO announcementDTO)
         {
-            if (!announcementDTO.AnnouncementId.HasValue)
-                return null;
-
+            // Same timezone conversion as in Create method
+            TimeZoneInfo nepalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu");
+            
+            DateTime localStartDate = DateTime.SpecifyKind(announcementDTO.StartDate, DateTimeKind.Unspecified);
+            DateTime? localEndDate = announcementDTO.EndDate.HasValue 
+                ? DateTime.SpecifyKind(announcementDTO.EndDate.Value, DateTimeKind.Unspecified)
+                : null;
+            
+            DateTime utcStartDate = TimeZoneInfo.ConvertTimeToUtc(localStartDate, nepalTimeZone);
+            DateTime? utcEndDate = localEndDate.HasValue 
+                ? TimeZoneInfo.ConvertTimeToUtc(localEndDate.Value, nepalTimeZone)
+                : null;
+            
+            // Rest of your update code
             var announcement = await _context.Announcements.FindAsync(announcementDTO.AnnouncementId.Value);
             if (announcement == null)
                 return null;
-
-            // Convert dates to UTC for PostgreSQL
-            DateTime startDate = DateTime.SpecifyKind(announcementDTO.StartDate, DateTimeKind.Utc);
-            DateTime? endDate = announcementDTO.EndDate.HasValue 
-                ? DateTime.SpecifyKind(announcementDTO.EndDate.Value, DateTimeKind.Utc)
-                : null;
-
+            
             announcement.Title = announcementDTO.Title;
             announcement.Content = announcementDTO.Content;
-            announcement.StartDate = startDate;
-            announcement.EndDate = endDate;
+            announcement.StartDate = utcStartDate;
+            announcement.EndDate = utcEndDate;
             announcement.IsActive = announcementDTO.IsActive;
             announcement.LastModified = DateTime.UtcNow;
 

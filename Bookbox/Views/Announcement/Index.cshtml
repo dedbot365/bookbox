@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Manage Announcements";
+    // Define the Nepal timezone once
+    TimeZoneInfo nepalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu");
+    DateTime localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, nepalTimeZone);
 }
 
 <div class="container-fluid mt-4 mb-5">
@@ -61,9 +64,13 @@
                                     <td>
                                         @{
                                             bool isActive = item.IsActive;
+                                            DateTime localStartDate = TimeZoneInfo.ConvertTimeFromUtc(item.StartDate, nepalTimeZone);
+                                            DateTime? localEndDate = item.EndDate.HasValue ? 
+                                                TimeZoneInfo.ConvertTimeFromUtc(item.EndDate.Value, nepalTimeZone) : null;
+                                            
                                             bool isCurrentlyActive = item.IsActive && 
-                                                item.StartDate <= DateTime.UtcNow && 
-                                                (item.EndDate == null || item.EndDate >= DateTime.UtcNow);
+                                                localStartDate <= localNow && 
+                                                (localEndDate == null || localEndDate >= localNow);
                                             
                                             if (isCurrentlyActive)
                                             {
@@ -83,8 +90,8 @@
                                             }
                                         }
                                     </td>
-                                    <td>@item.StartDate.ToString("MMM dd, yyyy")</td>
-                                    <td>@(item.EndDate.HasValue ? item.EndDate.Value.ToString("MMM dd, yyyy") : "No End Date")</td>
+                                    <td>@localStartDate.ToString("MMM dd, yyyy")</td>
+                                    <td>@(localEndDate.HasValue ? localEndDate.Value.ToString("MMM dd, yyyy") : "No End Date")</td>
                                     <td>@(item.User?.Username ?? "Unknown")</td>
                                     <td>@item.LastModified.ToString("MMM dd, yyyy HH:mm")</td>
                                     <td>
