@@ -9,7 +9,10 @@
         <hr />
         <p>
             <a href="javascript:history.back()" class="btn btn-outline-primary me-2">Go Back</a>
-            <a asp-controller="Auth" asp-action="Login" class="btn btn-primary">Login</a>
+            @if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                <a asp-controller="Auth" asp-action="Login" class="btn btn-primary">Login</a>
+            }
         </p>
     </div>
 </div>
