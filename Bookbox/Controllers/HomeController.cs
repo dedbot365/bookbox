@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Bookbox.Models;
+using Microsoft.AspNetCore.Authorization;
 using Bookbox.Services.Interfaces;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using Bookbox.Constants;
 
 namespace Bookbox.Controllers;
 
+[AllowAnonymous]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
@@ -22,12 +24,10 @@ public class HomeController : Controller
     public async Task<IActionResult> Index(string searchTerm = "", string genre = "", string format = "", 
         decimal? minPrice = null, decimal? maxPrice = null, string sortBy = "newest")
     {
-        if (User.Identity?.IsAuthenticated == true)
+        // Only redirect Admin users, allow Members to view the homepage
+        if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
         {
-            if (User.IsInRole("Admin"))
-                return RedirectToAction("Dashboard", "Admin");
-            else
-                return RedirectToAction("Index", "Member");
+            return RedirectToAction("Dashboard", "Admin");
         }
         
         // Get all books for filtering

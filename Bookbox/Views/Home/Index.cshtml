@@ -95,7 +95,7 @@
             {
                 <div class="col">
                     <div class="card h-100 book-card">
-                        <div class="card-img-container">
+                        <div class="card-img-container position-relative">
                             @if (!string.IsNullOrEmpty(book.ImageUrl))
                             {
                                 <img src="@book.ImageUrl" class="card-img-top" alt="@book.Title">
@@ -104,6 +104,18 @@
                             {
                                 <div class="placeholder-image">
                                     <i class="fas fa-book fa-4x text-secondary"></i>
+                                </div>
+                            }
+                            @if (book.Discounts.Any(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow)))
+                            {
+                                var discount = book.Discounts.First(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow));
+                                <div class="position-absolute top-0 end-0 d-flex">
+                                    <span class="badge bg-danger me-1">ON SALE</span>
+                                    @if (discount.EndDate.HasValue)
+                                    {
+                                        var badgeDaysRemaining = (discount.EndDate.Value - DateTime.UtcNow).Days;
+                                        <span class="badge bg-warning text-dark">@badgeDaysRemaining @(badgeDaysRemaining == 1 ? "day" : "days") left</span>
+                                    }
                                 </div>
                             }
                         </div>
