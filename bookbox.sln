@@ -5,6 +5,12 @@ VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bookbox", "Bookbox\Bookbox.csproj", "{87E28B69-4958-46C8-A310-6F6D4ADA6C75}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "instructions", "instructions", "{73AF1889-DD7D-C8E5-7359-E9A7C0A6D975}"
+	ProjectSection(SolutionItems) = preProject
+		instructions.txt = instructions.txt
+		scenario.txt = scenario.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
