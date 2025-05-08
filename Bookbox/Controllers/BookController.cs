@@ -23,6 +23,7 @@ namespace Bookbox.Controllers
         }
 
         // GET: Book
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index(string searchTerm = "", string genre = "", string format = "", 
             decimal? minPrice = null, decimal? maxPrice = null, bool? inStock = null, string sortBy = "newest", 
             string category = "", int page = 1)
@@ -62,6 +63,7 @@ namespace Bookbox.Controllers
         }
 
         // GET: Book/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(Guid id)
         {
             var book = await _bookService.GetBookByIdAsync(id);
@@ -106,7 +108,6 @@ namespace Bookbox.Controllers
                 {
                     ModelState.AddModelError("", ex.Message);
                 }
-                // Rest of your existing code...
                 catch (ArgumentException ex)
                 {
                     ModelState.AddModelError("ImageFile", ex.Message);
@@ -223,34 +224,8 @@ namespace Bookbox.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Book/Delete/5
-        /*[HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
-        {
-            try
-            {
-                var result = await _bookService.DeleteBookAsync(id);
-                if (result)
-                {
-                    TempData["SuccessMessage"] = "Book deleted successfully.";
-                    return RedirectToAction(nameof(Index));
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "Book not found.";
-                    return RedirectToAction(nameof(Index));
-                }
-            }
-            catch (Exception)
-            {
-                TempData["ErrorMessage"] = "Failed to delete the book.";
-                return RedirectToAction(nameof(Delete), new { id });
-            }
-        }*/
-
         // GET: Book/Search
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Search(string searchTerm)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))

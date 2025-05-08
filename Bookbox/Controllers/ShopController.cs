@@ -4,9 +4,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Bookbox.Services.Interfaces;
 using Bookbox.Constants;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bookbox.Controllers
 {
+    [AllowAnonymous]
     public class ShopController : Controller
     {
         private readonly IBookService _bookService;
@@ -22,6 +24,12 @@ namespace Bookbox.Controllers
             string publisher = "", string language = "", decimal? minPrice = null, decimal? maxPrice = null, 
             bool? inStock = null, bool? isOnSale = null, string sortBy = "newest", int page = 1)
         {
+            // Redirect admin users to their dashboard
+            if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+            {
+                return RedirectToAction("Dashboard", "Admin");
+            }
+
             int pageSize = 12;
             
             // Get all books for filtering

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Bookbox.Controllers
 {
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Roles = "Admin")]
     public class DiscountController : Controller
     {
         private readonly IDiscountService _discountService;
