@@ -151,5 +151,29 @@ namespace Bookbox.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+
+        // GET: Announcement/Details/5
+        public async Task<IActionResult> Details(Guid id)
+        {
+            var announcement = await _announcementService.GetAnnouncementByIdAsync(id);
+            if (announcement == null)
+            {
+                return NotFound();
+            }
+
+            return View(announcement);
+        }
+
+        // GET: Announcement/DeleteConfirm/5
+        public async Task<IActionResult> DeleteConfirm(Guid id)
+        {
+            var announcement = await _announcementService.GetAnnouncementByIdAsync(id);
+            if (announcement == null)
+            {
+                return NotFound();
+            }
+
+            return View("Delete", announcement);
+        }
     }
 }
