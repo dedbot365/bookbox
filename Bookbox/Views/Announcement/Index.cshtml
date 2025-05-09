@@ -5,6 +5,10 @@
     // Define the Nepal timezone once
     TimeZoneInfo nepalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu");
     DateTime localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, nepalTimeZone);
+    
+    int currentPage = ViewData["CurrentPage"] != null ? (int)ViewData["CurrentPage"] : 1;
+    int totalPages = ViewData["TotalPages"] != null ? (int)ViewData["TotalPages"] : 1;
+    int totalItems = ViewData["TotalItems"] != null ? (int)ViewData["TotalItems"] : 0;
 }
 
 <div class="container-fluid mt-4 mb-5">
@@ -36,100 +40,171 @@
         </div>
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold">All Announcements</h6>
+    <div class="row">
+        <!-- Left Sidebar with Filters -->
+        <div class="col-lg-3">
+            <partial name="_AnnouncementFilterSidebar" />
         </div>
-        <div class="card-body">
-            @if (Model.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped" id="announcementTable">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Status</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
-                                <th>Created By</th>
-                                <th>Last Modified</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td>@item.Title</td>
-                                    <td>
-                                        @{
-                                            bool isActive = item.IsActive;
-                                            DateTime localStartDate = TimeZoneInfo.ConvertTimeFromUtc(item.StartDate, nepalTimeZone);
-                                            DateTime? localEndDate = item.EndDate.HasValue ? 
-                                                TimeZoneInfo.ConvertTimeFromUtc(item.EndDate.Value, nepalTimeZone) : null;
-                                            
-                                            bool isCurrentlyActive = item.IsActive && 
-                                                localStartDate <= localNow && 
-                                                (localEndDate == null || localEndDate >= localNow);
-                                            
-                                            if (isCurrentlyActive)
-                                            {
-                                                <span class="badge bg-success">Active</span>
-                                            }
-                                            else if (isActive && item.StartDate > DateTime.UtcNow)
-                                            {
-                                                <span class="badge bg-warning">Scheduled</span>
-                                            }
-                                            else if (isActive && item.EndDate < DateTime.UtcNow)
-                                            {
-                                                <span class="badge bg-secondary">Expired</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-danger">Inactive</span>
-                                            }
-                                        }
-                                    </td>
-                                    <td>@localStartDate.ToString("MMM dd, yyyy")</td>
-                                    <td>@(localEndDate.HasValue ? localEndDate.Value.ToString("MMM dd, yyyy") : "No End Date")</td>
-                                    <td>@(item.User?.Username ?? "Unknown")</td>
-                                    <td>@item.LastModified.ToString("MMM dd, yyyy HH:mm")</td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <a asp-action="Details" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-info">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a asp-action="Edit" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-sm btn-danger delete-announcement" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#deleteAnnouncementModal"
-                                                    data-id="@item.AnnouncementId" 
-                                                    data-title="@item.Title">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+        
+        <!-- Main Content Area -->
+        <div class="col-lg-9">
+            <!-- Results Header -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold">All Announcements</h6>
+                    <div class="d-flex align-items-center">
+                        <label for="sortBy" class="me-2">Sort by:</label>
+                        <select id="sortBy" name="sortBy" class="form-select form-select-sm" style="width: auto;" onchange="updateSort(this.value)">
+                            <option value="last_modified" selected="@(ViewData["SortBy"]?.ToString() == "last_modified")">Last Modified</option>
+                            <option value="first_modified" selected="@(ViewData["SortBy"]?.ToString() == "first_modified")">First Modified</option>
+                            <option value="newest" selected="@(ViewData["SortBy"]?.ToString() == "newest")">Start Date (Newest)</option>
+                            <option value="oldest" selected="@(ViewData["SortBy"]?.ToString() == "oldest")">Start Date (Oldest)</option>
+                            <option value="title" selected="@(ViewData["SortBy"]?.ToString() == "title")">Title (A-Z)</option>
+                        </select>
+                    </div>
                 </div>
-            }
-            else
-            {
-                <div class="text-center py-5">
-                    <i class="fas fa-bullhorn fa-4x text-muted mb-3"></i>
-                    <h4>No announcements found</h4>
-                    <p class="text-muted">
-                        There are no announcements in the system yet.
-                    </p>
-                    <a asp-action="Create" class="btn btn-outline-primary mt-3">
-                        <i class="fas fa-plus"></i> Create Your First Announcement
-                    </a>
+                
+                <div class="card-body">
+                    @if (Model.Any())
+                    {
+                        <div class="d-flex justify-content-between mb-3">
+                            <p class="text-muted">
+                                Showing @totalItems announcement@(totalItems != 1 ? "s" : "")
+                                @if (!string.IsNullOrEmpty(ViewData["SearchTerm"]?.ToString()))
+                                {
+                                    <span>for "<strong>@ViewData["SearchTerm"]</strong>"</span>
+                                }
+                            </p>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped" id="announcementTable">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Status</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Created By</th>
+                                        <th>Last Modified</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>@item.Title</td>
+                                            <td>
+                                                @{
+                                                    bool isActive = item.IsActive;
+                                                    DateTime localStartDate = TimeZoneInfo.ConvertTimeFromUtc(item.StartDate, nepalTimeZone);
+                                                    DateTime? localEndDate = item.EndDate.HasValue ? 
+                                                        TimeZoneInfo.ConvertTimeFromUtc(item.EndDate.Value, nepalTimeZone) : null;
+                                                    
+                                                    bool isCurrentlyActive = isActive && 
+                                                        localStartDate <= localNow && 
+                                                        (localEndDate == null || localEndDate >= localNow);
+                                                    
+                                                    if (isCurrentlyActive)
+                                                    {
+                                                        <span class="badge bg-success">Active</span>
+                                                    }
+                                                    else if (isActive && item.StartDate > DateTime.UtcNow)
+                                                    {
+                                                        <span class="badge bg-warning">Scheduled</span>
+                                                    }
+                                                    else if (isActive && item.EndDate < DateTime.UtcNow)
+                                                    {
+                                                        <span class="badge bg-secondary">Expired</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-danger">Inactive</span>
+                                                    }
+                                                }
+                                            </td>
+                                            <td>@localStartDate.ToString("MMM dd, yyyy")</td>
+                                            <td>@(localEndDate.HasValue ? localEndDate.Value.ToString("MMM dd, yyyy") : "No End Date")</td>
+                                            <td>@(item.User?.Username ?? "Unknown")</td>
+                                            <td>@item.LastModified.ToString("MMM dd, yyyy HH:mm")</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Details" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-info">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-sm btn-danger delete-announcement" 
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#deleteAnnouncementModal"
+                                                            data-id="@item.AnnouncementId" 
+                                                            data-title="@item.Title">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        @if (totalPages > 1)
+                        {
+                            <nav class="mt-4" aria-label="Announcement pagination">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                        <a class="page-link" href="@Url.Action("Index", "Announcement", new { page = currentPage - 1, searchTerm = ViewData["SearchTerm"], status = ViewData["SelectedStatus"], startDateFrom = ViewData["StartDateFrom"], startDateTo = ViewData["StartDateTo"], endDateFrom = ViewData["EndDateFrom"], endDateTo = ViewData["EndDateTo"], sortBy = ViewData["SortBy"] })">
+                                            Previous
+                                        </a>
+                                    </li>
+                                    
+                                    @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                                    {
+                                        <li class="page-item @(i == currentPage ? "active" : "")">
+                                            <a class="page-link" href="@Url.Action("Index", "Announcement", new { page = i, searchTerm = ViewData["SearchTerm"], status = ViewData["SelectedStatus"], startDateFrom = ViewData["StartDateFrom"], startDateTo = ViewData["StartDateTo"], endDateFrom = ViewData["EndDateFrom"], endDateTo = ViewData["EndDateTo"], sortBy = ViewData["SortBy"] })">
+                                                @i
+                                            </a>
+                                        </li>
+                                    }
+                                    
+                                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                        <a class="page-link" href="@Url.Action("Index", "Announcement", new { page = currentPage + 1, searchTerm = ViewData["SearchTerm"], status = ViewData["SelectedStatus"], startDateFrom = ViewData["StartDateFrom"], startDateTo = ViewData["StartDateTo"], endDateFrom = ViewData["EndDateFrom"], endDateTo = ViewData["EndDateTo"], sortBy = ViewData["SortBy"] })">
+                                            Next
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-bullhorn fa-4x text-muted mb-3"></i>
+                            <h4>No announcements found</h4>
+                            <p class="text-muted">
+                                @if (ViewData["SearchTerm"] != null || ViewData["SelectedStatus"] != null || 
+                                    ViewData["StartDateFrom"] != null || ViewData["StartDateTo"] != null ||
+                                    ViewData["EndDateFrom"] != null || ViewData["EndDateTo"] != null)
+                                {
+                                    <span>No announcements match your filter criteria. <a href="@Url.Action("Index", "Announcement")">Clear filters</a> to see all announcements.</span>
+                                }
+                                else
+                                {
+                                    <span>There are no announcements in the system yet.</span>
+                                    <br />
+                                    <a asp-action="Create" class="btn btn-outline-primary mt-3">
+                                        <i class="fas fa-plus"></i> Create Your First Announcement
+                                    </a>
+                                }
+                            </p>
+                        </div>
+                    }
                 </div>
-            }
+            </div>
         </div>
     </div>
 </div>
@@ -182,9 +257,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="deleteAnnouncementForm" asp-action="DeleteConfirm" method="get">
+                <form id="deleteAnnouncementForm" asp-action="Delete" method="post">
                     <input type="hidden" id="delete-announcement-id" name="id" />
-                    <p>Are you sure you want to delete this announcement?</p>
+                    <p>Are you sure you want to delete this announcement "<span id="delete-announcement-title"></span>"?</p>
                     <p class="text-danger">This action cannot be undone.</p>
                 </form>
             </div>
@@ -199,12 +274,15 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            // Initialize datatable
+            // Initialize datatable with sorting disabled (we'll handle via server-side)
             $('#announcementTable').DataTable({
-                "order": [[5, "desc"]]
+                "paging": false,
+                "ordering": false,
+                "info": false,
+                "searching": false
             });
             
-            // Direct event handler approach
+            // Direct event handler approach for delete modal
             $(document).on('click', '.delete-announcement', function() {
                 var id = $(this).data('id');
                 var title = $(this).data('title');
@@ -214,10 +292,9 @@
                 // Update the modal's content
                 document.getElementById('delete-announcement-title').innerText = title;
                 document.getElementById('delete-announcement-id').value = id;
-                document.getElementById('deleteAnnouncementForm').action = '@Url.Action("Delete")/' + id;
             });
             
-            // Modal event listener approach - more reliable for Bootstrap 5
+            // Modal event listener approach for Bootstrap 5
             $('#deleteAnnouncementModal').on('show.bs.modal', function (event) {
                 var button = $(event.relatedTarget);
                 var id = button.data('id');
@@ -225,11 +302,24 @@
                 
                 console.log('Modal opening. ID:', id, 'Title:', title);
                 
-                // Update the modal's content - using vanilla JavaScript for reliability
+                // Update the modal's content using vanilla JavaScript
                 document.getElementById('delete-announcement-title').innerText = title;
                 document.getElementById('delete-announcement-id').value = id;
-                document.getElementById('deleteAnnouncementForm').action = '@Url.Action("Delete")/' + id;
             });
         });
+        
+        function updateSort(sortValue) {
+            // Get current URL and parameters
+            var url = new URL(window.location.href);
+            
+            // Update sort parameter
+            url.searchParams.set('sortBy', sortValue);
+            
+            // Keep page at 1 when changing sort
+            url.searchParams.set('page', 1);
+            
+            // Redirect to new URL
+            window.location.href = url.toString();
+        }
     </script>
 }
