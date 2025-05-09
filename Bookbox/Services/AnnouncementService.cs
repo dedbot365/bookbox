@@ -19,128 +19,107 @@ namespace Bookbox.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<AnnouncementDto>> GetAllAnnouncementsAsync()
+        public async Task<IEnumerable<Announcement>> GetAllAnnouncementsAsync()
         {
-            var announcements = await _context.Announcements
+            return await _context.Announcements
                 .Include(a => a.User)
-                .OrderByDescending(a => a.StartDate)
+                .OrderByDescending(a => a.LastModified)
                 .ToListAsync();
-
-            return announcements.Select(MapToDto);
         }
 
-        public async Task<IEnumerable<AnnouncementDto>> GetActiveAnnouncementsAsync()
+        public async Task<IEnumerable<Announcement>> GetActiveAnnouncementsAsync()
         {
-            var today = DateTime.UtcNow.Date;
-            
-            var announcements = await _context.Announcements
-                .Include(a => a.User)
+            // Use UTC time for database queries
+            DateTime now = DateTime.UtcNow;
+            return await _context.Announcements
                 .Where(a => a.IsActive && 
-                           a.StartDate.Date <= today && 
-                           (!a.EndDate.HasValue || a.EndDate.Value.Date >= today))
-                .OrderByDescending(a => a.StartDate)
+                           a.StartDate <= now && 
+                           (a.EndDate == null || a.EndDate >= now))
+                .OrderByDescending(a => a.LastModified)
                 .ToListAsync();
-
-            return announcements.Select(MapToDto);
         }
 
-        public async Task<AnnouncementDto> GetAnnouncementByIdAsync(Guid id)
+        public async Task<Announcement?> GetAnnouncementByIdAsync(Guid id)
         {
-            var announcement = await _context.Announcements
+            return await _context.Announcements
                 .Include(a => a.User)
                 .FirstOrDefaultAsync(a => a.AnnouncementId == id);
-
-            if (announcement == null)
-                return null;
-
-            return MapToDto(announcement);
         }
 
-        public async Task<AnnouncementDto> CreateAnnouncementAsync(AnnouncementDto announcementDto, Guid currentUserId)
+        public async Task<Announcement> CreateAnnouncementAsync(AnnouncementDTO announcementDTO, Guid userId)
         {
+            // Convert local dates to UTC for storage
+            TimeZoneInfo nepalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu");
+            
+            // First ensure dates are treated as Nepal time
+            DateTime localStartDate = DateTime.SpecifyKind(announcementDTO.StartDate, DateTimeKind.Unspecified);
+            DateTime? localEndDate = announcementDTO.EndDate.HasValue 
+                ? DateTime.SpecifyKind(announcementDTO.EndDate.Value, DateTimeKind.Unspecified)
+                : null;
+            
+            // Then convert to UTC
+            DateTime utcStartDate = TimeZoneInfo.ConvertTimeToUtc(localStartDate, nepalTimeZone);
+            DateTime? utcEndDate = localEndDate.HasValue 
+                ? TimeZoneInfo.ConvertTimeToUtc(localEndDate.Value, nepalTimeZone)
+                : null;
+
             var announcement = new Announcement
             {
-                AnnouncementId = Guid.NewGuid(),
-                Title = announcementDto.Title,
-                Content = announcementDto.Content,
-                StartDate = DateTime.SpecifyKind(announcementDto.StartDate, DateTimeKind.Utc),
-                EndDate = announcementDto.EndDate.HasValue 
-                          ? DateTime.SpecifyKind(announcementDto.EndDate.Value, DateTimeKind.Utc) 
-                          : null,
-                IsActive = announcementDto.IsActive,
-                UserId = currentUserId,
+                Title = announcementDTO.Title,
+                Content = announcementDTO.Content,
+                StartDate = utcStartDate,
+                EndDate = utcEndDate,
+                IsActive = announcementDTO.IsActive,
+                UserId = userId,
                 LastModified = DateTime.UtcNow
             };
 
-            await _context.Announcements.AddAsync(announcement);
+            _context.Announcements.Add(announcement);
             await _context.SaveChangesAsync();
-
-            // Reload to get user details
-            announcement = await _context.Announcements
-                .Include(a => a.User)
-                .FirstOrDefaultAsync(a => a.AnnouncementId == announcement.AnnouncementId);
-
-            return MapToDto(announcement);
+            return announcement;
         }
 
-        public async Task<AnnouncementDto> UpdateAnnouncementAsync(AnnouncementDto announcementDto, Guid currentUserId)
+        public async Task<Announcement?> UpdateAnnouncementAsync(AnnouncementDTO announcementDTO)
         {
-            var announcement = await _context.Announcements
-                .FindAsync(announcementDto.AnnouncementId);
-
+            // Same timezone conversion as in Create method
+            TimeZoneInfo nepalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu");
+            
+            DateTime localStartDate = DateTime.SpecifyKind(announcementDTO.StartDate, DateTimeKind.Unspecified);
+            DateTime? localEndDate = announcementDTO.EndDate.HasValue 
+                ? DateTime.SpecifyKind(announcementDTO.EndDate.Value, DateTimeKind.Unspecified)
+                : null;
+            
+            DateTime utcStartDate = TimeZoneInfo.ConvertTimeToUtc(localStartDate, nepalTimeZone);
+            DateTime? utcEndDate = localEndDate.HasValue 
+                ? TimeZoneInfo.ConvertTimeToUtc(localEndDate.Value, nepalTimeZone)
+                : null;
+            
+            // Rest of your update code
+            var announcement = await _context.Announcements.FindAsync(announcementDTO.AnnouncementId.Value);
             if (announcement == null)
                 return null;
-
-            // Update properties
-            announcement.Title = announcementDto.Title;
-            announcement.Content = announcementDto.Content;
-            announcement.StartDate = DateTime.SpecifyKind(announcementDto.StartDate, DateTimeKind.Utc);
-            announcement.EndDate = announcementDto.EndDate.HasValue 
-                                  ? DateTime.SpecifyKind(announcementDto.EndDate.Value, DateTimeKind.Utc) 
-                                  : null;
-
-            announcement.IsActive = announcementDto.IsActive;
+            
+            announcement.Title = announcementDTO.Title;
+            announcement.Content = announcementDTO.Content;
+            announcement.StartDate = utcStartDate;
+            announcement.EndDate = utcEndDate;
+            announcement.IsActive = announcementDTO.IsActive;
             announcement.LastModified = DateTime.UtcNow;
 
             _context.Announcements.Update(announcement);
             await _context.SaveChangesAsync();
-
-            // Reload with user details
-            announcement = await _context.Announcements
-                .Include(a => a.User)
-                .FirstOrDefaultAsync(a => a.AnnouncementId == announcement.AnnouncementId);
-
-            return MapToDto(announcement);
+            return announcement;
         }
 
-        public async Task<bool> DeleteAnnouncementAsync(Guid id, Guid currentUserId)
+        public async Task<bool> DeleteAnnouncementAsync(Guid id)
         {
             var announcement = await _context.Announcements.FindAsync(id);
-            
             if (announcement == null)
                 return false;
 
             _context.Announcements.Remove(announcement);
-            await _context.SaveChangesAsync();
-            
-            return true;
-        }
-
-        // Helper method to map Announcement entity to AnnouncementDto
-        private AnnouncementDto MapToDto(Announcement announcement)
-        {
-            return new AnnouncementDto
-            {
-                AnnouncementId = announcement.AnnouncementId,
-                Title = announcement.Title,
-                Content = announcement.Content,
-                StartDate = announcement.StartDate,
-                EndDate = announcement.EndDate,
-                IsActive = announcement.IsActive,
-                UserId = announcement.UserId,
-                UserName = announcement.User?.Username, // Add this line to map username
-                LastModified = announcement.LastModified
-            };
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
         }
     }
 }
