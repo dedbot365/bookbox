@@ -28,50 +28,40 @@ create timed announcements for deals, new arrivals, or other informational messa
 }
 
 {
-    Absolutely! Here’s your prompt rewritten for the **Bookmark (Whitelist)** feature, matching the exact format and tone of your provided example:
+   
+**What I want?**
+**Answer:**
+I want to implement the cart logic in the project where: **Member can cart books (Add to Cart)**
 
 ---
 
-What I want?
-Answer:
-I want to implement the Bookmark logic in the project where: a member( non admin user) can bookmark books (also referred to as adding to whitelist) to save them for later reference.
+**How would I solve this problem?**
+**Answer:**
+Create the necessary files to handle cart functionality — this includes a DTO to handle cart data cleanly across layers, an interface to define the cart service methods, and a service class that handles the logic of adding, removing, and retrieving cart items.
+Use the existing `Cart.cs` model to store cart information in the database.
+The cart logic will be handled using the service and controller layer, and should be properly integrated with the `ApplicationDbContext`.
+Create a controller to manage cart actions and make it available only to authenticated users (members).
+
+The cart should allow members to temporarily store books they want to purchase and view/update them before placing an order.
 
 ---
 
-How would I solve this problem?
-Answer:
-Create the necessary data transfer object (BookmarkDto) to pass information between the frontend and backend in a clean format.
-Create the interface `IBookmarkService` to define the operations related to bookmarks.
-Implement the interface in a concrete service class `BookmarkService` that handles the logic for adding, removing, and retrieving bookmarks for a logged-in member.
-Then, create a `BookmarkController` to expose routes for bookmarking functionality, making sure it is accessible only to authenticated users (members).
-The bookmark data will be stored in the database using the existing `Bookmark.cs` model and hooked into the `ApplicationDbContext`.
+**What I expect you to solve it?**
+**Answer:**
+I want you to implement the cart feature using the current project setup in the workspace, utilizing all existing models, controller, and service patterns.
+Create the new files if necessary and guide me on where to place the newly created code files or updated files.
+Make sure it follows the existing architecture and coding style in the solution.
 
-This bookmark feature will allow members to easily mark books they’re interested in, which they can view from their member dashboard or a designated "Bookmarks" section.
+Based on the above, update the project on the workspace.
 
 ---
 
-What I expect you to solve it?
-Answer:
-I want you to integrate the bookmark feature into the project workspace using the structure and files currently in place.
-Create any missing files such as `BookmarkDto`, `IBookmarkService`, `BookmarkService`, and `BookmarkController`.
-Utilize existing services and patterns already in the project, and guide me clearly where to place the new or updated code files within the folder structure.
-Ensure everything is structured cleanly following modern coding standards.
-
-Based on the above, update the project in the workspace accordingly.
-
----
-
-What’s been done:
-The `Bookmark.cs` model already exists in the project.
-What I want to do now is build the DTO, service, and controller part of the bookmark feature.
-Ignore the logic to the controller for now and just provide what is needed next.
+**What’s been done:**
+The `Cart.cs` model is already created.
+What I want to do now is create the DTO, interface, service, and controller for cart.
+Ignore the logic inside the controller for now — just give me what’s needed next.
 
 }
 
-1. (Ignore since its already done) Create a bookmarkDto , bookmark.cs is already created 
+1. Create a CartDto , cart.cs, cartItem  is already created 
 
-2. (Ignore since its already done) Create a Interface service for the bookmark
-
-3. (Ignore since its already done) Create Service for the bookmark implemneting the interface
-
-4. create a controller for the bookmark
