@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "OBkWAilB5bk=",
+  "dgSpecHash": "eEvQxwP+T+8=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Dell\\Downloads\\Semester 5\\C#\\Sem 6\\bookout\\bookbox\\Bookbox\\Bookbox.csproj",
+  "projectFilePath": "C:\\Users\\Dell\\Downloads\\Semester 5\\C#\\Sem 6\\bookout\\bookbox\\bookbox\\bookbox.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Dell\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",

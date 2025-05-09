@@ -1,0 +1,62 @@
+@model Bookbox.DTOs.BookmarkListDto
+
+@{
+    ViewData["Title"] = "My Bookmarks";
+}
+
+<div class="container mt-4">
+    <h1>My Bookmarks</h1>
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (!Model.Bookmarks.Any())
+    {
+        <div class="alert alert-info">
+            You haven't bookmarked any books yet.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var bookmark in Model.Bookmarks)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        @if (!string.IsNullOrEmpty(bookmark.CoverImage))
+                        {
+                            <img src="@bookmark.CoverImage" class="card-img-top" alt="@bookmark.BookTitle" style="height: 200px; object-fit: cover;">
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@bookmark.BookTitle</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">@bookmark.Author</h6>
+                            <p class="card-text">
+                                <small class="text-muted">Added on @bookmark.DateAdded.ToString("MMM dd, yyyy")</small>
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a asp-controller="Book" asp-action="Details" asp-route-id="@bookmark.BookId" class="btn btn-primary">View Book</a>
+                                <form asp-action="Remove" method="post">
+                                    <input type="hidden" name="bookmarkId" value="@bookmark.BookmarkId" />
+                                    <button type="submit" class="btn btn-danger">Remove</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

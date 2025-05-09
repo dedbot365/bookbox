@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "VAmKrpdaD0WKCsUbI9BcfEzeqH56zVqctXn/jtXwmMc=",
+  "Hash": "B8NuRvnHAi01RvK7/u4f5zyKonxxhxab43xNdyi0168=",
   "Source": "bookbox",
   "BasePath": "_content/bookbox",
   "Mode": "Default",
@@ -167,6 +167,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\images\\a07f49c1-ece6-4172-85be-259f92728d71.png"
+    },
+    {
+      "Identity": "C:\\Users\\Dell\\Downloads\\Semester 5\\C#\\Sem 6\\bookout\\bookbox\\bookbox\\wwwroot\\images\\b0acab33-d76f-4e0b-b982-67a24012f6e7.png",
+      "SourceId": "bookbox",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Dell\\Downloads\\Semester 5\\C#\\Sem 6\\bookout\\bookbox\\bookbox\\wwwroot\\",
+      "BasePath": "_content/bookbox",
+      "RelativePath": "images/b0acab33-d76f-4e0b-b982-67a24012f6e7.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\b0acab33-d76f-4e0b-b982-67a24012f6e7.png"
     },
     {
       "Identity": "C:\\Users\\Dell\\Downloads\\Semester 5\\C#\\Sem 6\\bookout\\bookbox\\bookbox\\wwwroot\\images\\Placeholder\\illustration.png",

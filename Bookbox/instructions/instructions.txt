@@ -1,0 +1,77 @@
+{Scenario:SCENARIO 
+A private book library store aims to expand its reach by retailing books online. The 
+system will offer a catalog of books that users can browse and purchase. Users will be 
+able to filter the catalog by criteria such as author, genre, availability (stock and physical 
+library access), price range, ratings, language, and format (e.g., paperback, hardcover, 
+exclusive editions like signed, limited, first, collector’s, author’s, deluxe, etc.). Additional 
+filters include publishers, and users can search for books by title, ISBN, or description. 
+Sorting options will allow users to organize books by title, publication date, price, or 
+popularity (most sold). 
+The platform will feature tabs for categories like All Books, Bestsellers, Award Winners, 
+New Releases (published in the past three months), New Arrivals (listed in the past 
+month), Coming Soon, and Deals (discounts and sales). 
+Registered users, referred to as members, can bookmark books (whitelist) and view 
+availability status, add books to their cart, and place cancelable orders. Currently, the 
+store only offers in-store pickup. After placing an order, members will receive a 
+confirmation email with a claim code and the bill. To complete the purchase, members 
+must present their membership ID and claim code at the store, where staff will process 
+the order through their portal. 
+The system also includes a discount mechanism: an order of five or more books receives 
+a 5% discount, and after every 10 successful orders, the member earns a 10% stackable 
+discount on their next order. 
+After purchasing, members can leave reviews as ratings and comments on books. 
+Administrators have full control over the catalog, including the ability to create, update, 
+and delete books and manage inventory. They can also add discounts to individual 
+books, optionally flagging them as "On Sale" and setting discount periods. Admins can 
+create timed announcements for deals, new arrivals, or other informational messages.
+
+}
+
+{
+    Absolutely! Here’s your prompt rewritten for the **Bookmark (Whitelist)** feature, matching the exact format and tone of your provided example:
+
+---
+
+What I want?
+Answer:
+I want to implement the Bookmark logic in the project where: a member( non admin user) can bookmark books (also referred to as adding to whitelist) to save them for later reference.
+
+---
+
+How would I solve this problem?
+Answer:
+Create the necessary data transfer object (BookmarkDto) to pass information between the frontend and backend in a clean format.
+Create the interface `IBookmarkService` to define the operations related to bookmarks.
+Implement the interface in a concrete service class `BookmarkService` that handles the logic for adding, removing, and retrieving bookmarks for a logged-in member.
+Then, create a `BookmarkController` to expose routes for bookmarking functionality, making sure it is accessible only to authenticated users (members).
+The bookmark data will be stored in the database using the existing `Bookmark.cs` model and hooked into the `ApplicationDbContext`.
+
+This bookmark feature will allow members to easily mark books they’re interested in, which they can view from their member dashboard or a designated "Bookmarks" section.
+
+---
+
+What I expect you to solve it?
+Answer:
+I want you to integrate the bookmark feature into the project workspace using the structure and files currently in place.
+Create any missing files such as `BookmarkDto`, `IBookmarkService`, `BookmarkService`, and `BookmarkController`.
+Utilize existing services and patterns already in the project, and guide me clearly where to place the new or updated code files within the folder structure.
+Ensure everything is structured cleanly following modern coding standards.
+
+Based on the above, update the project in the workspace accordingly.
+
+---
+
+What’s been done:
+The `Bookmark.cs` model already exists in the project.
+What I want to do now is build the DTO, service, and controller part of the bookmark feature.
+Ignore the logic to the controller for now and just provide what is needed next.
+
+}
+
+1. (Ignore since its already done) Create a bookmarkDto , bookmark.cs is already created 
+
+2. (Ignore since its already done) Create a Interface service for the bookmark
+
+3. (Ignore since its already done) Create Service for the bookmark implemneting the interface
+
+4. create a controller for the bookmark
