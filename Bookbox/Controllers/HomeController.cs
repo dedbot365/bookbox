@@ -14,11 +14,14 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IBookService _bookService;
+    private readonly IAnnouncementService _announcementService;
 
-    public HomeController(ILogger<HomeController> logger, IBookService bookService)
+    public HomeController(ILogger<HomeController> logger, IBookService bookService, 
+                         IAnnouncementService announcementService)
     {
         _logger = logger;
         _bookService = bookService;
+        _announcementService = announcementService;
     }
 
     public async Task<IActionResult> Index(string searchTerm = "", string genre = "", string format = "", 
@@ -29,6 +32,9 @@ public class HomeController : Controller
         {
             return RedirectToAction("Dashboard", "Admin");
         }
+        
+        // Get active announcements
+        var activeAnnouncements = await _announcementService.GetActiveAnnouncementsAsync();
         
         // Get all books for filtering
         var allBooks = await _bookService.GetAllBooksAsync();
@@ -89,6 +95,9 @@ public class HomeController : Controller
         
         // Take the 10 most recent books after filtering
         var displayBooks = filteredBooks.Take(10).ToList();
+        
+        // Add announcements to the view
+        ViewBag.Announcements = activeAnnouncements;
         
         return View(displayBooks);
     }

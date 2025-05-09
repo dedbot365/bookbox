@@ -24,6 +24,16 @@
     </div>
 </div>
 
+<!-- Announcements Section - Above Search -->
+@if (ViewBag.Announcements != null && ((IEnumerable<Bookbox.Models.Announcement>)ViewBag.Announcements).Any())
+{
+    <div class="container mb-4 homepage-announcement">
+        <div class="announcement-wrapper">
+            <partial name="_Announcements" model="ViewBag.Announcements" />
+        </div>
+    </div>
+}
+
 <!-- Search and Filter Section -->
 <div class="container mb-5">
     <div class="card shadow-sm">
@@ -72,6 +82,15 @@
         </div>
     </div>
 </div>
+
+@* <!-- Announcements Section - Above Featured Books -->
+@if (ViewBag.Announcements != null && ((IEnumerable<Bookbox.Models.Announcement>)ViewBag.Announcements).Any())
+{
+    <div class="container mb-4">
+        <h2 class="fw-bold mb-3">Announcements</h2>
+        <partial name="_Announcements" model="ViewBag.Announcements" />
+    </div>
+} *@
 
 <!-- Featured Books Section -->
 <div class="container mb-5" id="featured">
