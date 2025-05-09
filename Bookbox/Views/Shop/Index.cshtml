@@ -1,5 +1,7 @@
 @model IEnumerable<Bookbox.Models.Book>
 @inject Bookbox.Services.Interfaces.IDiscountService DiscountService
+@inject Bookbox.Services.Interfaces.IBookmarkService BookmarkService
+@using System.Security.Claims
 
 @{
     ViewData["Title"] = "Shop Books - " + ViewData["CategoryName"];
@@ -132,6 +134,33 @@
                                         <a href="@Url.Action("Details", "Book", new { id = book.BookId })" class="btn btn-outline-primary">
                                             <i class="fas fa-info-circle"></i> View Details
                                         </a>
+                                        
+                                        @if (User.Identity?.IsAuthenticated == true)
+                                        {
+                                            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                                            var isBookmarked = await BookmarkService.IsBookmarkedByUserAsync(userId, book.BookId);
+                                            
+                                            <form asp-controller="Bookmark" asp-action="Toggle" method="post" class="mt-2">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="bookId" value="@book.BookId" />
+                                                <button type="submit" class="btn @(isBookmarked ? "btn-success" : "btn-outline-success") w-100">
+                                                    <i class="fas fa-bookmark me-1"></i> 
+                                                    @(isBookmarked ? "Bookmarked" : "Add to Bookmarks")
+                                                </button>
+                                            </form>
+                                            
+                                            @if (User.Identity?.IsAuthenticated == true && book.Stock > 0)
+                                            {
+                                                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="mt-2">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="bookId" value="@book.BookId" />
+                                                    <input type="hidden" name="quantity" value="1" />
+                                                    <button type="submit" class="btn btn-outline-primary w-100">
+                                                        <i class="fas fa-shopping-cart me-1"></i> Add to Cart
+                                                    </button>
+                                                </form>
+                                            }
+                                        }
                                     </div>
                                 </div>
                             </div>
