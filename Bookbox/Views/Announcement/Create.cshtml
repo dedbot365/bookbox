@@ -1,21 +1,20 @@
 @model Bookbox.DTOs.AnnouncementDTO
 
 @{
-    ViewData["Title"] = "Edit Announcement";
+    ViewData["Title"] = "Create Announcement";
 }
 
 <div class="container-fluid mt-4">
-    <h1 class="h3 mb-2 text-gray-800">Edit Announcement</h1>
-    <p class="mb-4">Update announcement information.</p>
+    <h1 class="h3 mb-2 text-gray-800">Create Announcement</h1>
+    <p class="mb-4">Create a new announcement to display to users.</p>
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold">Announcement Information</h6>
         </div>
         <div class="card-body">
-            <form asp-action="Edit" method="post">
+            <form asp-action="Create" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="AnnouncementId" />
 
                 <div class="mb-3">
                     <label asp-for="Title" class="form-label">Title</label>
@@ -59,7 +58,7 @@
                     <hr />
                     <div class="d-flex justify-content-between">
                         <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Update Announcement</button>
+                        <button type="submit" class="btn btn-primary">Create Announcement</button>
                     </div>
                 </div>
             </form>

@@ -1,133 +1,125 @@
+using Bookbox.Data;
 using Bookbox.DTOs;
+using Bookbox.Models;
 using Bookbox.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Security.Claims;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace Bookbox.Controllers
+namespace Bookbox.Services
 {
-    public class AnnouncementController : Controller
+    public class AnnouncementService : IAnnouncementService
     {
-        private readonly IAnnouncementService _announcementService;
+        private readonly ApplicationDbContext _context;
 
-        public AnnouncementController(IAnnouncementService announcementService)
+        public AnnouncementService(ApplicationDbContext context)
         {
-            _announcementService = announcementService;
+            _context = context;
         }
 
-        // GET: Announcement
-        // Shows active announcements to all users
-        public async Task<IActionResult> Index()
+        public async Task<IEnumerable<Announcement>> GetAllAnnouncementsAsync()
         {
-            var announcements = await _announcementService.GetActiveAnnouncementsAsync();
-            return View(announcements);
+            return await _context.Announcements
+                .Include(a => a.User)
+                .OrderByDescending(a => a.LastModified)
+                .ToListAsync();
         }
 
-        // GET: Announcement/All
-        // Shows all announcements to admins
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> All()
+        public async Task<IEnumerable<Announcement>> GetActiveAnnouncementsAsync()
         {
-            var announcements = await _announcementService.GetAllAnnouncementsAsync();
-            return View(announcements);
+            // Use UTC time for database queries
+            DateTime now = DateTime.UtcNow;
+            return await _context.Announcements
+                .Where(a => a.IsActive && 
+                           a.StartDate <= now && 
+                           (a.EndDate == null || a.EndDate >= now))
+                .OrderByDescending(a => a.LastModified)
+                .ToListAsync();
         }
 
-        // GET: Announcement/Details/5
-        public async Task<IActionResult> Details(Guid id)
+        public async Task<Announcement?> GetAnnouncementByIdAsync(Guid id)
         {
-            var announcement = await _announcementService.GetAnnouncementByIdAsync(id);
+            return await _context.Announcements
+                .Include(a => a.User)
+                .FirstOrDefaultAsync(a => a.AnnouncementId == id);
+        }
+
+        public async Task<Announcement> CreateAnnouncementAsync(AnnouncementDTO announcementDTO, Guid userId)
+        {
+            // Convert local dates to UTC for storage
+            TimeZoneInfo nepalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu");
+            
+            // First ensure dates are treated as Nepal time
+            DateTime localStartDate = DateTime.SpecifyKind(announcementDTO.StartDate, DateTimeKind.Unspecified);
+            DateTime? localEndDate = announcementDTO.EndDate.HasValue 
+                ? DateTime.SpecifyKind(announcementDTO.EndDate.Value, DateTimeKind.Unspecified)
+                : null;
+            
+            // Then convert to UTC
+            DateTime utcStartDate = TimeZoneInfo.ConvertTimeToUtc(localStartDate, nepalTimeZone);
+            DateTime? utcEndDate = localEndDate.HasValue 
+                ? TimeZoneInfo.ConvertTimeToUtc(localEndDate.Value, nepalTimeZone)
+                : null;
+
+            var announcement = new Announcement
+            {
+                Title = announcementDTO.Title,
+                Content = announcementDTO.Content,
+                StartDate = utcStartDate,
+                EndDate = utcEndDate,
+                IsActive = announcementDTO.IsActive,
+                UserId = userId,
+                LastModified = DateTime.UtcNow
+            };
+
+            _context.Announcements.Add(announcement);
+            await _context.SaveChangesAsync();
+            return announcement;
+        }
+
+        public async Task<Announcement?> UpdateAnnouncementAsync(AnnouncementDTO announcementDTO)
+        {
+            // Same timezone conversion as in Create method
+            TimeZoneInfo nepalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu");
+            
+            DateTime localStartDate = DateTime.SpecifyKind(announcementDTO.StartDate, DateTimeKind.Unspecified);
+            DateTime? localEndDate = announcementDTO.EndDate.HasValue 
+                ? DateTime.SpecifyKind(announcementDTO.EndDate.Value, DateTimeKind.Unspecified)
+                : null;
+            
+            DateTime utcStartDate = TimeZoneInfo.ConvertTimeToUtc(localStartDate, nepalTimeZone);
+            DateTime? utcEndDate = localEndDate.HasValue 
+                ? TimeZoneInfo.ConvertTimeToUtc(localEndDate.Value, nepalTimeZone)
+                : null;
+            
+            // Rest of your update code
+            var announcement = await _context.Announcements.FindAsync(announcementDTO.AnnouncementId.Value);
             if (announcement == null)
-            {
-                return NotFound();
-            }
+                return null;
+            
+            announcement.Title = announcementDTO.Title;
+            announcement.Content = announcementDTO.Content;
+            announcement.StartDate = utcStartDate;
+            announcement.EndDate = utcEndDate;
+            announcement.IsActive = announcementDTO.IsActive;
+            announcement.LastModified = DateTime.UtcNow;
 
-            return View(announcement);
+            _context.Announcements.Update(announcement);
+            await _context.SaveChangesAsync();
+            return announcement;
         }
 
-        // GET: Announcement/Create
-        [Authorize(Roles = "Admin")]
-        public IActionResult Create()
+        public async Task<bool> DeleteAnnouncementAsync(Guid id)
         {
-            return View(new AnnouncementDto
-            {
-                StartDate = DateTime.UtcNow,
-                EndDate = DateTime.UtcNow.AddMonths(1)
-            });
-        }
-
-        // POST: Announcement/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create(AnnouncementDto announcementDto)
-        {
-            if (ModelState.IsValid)
-            {
-                var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                await _announcementService.CreateAnnouncementAsync(announcementDto, userId);
-                return RedirectToAction(nameof(All));
-            }
-            return View(announcementDto);
-        }
-
-        // GET: Announcement/Edit/5
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(Guid id)
-        {
-            var announcement = await _announcementService.GetAnnouncementByIdAsync(id);
+            var announcement = await _context.Announcements.FindAsync(id);
             if (announcement == null)
-            {
-                return NotFound();
-            }
-            return View(announcement);
-        }
+                return false;
 
-        // POST: Announcement/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(Guid id, AnnouncementDto announcementDto)
-        {
-            if (id != announcementDto.AnnouncementId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                await _announcementService.UpdateAnnouncementAsync(announcementDto, userId);
-                TempData["SuccessMessage"] = "Announcement updated successfully!";
-                return RedirectToAction(nameof(All));
-            }
-            return View(announcementDto);
-        }
-
-        // GET: Announcement/Delete/5
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            var announcement = await _announcementService.GetAnnouncementByIdAsync(id);
-            if (announcement == null)
-            {
-                return NotFound();
-            }
-
-            return View(announcement);
-        }
-
-        // POST: Announcement/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
-        {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            await _announcementService.DeleteAnnouncementAsync(id, userId);
-            TempData["SuccessMessage"] = "Announcement deleted successfully!";
-            return RedirectToAction(nameof(All));
+            _context.Announcements.Remove(announcement);
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
         }
     }
 }
