@@ -1,44 +1,60 @@
 @model IEnumerable<Bookbox.Models.Announcement>
 
-@if (Model != null && Model.Any())
+@{
+    var announcements = Model.Where(a => a.IsActive && 
+                                     a.StartDate <= DateTime.UtcNow && 
+                                     (a.EndDate == null || a.EndDate >= DateTime.UtcNow))
+                             .OrderByDescending(a => a.LastModified)
+                             .ToList();
+    int counter = 0;
+}
+
+@if (announcements.Any())
 {
-    <div class="announcements-container mb-4">
-        <div id="announcementCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                @{
-                    bool isFirst = true;
-                    foreach (var announcement in Model)
-                    {
-                        <div class="carousel-item @(isFirst ? "active" : "")">
-                            <div class="announcement-item">
-                                <div class="announcement-content">
-                                    <h5>@announcement.Title</h5>
-                                    <div>@Html.Raw(announcement.Content)</div>
-                                    
-                                    @if (announcement.EndDate.HasValue)
-                                    {
-                                        <div class="announcement-expiry">
-                                            <small>Valid until: @announcement.EndDate.Value.ToString("MMM dd, yyyy")</small>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                        isFirst = false;
-                    }
+    <div id="announcementCarousel" class="carousel slide announcement-carousel" data-bs-ride="carousel" data-bs-interval="6000" data-bs-touch="true">
+        @if (announcements.Count > 1)
+        {
+            <div class="carousel-indicators">
+                @for (int i = 0; i < announcements.Count; i++)
+                {
+                    <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" 
+                            aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i+1)"></button>
                 }
             </div>
-            @if (Model.Count() > 1)
+        }
+        
+        <div class="carousel-inner">
+            @foreach (var announcement in announcements)
             {
-                <button class="carousel-control-prev" type="button" data-bs-target="#announcementCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#announcementCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
+                <div class="carousel-item @(counter++ == 0 ? "active" : "")">
+                    <div class="announcement-content">
+                        <div class="announcement-header">
+                            <div class="announcement-icon">
+                                <i class="fas fa-bullhorn"></i>
+                            </div>
+                            <div class="announcement-title-container">
+                                <h5 class="announcement-title">@announcement.Title</h5>
+                                <span class="announcement-date">Posted @((DateTime.UtcNow - announcement.LastModified).Days <= 7 ? (announcement.LastModified).ToString("MMM dd, yyyy") : "recently")</span>
+                            </div>
+                        </div>
+                        <div class="announcement-body">
+                            @Html.Raw(announcement.Content)
+                        </div>
+                    </div>
+                </div>
             }
         </div>
+        
+        @if (announcements.Count > 1)
+        {
+            <button class="carousel-control-prev" type="button" data-bs-target="#announcementCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#announcementCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        }
     </div>
 }

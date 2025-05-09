@@ -1,0 +1,120 @@
+@model Bookbox.Models.Announcement
+
+@{
+    ViewData["Title"] = "Announcement Details";
+    // Define the Nepal timezone for date conversions
+    TimeZoneInfo nepalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu");
+    DateTime localStartDate = TimeZoneInfo.ConvertTimeFromUtc(Model.StartDate, nepalTimeZone);
+    DateTime? localEndDate = Model.EndDate.HasValue ? 
+        TimeZoneInfo.ConvertTimeFromUtc(Model.EndDate.Value, nepalTimeZone) : null;
+    
+    bool isActive = Model.IsActive;
+    DateTime localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, nepalTimeZone);
+    bool isCurrentlyActive = isActive && 
+        localStartDate <= localNow && 
+        (localEndDate == null || localEndDate >= localNow);
+    
+    string status = isCurrentlyActive ? "Active" : 
+                    isActive && Model.StartDate > DateTime.UtcNow ? "Scheduled" : 
+                    isActive && Model.EndDate < DateTime.UtcNow ? "Expired" : "Inactive";
+    
+    string statusClass = status == "Active" ? "success" : 
+                        status == "Scheduled" ? "warning" : 
+                        status == "Expired" ? "secondary" : "danger";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Announcement Details</h1>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold d-flex justify-content-between align-items-center">
+                <span>@Model.Title</span>
+                <span class="badge bg-@statusClass">@status</span>
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <div class="announcement-content border-bottom pb-4 mb-4">
+                    @Html.Raw(Model.Content)
+                </div>
+                
+                <dl class="row">
+                    <dt class="col-sm-3">Start Date</dt>
+                    <dd class="col-sm-9">@localStartDate.ToString("MMM dd, yyyy")</dd>
+                    
+                    <dt class="col-sm-3">End Date</dt>
+                    <dd class="col-sm-9">@(localEndDate.HasValue ? localEndDate.Value.ToString("MMM dd, yyyy") : "No end date")</dd>
+                    
+                    <dt class="col-sm-3">Status</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-@statusClass">@status</span>
+                    </dd>
+                    
+                    <dt class="col-sm-3">Created By</dt>
+                    <dd class="col-sm-9">@(Model.User?.Username ?? "Unknown")</dd>
+                    
+                    <dt class="col-sm-3">Last Modified</dt>
+                    <dd class="col-sm-9">@TimeZoneInfo.ConvertTimeFromUtc(Model.LastModified, nepalTimeZone).ToString("MMM dd, yyyy HH:mm")</dd>
+                </dl>
+            </div>
+            
+            <div class="d-flex mt-4">
+                <a asp-action="Edit" asp-route-id="@Model.AnnouncementId" class="btn btn-primary me-2">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <button type="button" class="btn btn-danger delete-announcement" 
+                        data-id="@Model.AnnouncementId" 
+                        data-title="@Model.Title"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#deleteAnnouncementModal">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteAnnouncementModal" tabindex="-1" aria-labelledby="deleteAnnouncementModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteAnnouncementModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this announcement?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" name="id" value="@Model.AnnouncementId" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Delete Announcement</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize delete modal
+            $('#deleteAnnouncementModal').modal({
+                backdrop: 'static',
+                keyboard: false,
+                show: false
+            });
+        });
+    </script>
+}

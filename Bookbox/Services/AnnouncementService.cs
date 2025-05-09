@@ -81,20 +81,28 @@ namespace Bookbox.Services
 
         public async Task<Announcement?> UpdateAnnouncementAsync(AnnouncementDTO announcementDTO)
         {
+            // First check if the ID has a value
+            if (!announcementDTO.AnnouncementId.HasValue)
+            {
+                return null;
+            }
+            
             // Same timezone conversion as in Create method
             TimeZoneInfo nepalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu");
             
+            // Rest of your method remains the same
             DateTime localStartDate = DateTime.SpecifyKind(announcementDTO.StartDate, DateTimeKind.Unspecified);
             DateTime? localEndDate = announcementDTO.EndDate.HasValue 
                 ? DateTime.SpecifyKind(announcementDTO.EndDate.Value, DateTimeKind.Unspecified)
                 : null;
             
+            // Then convert to UTC
             DateTime utcStartDate = TimeZoneInfo.ConvertTimeToUtc(localStartDate, nepalTimeZone);
             DateTime? utcEndDate = localEndDate.HasValue 
                 ? TimeZoneInfo.ConvertTimeToUtc(localEndDate.Value, nepalTimeZone)
                 : null;
             
-            // Rest of your update code
+            // Now it's safe to access .Value
             var announcement = await _context.Announcements.FindAsync(announcementDTO.AnnouncementId.Value);
             if (announcement == null)
                 return null;
@@ -117,9 +125,18 @@ namespace Bookbox.Services
             if (announcement == null)
                 return false;
 
+            DateTime endDate = announcement.EndDate ?? DateTime.MaxValue;
+
             _context.Announcements.Remove(announcement);
             var result = await _context.SaveChangesAsync();
             return result > 0;
+        }
+
+        public async Task<IEnumerable<Announcement>> GetExpiredAnnouncementsAsync()
+        {
+            var announcements = await _context.Announcements.ToListAsync();
+            var result = announcements.Where(a => a.IsActive && a.EndDate.HasValue && a.EndDate.Value < DateTime.Now);
+            return result;
         }
     }
 }
