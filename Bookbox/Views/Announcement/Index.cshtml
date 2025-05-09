@@ -139,8 +139,8 @@
                                                     <button type="button" class="btn btn-sm btn-danger delete-announcement" 
                                                             data-bs-toggle="modal" 
                                                             data-bs-target="#deleteAnnouncementModal"
-                                                            data-id="@item.AnnouncementId" 
-                                                            data-title="@item.Title">
+                                                            data-id="@item.AnnouncementId.ToString()" 
+                                                            data-title="@item.Title.Replace("\"", "&quot;")">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </div>
@@ -254,11 +254,12 @@
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
                 <h5 class="modal-title" id="deleteAnnouncementModalLabel">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="deleteAnnouncementForm" asp-action="Delete" method="post">
+                <form id="deleteAnnouncementForm" method="post">
                     <input type="hidden" id="delete-announcement-id" name="id" />
+                    @Html.AntiForgeryToken()
                     <p>Are you sure you want to delete this announcement "<span id="delete-announcement-title"></span>"?</p>
                     <p class="text-danger">This action cannot be undone.</p>
                 </form>
@@ -282,29 +283,23 @@
                 "searching": false
             });
             
-            // Direct event handler approach for delete modal
+            // Setup delete modal with event delegation
             $(document).on('click', '.delete-announcement', function() {
                 var id = $(this).data('id');
                 var title = $(this).data('title');
                 
                 console.log('Delete button clicked. ID:', id, 'Title:', title);
                 
-                // Update the modal's content
-                document.getElementById('delete-announcement-title').innerText = title;
-                document.getElementById('delete-announcement-id').value = id;
-            });
-            
-            // Modal event listener approach for Bootstrap 5
-            $('#deleteAnnouncementModal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget);
-                var id = button.data('id');
-                var title = button.data('title');
+                if (!title) {
+                    title = "Unknown"; // Fallback in case title is empty
+                }
                 
-                console.log('Modal opening. ID:', id, 'Title:', title);
+                // Set the form action directly to the controller action
+                $('#deleteAnnouncementForm').attr('action', '@Url.Action("Delete", "Announcement")');
                 
-                // Update the modal's content using vanilla JavaScript
-                document.getElementById('delete-announcement-title').innerText = title;
-                document.getElementById('delete-announcement-id').value = id;
+                // Set the id and title in the modal
+                $('#delete-announcement-id').val(id);
+                $('#delete-announcement-title').text(title);
             });
         });
         
@@ -321,5 +316,22 @@
             // Redirect to new URL
             window.location.href = url.toString();
         }
+    </script>
+    <script>
+        $(document).ready(function() {
+            // delegate click so dynamic rows work
+            $(document).on('click', '.delete-announcement', function() {
+                var id = $(this).data('id');
+                var title = $(this).data('title') || 'Unknown';
+
+                // build the correct form action including the ID in the route
+                var template = '@Url.Action("Delete", "Announcement", new { id = "__id__" })';
+                $('#deleteAnnouncementForm').attr('action', template.replace('__id__', id));
+
+                // populate hidden input & title
+                $('#delete-announcement-id').val(id);
+                $('#delete-announcement-title').text(title);
+            });
+        });
     </script>
 }
