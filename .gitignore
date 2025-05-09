@@ -508,3 +508,5 @@ key.bin
 /instructions
 .appsettings.json
 .appsettings.Development.json
+bin/
+obj/

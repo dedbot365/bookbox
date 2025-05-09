@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bookbox.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250508114510_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250506164321_AddAnnouncementsAndOtherEntities")]
+    partial class AddAnnouncementsAndOtherEntities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

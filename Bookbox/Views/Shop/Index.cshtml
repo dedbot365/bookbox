@@ -1,7 +1,5 @@
 @model IEnumerable<Bookbox.Models.Book>
 @inject Bookbox.Services.Interfaces.IDiscountService DiscountService
-@inject Bookbox.Services.Interfaces.IBookmarkService BookmarkService
-@using System.Security.Claims
 
 @{
     ViewData["Title"] = "Shop Books - " + ViewData["CategoryName"];
@@ -77,6 +75,18 @@
                                             <i class="fas fa-book fa-4x text-secondary"></i>
                                         </div>
                                     }
+                                    @if (book.Discounts.Any(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow)))
+                                    {
+                                        var discount = book.Discounts.First(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow));
+                                        <div class="position-absolute top-0 end-0 d-flex">
+                                            <span class="badge bg-danger me-1">ON SALE</span>
+                                            @if (discount.EndDate.HasValue)
+                                            {
+                                                var badgeDaysRemaining = (discount.EndDate.Value - DateTime.UtcNow).Days;
+                                                <span class="badge bg-warning text-dark">@badgeDaysRemaining @(badgeDaysRemaining == 1 ? "day" : "days") left</span>
+                                            }
+                                        </div>
+                                    }
                                 </div>
                                 <div class="card-body">
                                     <h5 class="card-title book-title">@book.Title</h5>
@@ -99,6 +109,7 @@
                                             <div>
                                                 <span class="text-muted"><s>NPR @book.Price.ToString("0.00")</s></span>
                                                 <span class="book-price text-danger">NPR @discountedPrice.ToString("0.00")</span>
+                                                <span class="badge bg-danger ms-1 d-inline-block">ON SALE</span>
                                             </div>
                                         }
                                         else
@@ -121,21 +132,6 @@
                                         <a href="@Url.Action("Details", "Book", new { id = book.BookId })" class="btn btn-outline-primary">
                                             <i class="fas fa-info-circle"></i> View Details
                                         </a>
-                                        
-                                        @if (User.Identity?.IsAuthenticated == true)
-                                        {
-                                            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                                            var isBookmarked = await BookmarkService.IsBookmarkedByUserAsync(userId, book.BookId);
-                                            
-                                            <form asp-controller="Bookmark" asp-action="Toggle" method="post" class="mt-2">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="bookId" value="@book.BookId" />
-                                                <button type="submit" class="btn @(isBookmarked ? "btn-success" : "btn-outline-success") w-100">
-                                                    <i class="fas fa-bookmark me-1"></i> 
-                                                    @(isBookmarked ? "Bookmarked" : "Add to Bookmarks")
-                                                </button>
-                                            </form>
-                                        }
                                     </div>
                                 </div>
                             </div>
