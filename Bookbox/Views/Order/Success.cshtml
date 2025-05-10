@@ -51,12 +51,12 @@
                                 <div class="col-md-6">
                                     <h6>Price Details</h6>
                                     <ul class="list-unstyled">
-                                        <li>Subtotal: <span class="fw-bold">NPR @Model.Subtotal.ToString("N2")</span></li>
+                                        <li>Subtotal: <span class="fw-bold">NPR @Model.Subtotal.ToString("F2")</span></li>
                                         @if (Model.DiscountApplied > 0)
                                         {
-                                            <li>Discount: <span class="text-success fw-bold">-NPR @Model.DiscountApplied.ToString("N2")</span></li>
+                                            <li>Discount: <span class="text-success fw-bold">-NPR @Model.DiscountApplied.ToString("F2")</span></li>
                                         }
-                                        <li>Total: <span class="fw-bold">NPR @Model.TotalAmount.ToString("N2")</span></li>
+                                        <li>Total: <span class="fw-bold">NPR @Model.TotalAmount.ToString("F2")</span></li>
                                     </ul>
                                 </div>
                             </div>
@@ -76,15 +76,17 @@
                                 </div>
                                 <div class="text-end">
                                     <span class="badge bg-primary rounded-pill me-2">x@(item.Quantity)</span>
-                                    <span>NPR @item.Subtotal.ToString("N2")</span>
+                                    <span>NPR @item.Subtotal.ToString("F2")</span>
                                 </div>
                             </div>
                         }
                     </div>
                     
                     <div class="d-grid gap-2">
-                        <a asp-controller="Order" asp-action="Details" asp-route-id="@Model.OrderId" class="btn btn-primary">View Order Details</a>
-                        <a asp-controller="Book" asp-action="Index" class="btn btn-outline-secondary">Continue Shopping</a>
+                        <a asp-controller="Order" asp-action="Index" class="btn btn-success">
+                            <i class="fas fa-shopping-bag me-1"></i> View My Orders
+                        </a>
+                        <a asp-controller="Book" asp-action="Index" class="btn btn-primary">Continue Shopping</a>
                     </div>
                 </div>
             </div>

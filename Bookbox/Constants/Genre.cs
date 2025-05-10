@@ -15,6 +15,9 @@ namespace Bookbox.Constants
         Poetry = 11,
         SelfHelp = 12,
         Children = 13,
-        YoungAdult = 14
+        YoungAdult = 14,
+        Classic = 14,
+        Litrature = 15
+
     }
 }
