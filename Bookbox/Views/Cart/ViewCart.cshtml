@@ -150,40 +150,67 @@
         
         <!-- Order Summary -->
         <div class="col-lg-4">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm mb-4">
                 <div class="card-header bg-white">
-                    <h4 class="mb-0">Order Summary</h4>
+                    <h5 class="mb-0">Order Summary</h5>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex justify-content-between mb-3">
-                        <span>Subtotal (<span id="selected-items-count">@Model.Count()</span> items)</span>
-                        <span>NPR <span id="subtotal-price">@ViewBag.SubtotalPrice.ToString("0.00")</span></span>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal </span>
+                        <span>NPR @ViewBag.SubtotalPrice.ToString("F2")</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex justify-content-between mb-2">
                         <span>Shipping Fee</span>
-                        <span>NPR <span id="shipping-fee">@ViewBag.ShippingFee.ToString("0.00")</span></span>
+                        <span>NPR @ViewBag.ShippingFee.ToString("F2")</span>
                     </div>
-                    <hr />
+                    <hr>
                     <div class="d-flex justify-content-between mb-3">
-                        <span class="fw-bold">Total</span>
-                        <span class="fw-bold text-danger">NPR <span id="total-price">@ViewBag.TotalPrice.ToString("0.00")</span></span>
+                        <strong>Total</strong>
+                        <strong>NPR @ViewBag.TotalPrice.ToString("F2")</strong>
                     </div>
                     
+                    <!-- Shipping Address Section -->
                     <div class="mb-3">
-                        <input type="text" class="form-control" placeholder="Enter Voucher Code" />
+                        <h6 class="mb-2">Shipping Address</h6>
+                        @if (ViewBag.UserAddress != null)
+                        {
+                            var address = ViewBag.UserAddress;
+                            <div class="bg-light p-3 rounded border mb-2">
+                                <p class="mb-1"><strong>@User.Identity.Name</strong></p>
+                                <p class="mb-1">@address.Address1</p>
+                                @if (!string.IsNullOrEmpty(address.Address2))
+                                {
+                                    <p class="mb-1">@address.Address2</p>
+                                }
+                                <p class="mb-1">@address.City, @address.State</p>
+                                <p class="mb-0">@address.Country</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">
+                                <p class="mb-2">No shipping address found.</p>
+                                <a href="@Url.Action("EditProfile", "Account")" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-plus me-1"></i> Add Address
+                                </a>
+                            </div>
+                        }
                     </div>
-                    <div class="d-grid">
-                        <button class="btn btn-outline-primary mb-2">APPLY</button>
+                    <hr>
+                    
+                    <!-- Voucher Code Section -->
+                    <div class="mb-3">
+                        <label for="voucherCode" class="form-label">Enter Voucher Code</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="voucherCode" placeholder="Enter voucher code">
+                            <button class="btn btn-outline-secondary" type="button">Apply</button>
+                        </div>
                     </div>
                     
-                    @if (Model.Any())
-                    {
-                        <div class="d-grid mt-4">
-                            <a asp-action="Checkout" class="btn btn-primary">
-                                PROCEED TO CHECKOUT
-                            </a>
-                        </div>
-                    }
+                    <!-- Checkout Button -->
+                    <a href="@Url.Action("Checkout", "Cart")" class="btn btn-primary w-100">
+                        Proceed to Checkout
+                    </a>
                 </div>
             </div>
         </div>

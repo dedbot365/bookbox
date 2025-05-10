@@ -6,6 +6,8 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace Bookbox.Controllers
 {
@@ -15,12 +17,18 @@ namespace Bookbox.Controllers
         private readonly ICartService _cartService;
         private readonly IBookService _bookService;
         private readonly IDiscountService _discountService;
+        private readonly Bookbox.Data.ApplicationDbContext _context; // Add this line
 
-        public CartController(ICartService cartService, IBookService bookService, IDiscountService discountService)
+        public CartController(
+            ICartService cartService, 
+            IBookService bookService, 
+            IDiscountService discountService,
+            Bookbox.Data.ApplicationDbContext context) // Add this parameter
         {
             _cartService = cartService;
             _bookService = bookService;
             _discountService = discountService;
+            _context = context; // Add this line
         }
 
         // GET: Cart
@@ -318,6 +326,13 @@ namespace Bookbox.Controllers
             ViewBag.TotalPrice = totalPrice;
             ViewBag.SubtotalPrice = totalPrice;
             ViewBag.ShippingFee = 0; // You can adjust this based on your business logic
+            
+            // Get the user's address
+            var userWithAddress = await _context.Users
+                .Include(u => u.Addresses) // Changed from Address to Addresses (plural)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+            
+            ViewBag.UserAddress = userWithAddress?.Addresses.FirstOrDefault(); // Get the first address from collection
             
             return View(cartItems);
         }
