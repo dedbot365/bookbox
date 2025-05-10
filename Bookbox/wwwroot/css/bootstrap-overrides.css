@@ -1,0 +1,124 @@
+/* Bootstrap Primary Color Overrides */
+:root {
+    --bs-primary: #4D4490;
+    --bs-primary-rgb: 77, 68, 144;
+    --bs-link-color: #4D4490;
+    --bs-link-hover-color: #413a7a;
+    
+    /* Custom color variables for filter interactions */
+    --purple-light: #6a62b7;       /* Lighter purple for hover effects */
+    --purple-medium: #5c53a7;      /* Medium purple for selected items */
+    --purple-lightest: #efedf7;    /* Very light purple for subtle backgrounds */
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: #4D4490;
+    border-color: #4D4490;
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+    background-color: #413a7a !important;
+    border-color: #413a7a !important;
+}
+
+.btn-outline-primary {
+    color: #4D4490;
+    border-color: #4D4490;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
+    background-color: #4D4490;
+    border-color: #4D4490;
+}
+
+/* Text and background colors */
+.text-primary {
+    color: #4D4490 !important;
+}
+
+.bg-primary {
+    background-color: #4D4490 !important;
+}
+
+.border-primary {
+    border-color: #4D4490 !important;
+}
+
+/* Navigation styles */
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    background-color: #4D4490;
+}
+
+a {
+    color: #4D4490;
+}
+
+a:hover {
+    color: var(--purple-light);
+}
+
+/* Card styles */
+.card-header.bg-primary {
+    background-color: #4D4490 !important;
+}
+
+/* Pagination styles */
+.page-item.active .page-link {
+    background-color: #4D4490;
+    border-color: #4D4490;
+}
+
+.page-link {
+    color: #4D4490;
+}
+
+.page-link:hover {
+    color: var(--purple-light);
+    background-color: var(--purple-lightest);
+}
+
+/* Form styles */
+.form-check-input:checked {
+    background-color: var(--purple-medium);
+    border-color: var(--purple-medium);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--purple-light);
+    box-shadow: 0 0 0 0.25rem rgba(77, 68, 144, 0.25);
+}
+
+/* Dropdown styles */
+.dropdown-item.active, .dropdown-item:active {
+    background-color: var(--purple-medium);
+}
+
+.dropdown-item:hover {
+    background-color: var(--purple-lightest);
+}
+
+/* List group styles */
+.list-group-item.active {
+    background-color: var(--purple-medium);
+    border-color: var(--purple-medium);
+}
+
+.list-group-item-action:hover {
+    background-color: var(--purple-lightest);
+    color: var(--bs-primary);
+}
+
+.list-group-item-action:active {
+    background-color: var(--purple-medium);
+    color: white;
+}
+
+/* Input focus styles */
+.btn:focus, 
+.btn:active:focus, 
+.form-control:focus, 
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(77, 68, 144, 0.25);
+}
