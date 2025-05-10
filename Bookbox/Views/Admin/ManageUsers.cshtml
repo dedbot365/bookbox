@@ -254,7 +254,9 @@
                             document.getElementById('detailEmail').textContent = user.email;
                             document.getElementById('detailContact').textContent = user.contactNo || 'Not provided';
                             document.getElementById('detailDOB').textContent = user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : 'Not provided';
-                            document.getElementById('detailGender').textContent = user.gender === 0 ? 'Male' : 'Female';
+                            document.getElementById('detailGender').textContent = 
+                                user.gender === 1 ? 'Male' : 
+                                user.gender === 2 ? 'Female' : 'Other';
                             document.getElementById('detailRole').textContent = user.userType === 2 ? 'Member' : 'Staff';
                             document.getElementById('detailRegisteredDate').textContent = new Date(user.registeredDate).toLocaleDateString();
                             document.getElementById('detailOrders').textContent = user.successfulOrderCount;
