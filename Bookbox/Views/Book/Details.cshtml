@@ -139,7 +139,7 @@
                     <!-- Book actions section - Add to Cart and Wishlist buttons -->
                     <div class="mt-4">
                         <div class="d-flex flex-wrap gap-3 align-items-start">
-                            @if (!User.IsInRole("Admin") && !User.IsInRole("Staff"))
+                            @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Member"))
                             {
                                 <div>
                                     @if (Model.Stock > 0)
