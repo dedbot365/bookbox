@@ -1,13 +1,13 @@
+using Bookbox.DTOs;
 using Bookbox.Models;
 using Bookbox.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-
 
 namespace Bookbox.Controllers
 {
@@ -159,22 +159,22 @@ namespace Bookbox.Controllers
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var cartItems = await _cartService.GetUserCartItemsAsync(userId, count);
             
-            var result = cartItems.Select(item => new
+            var result = cartItems.Select(item => new CartItemDTO
             {
-                cartItemId = item.CartItemId,
-                quantity = item.Quantity,
-                book = new
+                CartItemId = item.CartItemId,
+                Quantity = item.Quantity,
+                Book = new BookCartDTO
                 {
-                    bookId = item.Book.BookId,
-                    title = item.Book.Title,
-                    author = item.Book.Author,
-                    price = item.Book.Price,
-                    stock = item.Book.Stock,
-                    imageUrl = item.Book.ImageUrl,
-                    isOnSale = item.Book.Discounts.Any(d => d.IsOnSale && 
+                    BookId = item.Book.BookId,
+                    Title = item.Book.Title,
+                    Author = item.Book.Author,
+                    Price = item.Book.Price,
+                    Stock = item.Book.Stock,
+                    ImageUrl = item.Book.ImageUrl,
+                    IsOnSale = item.Book.Discounts.Any(d => d.IsOnSale && 
                               d.StartDate <= DateTime.UtcNow && 
                               (d.EndDate == null || d.EndDate > DateTime.UtcNow)),
-                    discountedPrice = item.Book.Discounts
+                    DiscountedPrice = item.Book.Discounts
                         .Where(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && 
                                (d.EndDate == null || d.EndDate > DateTime.UtcNow))
                         .Select(d => _discountService.CalculateDiscountedPrice(
@@ -336,13 +336,5 @@ namespace Bookbox.Controllers
             
             return View(cartItems);
         }
-
-
-    }
-
-    public class UpdateQuantityRequest
-    {
-        public Guid CartItemId { get; set; }
-        public int Change { get; set; }
     }
 }
