@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bookbox.Migrations
 {
     /// <inheritdoc />
-    public partial class AddOrderNumberColumnManually : Migration
+    public partial class checkoutorder : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

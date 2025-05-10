@@ -88,6 +88,11 @@ namespace Bookbox.Data
                 .Property(o => o.OrderNumber)
                 .UseIdentityByDefaultColumn();
 
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.OrderItems)
+                .WithOne(oi => oi.Order)
+                .HasForeignKey(oi => oi.OrderId);
+
             // OrderItem entity configuration
             modelBuilder.Entity<OrderItem>(entity =>
             {
