@@ -262,5 +262,12 @@ namespace Bookbox.Services
                 throw;
             }
         }
+
+        public async Task<IEnumerable<Book>> GetBooksByIdsAsync(IEnumerable<Guid> ids)
+        {
+            return await _context.Books
+                .Where(b => ids.Contains(b.BookId))
+                .ToListAsync();
+        }
     }
 }

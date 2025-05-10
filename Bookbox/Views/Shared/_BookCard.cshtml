@@ -1,5 +1,7 @@
 @model Bookbox.Models.Book
 @inject Bookbox.Services.Interfaces.IDiscountService DiscountService
+@inject Bookbox.Services.Interfaces.IBookmarkService BookmarkService
+@using System.Security.Claims
 
 @{
     bool isHorizontalLayout = ViewData["HorizontalLayout"] != null ? (bool)ViewData["HorizontalLayout"] : false;
@@ -110,8 +112,8 @@
 else
 {
     <!-- Vertical layout (for home and shop pages) -->
-    <a href="@detailsUrl" class="text-decoration-none text-dark">
-        <div class="card h-100 book-card">
+    <div class="card h-100 book-card">
+        <a href="@detailsUrl" class="text-decoration-none text-dark">
             <div class="card-img-container position-relative">
                 @if (!string.IsNullOrEmpty(Model.ImageUrl))
                 {
@@ -166,6 +168,40 @@ else
                     </div>
                 }
             </div>
-        </div>
-    </a>
+        </a>
+        
+        <!-- Add wishlist buttons for members (now inside the card) -->
+        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Member"))
+        {
+            <div class="card-footer bg-white border-top-0">
+                <div class="d-grid gap-2">
+                    @{
+                        var isBookmarked = await BookmarkService.IsBookmarkedByUserAsync(Model.BookId, 
+                            Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
+                    }
+                    
+                    @if (isBookmarked)
+                    {
+                        <form asp-action="Remove" asp-controller="Bookmark" asp-route-id="@Model.BookId" 
+                              asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-heart-broken me-1"></i> Remove from Wishlist
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Add" asp-controller="Bookmark" asp-route-id="@Model.BookId" 
+                              asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-heart me-1"></i> Add to Wishlist
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+    </div>
 }
