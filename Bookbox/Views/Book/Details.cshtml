@@ -168,9 +168,18 @@
         </div>
         <div class="card-footer">
             <div class="d-flex justify-content-between">
-                <a asp-action="Index" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Back to List
-                </a>
+                @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+                {
+                    <a asp-controller="Book" asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Shop" asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Shop
+                    </a>
+                }
                 @if (User.IsInRole("Admin"))
                 {
                     <div>
