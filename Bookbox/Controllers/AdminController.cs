@@ -1,12 +1,14 @@
 using Bookbox.Models;
 using Bookbox.Data;
 using Bookbox.Constants;
+using Bookbox.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Bookbox.Controllers
 {
@@ -14,14 +16,52 @@ namespace Bookbox.Controllers
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IBookService _bookService;
+        private readonly IUserService _userService;
+        private readonly IAnnouncementService _announcementService;
 
-        public AdminController(ApplicationDbContext context)
+        public AdminController(
+            ApplicationDbContext context,
+            IBookService bookService,
+            IUserService userService,
+            IAnnouncementService announcementService)
         {
             _context = context;
+            _bookService = bookService;
+            _userService = userService;
+            _announcementService = announcementService;
         }
 
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
+            // Get real data where available
+            var books = await _bookService.GetAllBooksAsync();
+            var users = await _userService.GetAllUsersAsync();
+            var announcements = await _announcementService.GetAllAnnouncementsAsync();
+            var recentAnnouncements = await _announcementService.GetRecentAnnouncementsAsync(5);
+
+            // Calculate books by genre
+            var booksByGenre = books
+                .GroupBy(b => b.Genre)
+                .Select(g => new { Genre = g.Key.ToString(), Count = g.Count() })
+                .OrderByDescending(x => x.Count)
+                .ToList();
+
+            // Calculate books by format 
+            var booksByFormat = books
+                .GroupBy(b => b.Format)
+                .Select(g => new { Format = g.Key.ToString(), Count = g.Count() })
+                .OrderByDescending(x => x.Count)
+                .ToList();
+
+            // Pass data to view
+            ViewBag.TotalBooks = books.Count;
+            ViewBag.TotalUsers = users.Count;
+            ViewBag.TotalAnnouncements = announcements.Count();
+            ViewBag.Announcements = recentAnnouncements;
+            ViewBag.BooksByGenre = booksByGenre;
+            ViewBag.BooksByFormat = booksByFormat;
+
             return View();
         }
 

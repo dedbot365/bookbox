@@ -256,3 +256,84 @@ main {
     border: none;
     overflow: hidden;
 }
+
+/* Dashboard Styling */
+.chart-area {
+    position: relative;
+    height: 300px;
+    margin: auto;
+}
+
+.chart-pie, .chart-bar {
+    position: relative;
+    height: 250px;
+    margin: auto;
+}
+
+/* Card styling */
+.border-left-primary, .border-left-success, .border-left-info, .border-left-warning {
+    padding-left: 0.75rem;
+    border-left-width: 0.25rem;
+    border-left-style: solid;
+}
+
+.border-left-primary {
+    border-left-color: #4e73df;
+}
+
+.border-left-success {
+    border-left-color: #1cc88a;
+}
+
+.border-left-info {
+    border-left-color: #36b9cc;
+}
+
+.border-left-warning {
+    border-left-color: #f6c23e;
+}
+
+/* Timeline Styling */
+.timeline {
+    position: relative;
+    padding: 0;
+    list-style: none;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-content {
+    border-left: 2px solid #e3e6f0;
+    padding-left: 15px;
+    padding-bottom: 10px;
+}
+
+/* Card hover effects */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}

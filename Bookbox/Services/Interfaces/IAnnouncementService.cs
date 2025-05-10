@@ -14,5 +14,7 @@ namespace Bookbox.Services.Interfaces
         Task<Announcement> CreateAnnouncementAsync(AnnouncementDTO announcementDTO, Guid userId);
         Task<Announcement?> UpdateAnnouncementAsync(AnnouncementDTO announcementDTO);
         Task<bool> DeleteAnnouncementAsync(Guid id);
+        
+        Task<List<Announcement>> GetRecentAnnouncementsAsync(int count);
     }
 }
