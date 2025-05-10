@@ -2,55 +2,657 @@
     ViewData["Title"] = "Admin Dashboard";
 }
 
-<div class="container mt-5">
-    <div class="card shadow">
-        <div class="card-header bg-dark text-white">
-            <h2>Admin Dashboard</h2>
+<!-- Include Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Dashboard</h1>
+    </div>
+
+    <!-- Key Stats Cards - First Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Users</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalUsers</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <h3>System Administration</h3>
-            <p>This page is only accessible to administrators. Here you can manage users, books, and system settings.</p>
-            
-            <div class="mt-4">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="card mb-4">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">User Management</h5>
-                                <p class="card-text">Manage system users and their roles.</p>
-                                <a href="#" class="btn btn-primary">Manage Users</a>
-                            </div>
+
+        <div class="col-md-3">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Books</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalBooks</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-book fa-2x text-gray-300"></i>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card mb-4">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">Book Management</h5>
-                                <p class="card-text">Add, edit, or remove books from the system.</p>
-                                <a asp-controller="Book" asp-action="Index" class="btn btn-primary">Manage Books</a>
-                            </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Announcements</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalAnnouncements</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-bullhorn fa-2x text-gray-300"></i>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card mb-4">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">Announcement Management</h5>
-                                <p class="card-text">Create and manage announcements.</p>
-                                <a asp-controller="Announcement" asp-action="Index" class="btn btn-primary">Manage Announcements</a>
-                            </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">145</div>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card mb-4">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">System Settings</h5>
-                                <p class="card-text">Configure application settings.</p>
-                                <a href="#" class="btn btn-primary">Settings</a>
-                            </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Key Stats Cards - Second Row -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Monthly Revenue</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">NPR 215,000</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional metrics can be added here if needed -->
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- Orders Line Chart -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Orders Overview</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                           data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                             aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">View Options:</div>
+                            <a class="dropdown-item" href="#">This Week</a>
+                            <a class="dropdown-item" href="#">This Month</a>
+                            <a class="dropdown-item" href="#">This Year</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">Export Data</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="ordersLineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Books by Genre Pie Chart -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Books by Genre</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="genrePieChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small" id="genre-legend">
+                        <!-- Genre legend will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Top Selling Books -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top Selling Books</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-bar">
+                        <canvas id="topSellingBooksChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Books by Format -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Books by Format</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="formatDonutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Reviews Overview -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Reviews Overview</h6>
+                </div>
+                <div class="card-body">
+                    <h4 class="small font-weight-bold">5 Stars <span class="float-end">40%</span></h4>
+                    <div class="progress mb-4">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <h4 class="small font-weight-bold">4 Stars <span class="float-end">30%</span></h4>
+                    <div class="progress mb-4">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <h4 class="small font-weight-bold">3 Stars <span class="float-end">15%</span></h4>
+                    <div class="progress mb-4">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <h4 class="small font-weight-bold">2 Stars <span class="float-end">10%</span></h4>
+                    <div class="progress mb-4">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <h4 class="small font-weight-bold">1 Star <span class="float-end">5%</span></h4>
+                    <div class="progress">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: 5%" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Announcements -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Announcements</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-borderless" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var announcement in ViewBag.Announcements ?? new List<Bookbox.Models.Announcement>())
+                                {
+                                    <tr>
+                                        <td>@announcement.Title</td>
+                                        <td>
+                                            @if (announcement.IsActive && announcement.StartDate <= DateTime.UtcNow && (announcement.EndDate == null || announcement.EndDate > DateTime.UtcNow))
+                                            {
+                                                <span class="badge bg-success">Active</span>
+                                            }
+                                            else if (announcement.IsActive && announcement.StartDate > DateTime.UtcNow)
+                                            {
+                                                <span class="badge bg-warning">Scheduled</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Inactive</span>
+                                            }
+                                        </td>
+                                        <td>@announcement.LastModified.ToString("MMM dd")</td>
+                                    </tr>
+                                }
+                                @if ((ViewBag.Announcements as IEnumerable<Bookbox.Models.Announcement>)?.Any() != true)
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center">No recent announcements</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders and Activity Row -->
+    <div class="row">
+        <!-- Recent Orders -->
+        <div class="col-lg-7 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Orders</h6>
+                    <a href="#" class="btn btn-sm btn-primary shadow-sm">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#ORD-1234</td>
+                                    <td>John Smith</td>
+                                    <td>NPR 2,530</td>
+                                    <td><span class="badge bg-success">Completed</span></td>
+                                    <td>Jun 12, 2023</td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-1235</td>
+                                    <td>Anna Johnson</td>
+                                    <td>NPR 1,875</td>
+                                    <td><span class="badge bg-warning">Processing</span></td>
+                                    <td>Jun 11, 2023</td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-1236</td>
+                                    <td>Michael Brown</td>
+                                    <td>NPR 3,450</td>
+                                    <td><span class="badge bg-success">Completed</span></td>
+                                    <td>Jun 10, 2023</td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-1237</td>
+                                    <td>Sarah Davis</td>
+                                    <td>NPR 980</td>
+                                    <td><span class="badge bg-danger">Cancelled</span></td>
+                                    <td>Jun 09, 2023</td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-1238</td>
+                                    <td>Robert Wilson</td>
+                                    <td>NPR 4,230</td>
+                                    <td><span class="badge bg-success">Completed</span></td>
+                                    <td>Jun 08, 2023</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* <!-- Recent Activity -->
+        <div class="col-lg-5 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Activity</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="timeline">
+                        <li class="timeline-item">
+                            <div class="timeline-icon bg-primary">
+                                <i class="fas fa-user-plus text-white"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h5 class="mb-1">New user registered</h5>
+                                <p class="small text-muted mb-0">Today, 11:30 AM</p>
+                                <p>Anil Sharma joined as a new member</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item">
+                            <div class="timeline-icon bg-success">
+                                <i class="fas fa-book text-white"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h5 class="mb-1">New book added</h5>
+                                <p class="small text-muted mb-0">Today, 10:15 AM</p>
+                                <p>"The Midnight Library" added to inventory</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item">
+                            <div class="timeline-icon bg-info">
+                                <i class="fas fa-star text-white"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h5 class="mb-1">New review</h5>
+                                <p class="small text-muted mb-0">Yesterday, 4:30 PM</p>
+                                <p>Priya Thapa rated "The Alchemist" 5 stars</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item">
+                            <div class="timeline-icon bg-warning">
+                                <i class="fas fa-tag text-white"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h5 class="mb-1">Discount applied</h5>
+                                <p class="small text-muted mb-0">Yesterday, 2:15 PM</p>
+                                <p>15% discount added to "Harry Potter" series</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item">
+                            <div class="timeline-icon bg-danger">
+                                <i class="fas fa-exclamation-triangle text-white"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h5 class="mb-1">Low stock alert</h5>
+                                <p class="small text-muted mb-0">Yesterday, 10:45 AM</p>
+                                <p>"The Silent Patient" is running low on stock (2 remaining)</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div> *@
+    </div>
 </div>
+
+<style>
+/* Custom styling for dashboard */
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+/* Timeline styling */
+.timeline {
+    position: relative;
+    list-style: none;
+    padding-left: 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+}
+
+.timeline-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-content {
+    border-left: 2px solid #e3e6f0;
+    padding-left: 15px;
+    padding-bottom: 10px;
+}
+</style>
+
+@section Scripts {
+    <script>
+        // Execute charts when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Orders Line Chart
+            const ordersCtx = document.getElementById('ordersLineChart').getContext('2d');
+            const ordersLineChart = new Chart(ordersCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Orders',
+                        lineTension: 0.3,
+                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        pointRadius: 3,
+                        pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                        pointBorderColor: 'rgba(78, 115, 223, 1)',
+                        pointHoverRadius: 3,
+                        pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                        pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                        pointHitRadius: 10,
+                        pointBorderWidth: 2,
+                        data: [8, 12, 15, 14, 18, 22, 25, 31, 28, 33, 35, 40],
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 25,
+                            top: 25,
+                            bottom: 0
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                maxTicksLimit: 5,
+                                padding: 10
+                            },
+                            grid: {
+                                color: 'rgb(234, 236, 244)',
+                                drawBorder: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Genre Pie Chart - Dynamic Data
+            const genreCtx = document.getElementById('genrePieChart').getContext('2d');
+            
+            // Get genre data from ViewBag
+            const genreData = @Html.Raw(Json.Serialize(ViewBag.BooksByGenre ?? new List<object>()));
+            
+            // Extract labels and data from genreData
+            const genreLabels = genreData.map(item => item.genre);
+            const genreCounts = genreData.map(item => item.count);
+            
+            // Define colors for the chart (reuse existing colors)
+            const backgroundColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', 
+                                     '#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60616f'];
+            const hoverBackgroundColors = ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60616f',
+                                          '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'];
+            
+            // Create the chart with dynamic data
+            const genrePieChart = new Chart(genreCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: genreLabels,
+                    datasets: [{
+                        data: genreCounts,
+                        backgroundColor: backgroundColors.slice(0, genreLabels.length),
+                        hoverBackgroundColor: hoverBackgroundColors.slice(0, genreLabels.length),
+                        hoverBorderColor: 'rgba(234, 236, 244, 1)',
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            display: genreLabels.length <= 8 // Only display legend if 8 or fewer genres
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%',
+                }
+            });
+
+            // Update the small legend below the chart
+            const legendContainer = document.getElementById('genre-legend');
+            if (legendContainer) {
+                legendContainer.innerHTML = genreLabels.slice(0, 5).map((label, index) => {
+                    return `<span class="mr-2"><i class="fas fa-circle" style="color: ${backgroundColors[index]}"></i> ${label}</span>`;
+                }).join('');
+            }
+
+            // Top Selling Books Bar Chart
+            const topBooksCtx = document.getElementById('topSellingBooksChart').getContext('2d');
+            const topBooksChart = new Chart(topBooksCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Harry Potter', 'The Alchemist', 'Atomic Habits', '1984', 'Think Again'],
+                    datasets: [{
+                        label: 'Sales',
+                        backgroundColor: '#4e73df',
+                        hoverBackgroundColor: '#2e59d9',
+                        data: [125, 115, 110, 85, 75],
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                maxTicksLimit: 5,
+                                padding: 10
+                            },
+                            grid: {
+                                color: 'rgb(234, 236, 244)',
+                                drawBorder: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Format Donut Chart - Dynamic Data
+            const formatCtx = document.getElementById('formatDonutChart').getContext('2d');
+
+            // Get format data from ViewBag
+            const formatData = @Html.Raw(Json.Serialize(ViewBag.BooksByFormat ?? new List<object>()));
+
+            // Extract labels and data from formatData
+            const formatLabels = formatData.map(item => item.format);
+            const formatCounts = formatData.map(item => item.count);
+
+            // Define colors for the chart (reuse from genre chart)
+            const formatBackgroundColors = backgroundColors;
+            const formatHoverBackgroundColors = hoverBackgroundColors;
+
+            // Create the chart with dynamic data
+            const formatDonutChart = new Chart(formatCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: formatLabels,
+                    datasets: [{
+                        data: formatCounts,
+                        backgroundColor: formatBackgroundColors.slice(0, formatLabels.length),
+                        hoverBackgroundColor: formatHoverBackgroundColors.slice(0, formatLabels.length),
+                        hoverBorderColor: 'rgba(234, 236, 244, 1)',
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            display: formatLabels.length <= 8 // Only display legend if 8 or fewer formats
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%',
+                }
+            });
+        });
+    </script>
+}

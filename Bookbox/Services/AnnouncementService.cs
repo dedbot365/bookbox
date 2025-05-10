@@ -138,5 +138,13 @@ namespace Bookbox.Services
             var result = announcements.Where(a => a.IsActive && a.EndDate.HasValue && a.EndDate.Value < DateTime.Now);
             return result;
         }
+
+        public async Task<List<Announcement>> GetRecentAnnouncementsAsync(int count)
+        {
+            return await _context.Announcements
+                .OrderByDescending(a => a.LastModified)
+                .Take(count)
+                .ToListAsync();
+        }
     }
 }

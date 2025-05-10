@@ -63,5 +63,11 @@ namespace Bookbox.Services
         {
             return await _context.Users.AnyAsync(u => u.Username == username || u.Email == email);
         }
+
+        // Add this new method to the UserService class
+        public async Task<List<User>> GetAllUsersAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
     }
 }
