@@ -50,7 +50,7 @@
                                     <td>@order.OrderNumber</td>
                                     <td>@order.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
                                     <td>@order.Items.Sum(i => i.Quantity) item(s)</td>
-                                    <td>@order.TotalAmount.ToString("C")</td>
+                                    <td>NPR @order.TotalAmount.ToString("F2")</td>
                                     <td>
                                         @switch (order.Status)
                                         {

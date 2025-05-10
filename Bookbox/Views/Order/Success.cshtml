@@ -51,12 +51,12 @@
                                 <div class="col-md-6">
                                     <h6>Price Details</h6>
                                     <ul class="list-unstyled">
-                                        <li>Subtotal: <span class="fw-bold">@Model.Subtotal.ToString("C")</span></li>
+                                        <li>Subtotal: <span class="fw-bold">NPR @Model.Subtotal.ToString("F2")</span></li>
                                         @if (Model.DiscountApplied > 0)
                                         {
-                                            <li>Discount: <span class="text-success fw-bold">-@Model.DiscountApplied.ToString("C")</span></li>
+                                            <li>Discount: <span class="text-success fw-bold">-NPR @Model.DiscountApplied.ToString("F2")</span></li>
                                         }
-                                        <li>Total: <span class="fw-bold">@Model.TotalAmount.ToString("C")</span></li>
+                                        <li>Total: <span class="fw-bold">NPR @Model.TotalAmount.ToString("F2")</span></li>
                                     </ul>
                                 </div>
                             </div>
@@ -76,7 +76,7 @@
                                 </div>
                                 <div class="text-end">
                                     <span class="badge bg-primary rounded-pill me-2">x@(item.Quantity)</span>
-                                    <span>@item.Subtotal.ToString("C")</span>
+                                    <span>NPR @item.Subtotal.ToString("F2")</span>
                                 </div>
                             </div>
                         }

@@ -54,9 +54,9 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>@item.Price.ToString("C")</td>
+                                        <td>NPR @item.Price.ToString("N2")</td>
                                         <td>@item.Quantity</td>
-                                        <td class="text-end">@item.TotalPrice.ToString("C")</td>
+                                        <td class="text-end">NPR @item.TotalPrice.ToString("N2")</td>
                                     </tr>
                                 }
                             </tbody>
@@ -75,14 +75,14 @@
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between">
                                     <span>Subtotal (@Model.TotalBooks items):</span>
-                                    <span>@Model.Subtotal.ToString("C")</span>
+                                    <span>NPR @Model.Subtotal.ToString("N2")</span>
                                 </div>
                                 
                                 @if (Model.HasBulkDiscount)
                                 {
                                     <div class="d-flex justify-content-between text-success">
                                         <span>Bulk Discount (5%):</span>
-                                        <span>-@Model.BulkDiscountAmount.ToString("C")</span>
+                                        <span>-NPR @Model.BulkDiscountAmount.ToString("N2")</span>
                                     </div>
                                 }
                                 
@@ -90,7 +90,7 @@
                                 {
                                     <div class="d-flex justify-content-between text-success">
                                         <span>Loyalty Discount (10%):</span>
-                                        <span>-@Model.LoyaltyDiscountAmount.ToString("C")</span>
+                                        <span>-NPR @Model.LoyaltyDiscountAmount.ToString("N2")</span>
                                     </div>
                                 }
                                 
@@ -98,13 +98,13 @@
                                 
                                 <div class="d-flex justify-content-between fw-bold">
                                     <span>Total:</span>
-                                    <span>@Model.FinalTotal.ToString("C")</span>
+                                    <span>NPR @Model.FinalTotal.ToString("N2")</span>
                                 </div>
                                 
                                 @if (Model.TotalDiscountAmount > 0)
                                 {
                                     <div class="text-success small mt-1">
-                                        You saved @Model.TotalDiscountAmount.ToString("C") on this order!
+                                        You saved NPR @Model.TotalDiscountAmount.ToString("N2") on this order!
                                     </div>
                                 }
                             </div>

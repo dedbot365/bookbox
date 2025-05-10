@@ -56,9 +56,9 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>@item.Price.ToString("C")</td>
+                                        <td>NPR @item.Price.ToString("F2")</td>
                                         <td>@item.Quantity</td>
-                                        <td class="text-end">@item.Subtotal.ToString("C")</td>
+                                        <td class="text-end">NPR @item.Subtotal.ToString("F2")</td>
                                     </tr>
                                 }
                             </tbody>
@@ -77,14 +77,14 @@
                     <div class="mb-3">
                         <div class="d-flex justify-content-between">
                             <span>Subtotal:</span>
-                            <span>@Model.Subtotal.ToString("C")</span>
+                            <span>NPR @Model.Subtotal.ToString("F2")</span>
                         </div>
                         
                         @if (Model.DiscountApplied > 0)
                         {
                             <div class="d-flex justify-content-between text-success">
                                 <span>Discount:</span>
-                                <span>-@Model.DiscountApplied.ToString("C")</span>
+                                <span>-NPR @Model.DiscountApplied.ToString("F2")</span>
                             </div>
                         }
                         
@@ -92,7 +92,7 @@
                         
                         <div class="d-flex justify-content-between fw-bold">
                             <span>Total:</span>
-                            <span>@Model.TotalAmount.ToString("C")</span>
+                            <span>NPR @Model.TotalAmount.ToString("F2")</span>
                         </div>
                     </div>
                 </div>
