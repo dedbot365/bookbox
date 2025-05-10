@@ -1,5 +1,7 @@
 @model Bookbox.Models.Book
 @inject Bookbox.Services.Interfaces.IDiscountService DiscountService
+@inject Bookbox.Services.Interfaces.IBookmarkService BookmarkService
+@using System.Security.Claims
 @{
     ViewData["Title"] = Model.Title;
     var discountInfo = await DiscountService.GetActiveDiscountForBookAsync(Model.BookId);
@@ -132,6 +134,34 @@
                                 <span class="badge bg-warning text-dark">@saleDaysRemaining @(saleDaysRemaining == 1 ? "day" : "days") left</span>
                             }
                         </div>
+                    }
+
+                    <!-- Add this inside the card body, after the price section -->
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Member"))
+                    {
+                        var isBookmarked = await BookmarkService.IsBookmarkedByUserAsync(Model.BookId, 
+                            Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
+                        
+                        @if (isBookmarked)
+                        {
+                            <form asp-action="Remove" asp-controller="Bookmark" asp-route-id="@Model.BookId" 
+                                  asp-route-returnUrl="@Context.Request.Path" method="post" class="mt-3">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger">
+                                    <i class="fas fa-heart-broken me-1"></i> Remove from Wishlist
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="Add" asp-controller="Bookmark" asp-route-id="@Model.BookId" 
+                                  asp-route-returnUrl="@Context.Request.Path" method="post" class="mt-3">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-heart me-1"></i> Add to Wishlist
+                                </button>
+                            </form>
+                        }
                     }
                 </div>
             </div>
