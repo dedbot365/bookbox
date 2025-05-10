@@ -1,0 +1,215 @@
+@inject Bookbox.Services.Interfaces.IDiscountService DiscountService
+@using System.Security.Claims
+
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="cartDropdown" role="button" 
+       data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-shopping-cart me-1"></i> Cart
+    </a>
+    <div class="dropdown-menu dropdown-menu-end p-0 shadow border-0" aria-labelledby="cartDropdown" style="min-width: 320px; border-radius: 8px; overflow: hidden;">
+        <div class="card border-0">
+            <div class="card-header d-flex justify-content-between align-items-center text-white" style="background-color: #4D4472;">
+                <span class="fw-bold"><i class="fas fa-shopping-cart me-1"></i> My Cart</span>
+                <a href="@Url.Action("ViewCart", "Cart")" class="btn btn-sm btn-light text-dark rounded-pill">
+                    View Cart
+                </a>
+            </div>
+            <div class="card-body p-0" id="cartDropdownContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border" style="color: #4D4472;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</li>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cartDropdown = document.getElementById('cartDropdown');
+        let cartItemsLoaded = false;
+        
+        cartDropdown.addEventListener('shown.bs.dropdown', function() {
+            if (!cartItemsLoaded) {
+                fetchCartItems();
+                cartItemsLoaded = true;
+            }
+        });
+        
+        function fetchCartItems() {
+            fetch('@Url.Action("GetCartItems", "Cart", new { count = 5 })')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    renderCartItems(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching cart items:', error);
+                    document.getElementById('cartDropdownContent').innerHTML = 
+                        '<div class="p-3 text-center text-danger">Failed to load cart items</div>';
+                });
+        }
+        
+        function renderCartItems(cartItems) {
+            const container = document.getElementById('cartDropdownContent');
+            
+            if (!cartItems || cartItems.length === 0) {
+                container.innerHTML = '<div class="p-3 text-center">Your cart is empty</div>';
+                return;
+            }
+            
+            let html = '<ul class="list-group list-group-flush">';
+            let totalPrice = 0;
+            
+            cartItems.forEach(item => {
+                const book = item.book;
+                const bookUrl = '@Url.Action("Details", "Book")/' + book.bookId;
+                const imageUrl = book.imageUrl || '/images/placeholder-book.png';
+                const itemPrice = item.quantity * (book.discountedPrice || book.price);
+                totalPrice += itemPrice;
+                
+                html += `
+                <li class="list-group-item p-2">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0" style="width: 50px;">
+                            <a href="${bookUrl}">
+                                <img src="${imageUrl}" alt="${book.title}" class="img-fluid rounded" style="max-height: 70px;">
+                            </a>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0"><a href="${bookUrl}" class="text-dark">${book.title}</a></h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">Qty: ${item.quantity}</small>
+                                <small class="text-success">${book.stock > 0 ? 'In Stock' : 'Out of Stock'}</small>
+                            </div>
+                            <div class="mt-1">`;
+                
+                if (book.isOnSale && book.discountedPrice) {
+                    html += `
+                                <span class="text-danger">NPR ${book.discountedPrice.toFixed(2)} × ${item.quantity}</span>`;
+                } else {
+                    html += `<span class="fw-bold">NPR ${book.price.toFixed(2)} × ${item.quantity}</span>`;
+                }
+                
+                html += `
+                            </div>
+                            <div class="mt-2 d-flex quantity-controls">
+                                <button class="btn btn-sm btn-outline-secondary decrease-quantity" data-id="${item.cartItemId}">-</button>
+                                <span class="mx-2 align-self-center">${item.quantity}</span>
+                                <button class="btn btn-sm btn-outline-secondary increase-quantity" data-id="${item.cartItemId}" ${book.stock <= item.quantity ? 'disabled' : ''}>+</button>
+                                <button class="btn btn-sm btn-outline-danger ms-2 remove-item" data-id="${item.cartItemId}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </li>`;
+            });
+            
+            html += `
+                <li class="list-group-item p-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">Total:</span>
+                        <span class="fw-bold">NPR ${totalPrice.toFixed(2)}</span>
+                    </div>
+                </li>
+                <li class="list-group-item p-3 text-center" style="background-color: #F8F7FA;">
+                    <a href="@Url.Action("Checkout", "Cart")" 
+                       class="btn w-100 text-white rounded-pill shadow-sm" style="background-color: #4D4472;">
+                        <i class="fas fa-shopping-bag me-1"></i> Checkout
+                    </a>
+                </li>
+            </ul>`;
+            
+            container.innerHTML = html;
+            
+            // Add event listeners for quantity controls
+            document.querySelectorAll('.decrease-quantity').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    updateCartItemQuantity(this.dataset.id, -1);
+                });
+            });
+            
+            document.querySelectorAll('.increase-quantity').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    updateCartItemQuantity(this.dataset.id, 1);
+                });
+            });
+            
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeCartItem(this.dataset.id);
+                });
+            });
+        }
+        
+        function updateCartItemQuantity(cartItemId, change) {
+            fetch('@Url.Action("UpdateQuantity", "Cart")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({ 
+                    cartItemId: cartItemId, 
+                    change: change 
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload cart items
+                    fetchCartItems();
+                    
+                    // If you have a cart count display, update it
+                    if (data.cartCount !== undefined && document.getElementById('cartCount')) {
+                        document.getElementById('cartCount').textContent = data.cartCount;
+                    }
+                }
+            })
+            .catch(error => console.error('Error updating cart:', error));
+        }
+        
+        function removeCartItem(cartItemId) {
+            fetch('@Url.Action("RemoveItemAjax", "Cart")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    cartItemId: cartItemId,
+                    change: 0 // Not used but needed for the DTO
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Reload cart items
+                    fetchCartItems();
+                    
+                    // If you have a cart count display, update it
+                    if (data.cartCount !== undefined && document.getElementById('cartCount')) {
+                        document.getElementById('cartCount').textContent = data.cartCount;
+                    }
+                }
+            })
+            .catch(error => console.error('Error removing item from cart:', error));
+        }
+    });
+</script>
