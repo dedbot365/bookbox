@@ -28,7 +28,7 @@ namespace Bookbox.Controllers
             decimal? minPrice = null, decimal? maxPrice = null, bool? inStock = null, string sortBy = "newest", 
             string category = "", int page = 1)
         {
-            int pageSize = 12;
+            int pageSize = 9;
             
             // Get all books for filtering
             var allBooks = await _bookService.GetAllBooksAsync();

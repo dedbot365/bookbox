@@ -33,7 +33,7 @@ namespace Bookbox.Controllers
                     return RedirectToAction("Dashboard", "Staff");
             }
 
-            int pageSize = 12;
+            int pageSize = 8;
             
             // Get all books for filtering
             var allBooks = await _bookService.GetAllBooksAsync();
