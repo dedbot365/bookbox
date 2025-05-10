@@ -10,6 +10,9 @@ namespace Bookbox.Models
         [Key]
         public Guid OrderId { get; set; }
         
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int OrderNumber { get; set; }
+        
         [Required]
         public Guid UserId { get; set; }
         
@@ -35,10 +38,14 @@ namespace Bookbox.Models
         
         public DateTime? CompletedDate { get; set; }
         
+        [Required]
+        public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.CashOnDelivery;
+        
+        public string? Notes { get; set; }
+        
+        public Guid? ProcessedBy { get; set; }
+        
         // Navigation property
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
-    
-    // Add this to Bookbox.Constants namespace
-    
 }
