@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bookbox.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250510083229_migrationinit")]
-    partial class migrationinit
+    [Migration("20250510154641_AddOrderNumberColumnManually")]
+    partial class AddOrderNumberColumnManually
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -295,8 +295,23 @@ namespace Bookbox.Migrations
                     b.Property<decimal>("DiscountApplied")
                         .HasColumnType("decimal(18, 2)");
 
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("OrderNumber")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderNumber"));
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("ProcessedBy")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");

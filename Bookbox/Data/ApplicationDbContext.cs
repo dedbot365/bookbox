@@ -84,6 +84,10 @@ namespace Bookbox.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
+            modelBuilder.Entity<Order>()
+                .Property(o => o.OrderNumber)
+                .UseIdentityByDefaultColumn();
+
             // OrderItem entity configuration
             modelBuilder.Entity<OrderItem>(entity =>
             {

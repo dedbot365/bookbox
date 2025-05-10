@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace Bookbox.Migrations
 {
     /// <inheritdoc />
-    public partial class migrationinit : Migration
+    public partial class AddOrderNumberColumnManually : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -139,13 +140,18 @@ namespace Bookbox.Migrations
                 columns: table => new
                 {
                     OrderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrderNumber = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     OrderDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     DiscountApplied = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     ClaimCode = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    CompletedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    CompletedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    PaymentMethod = table.Column<int>(type: "integer", nullable: false),
+                    Notes = table.Column<string>(type: "text", nullable: true),
+                    ProcessedBy = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
