@@ -6,6 +6,7 @@
 @{
     bool isHorizontalLayout = ViewData["HorizontalLayout"] != null ? (bool)ViewData["HorizontalLayout"] : false;
     bool isAdmin = User.IsInRole("Admin");
+    bool isStaff = User.IsInRole("Staff");
     bool showAdminControls = ViewData["ShowAdminControls"] != null ? (bool)ViewData["ShowAdminControls"] : isAdmin;
     
     var bookDiscount = await DiscountService.GetActiveDiscountForBookAsync(Model.BookId);
@@ -170,38 +171,72 @@ else
             </div>
         </a>
         
-        <!-- Add wishlist buttons for members (now inside the card) -->
-        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Member"))
-        {
-            <div class="card-footer bg-white border-top-0">
-                <div class="d-grid gap-2">
-                    @{
-                        var isBookmarked = await BookmarkService.IsBookmarkedByUserAsync(Model.BookId, 
-                            Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
-                    }
-                    
-                    @if (isBookmarked)
-                    {
-                        <form asp-action="Remove" asp-controller="Bookmark" asp-route-id="@Model.BookId" 
-                              asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString" method="post">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-outline-danger btn-sm">
-                                <i class="fas fa-heart-broken me-1"></i> Remove from Wishlist
+        <div class="card-footer bg-white border-top-0">
+            <div class="d-flex flex-wrap gap-2 justify-content-between">
+                <!-- Add to Cart button for non-admin and non-staff users -->
+                @if (!isAdmin && !isStaff)
+                {
+                    <div>
+                        @if (Model.Stock > 0)
+                        {
+                            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="bookId" value="@Model.BookId" />
+                                <input type="hidden" name="price" value="@discountedPrice" />
+                                <input type="hidden" name="quantity" value="1" />
+                                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="fas fa-shopping-cart me-1"></i> Add to Cart
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <button class="btn btn-secondary btn-sm" disabled>
+                                <i class="fas fa-shopping-cart me-1"></i> Out of Stock
                             </button>
-                        </form>
-                    }
-                    else
-                    {
-                        <form asp-action="Add" asp-controller="Bookmark" asp-route-id="@Model.BookId" 
-                              asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString" method="post">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-heart me-1"></i> Add to Wishlist
-                            </button>
-                        </form>
-                    }
-                </div>
+                        }
+                    </div>
+                }
+                
+                <!-- Add wishlist buttons for members -->
+                @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Member"))
+                {
+                    <div>
+                        @{
+                            var isBookmarked = await BookmarkService.IsBookmarkedByUserAsync(Model.BookId, 
+                                Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
+                        }
+                        
+                        @if (isBookmarked)
+                        {
+                            <form asp-action="Remove" asp-controller="Bookmark" asp-route-id="@Model.BookId" 
+                                  asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-heart-broken me-1"></i> Remove
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="Add" asp-controller="Bookmark" asp-route-id="@Model.BookId" 
+                                  asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-heart me-1"></i> Wishlist
+                                </button>
+                            </form>
+                        }
+                    </div>
+                }
+                
+                <!-- Admin controls remain unchanged -->
+                @if (showAdminControls)
+                {
+                    <!-- Existing admin control buttons... -->
+                }
             </div>
-        }
+        </div>
     </div>
 }
