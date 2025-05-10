@@ -30,6 +30,8 @@ namespace Bookbox.Controllers
             {
                 if (User.IsInRole("Admin"))
                     return RedirectToAction("Dashboard", "Admin");
+                else if (User.IsInRole("Staff"))
+                    return RedirectToAction("Dashboard", "Staff");
                 else
                     return RedirectToAction("Index", "Member");
             }
@@ -81,6 +83,8 @@ namespace Bookbox.Controllers
             // Redirect based on role
             if (role == "Admin")
                 return RedirectToAction("Dashboard", "Admin");
+            else if (role == "Staff")
+                return RedirectToAction("Dashboard", "Staff");
             else
                 return RedirectToAction("Index", "Member");
         }

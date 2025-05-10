@@ -87,7 +87,12 @@ namespace Bookbox.Services
         // Fix this method to match interface signature:
         public string GetRoleFromUserType(int userType)
         {
-            return userType == (int)Constants.UserType.Admin ? "Admin" : "Member";
+            return userType switch
+            {
+                (int)Constants.UserType.Admin => "Admin",
+                (int)Constants.UserType.Staff => "Staff",
+                _ => "Member"
+            };
         }
         
         // Update the AuthenticateUserAsync method:

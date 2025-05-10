@@ -23,7 +23,7 @@ namespace Bookbox.Controllers
         }
 
         // GET: Book
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> Index(string searchTerm = "", string genre = "", string format = "", 
             decimal? minPrice = null, decimal? maxPrice = null, bool? inStock = null, string sortBy = "newest", 
             string category = "", int page = 1)
@@ -122,7 +122,7 @@ namespace Bookbox.Controllers
 
         // GET: Book/Edit/5
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var book = await _bookService.GetBookByIdAsync(id);
@@ -158,7 +158,7 @@ namespace Bookbox.Controllers
         // POST: Book/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> Edit(Guid id, BookDTO bookDTO)
         {
             if (ModelState.IsValid)

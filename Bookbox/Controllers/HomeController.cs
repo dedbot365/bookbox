@@ -27,10 +27,13 @@ public class HomeController : Controller
     public async Task<IActionResult> Index(string searchTerm = "", string genre = "", string format = "", 
         decimal? minPrice = null, decimal? maxPrice = null, string sortBy = "newest")
     {
-        // Only redirect Admin users, allow Members to view the homepage
-        if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+        // Redirect admin and staff users to their respective dashboards
+        if (User.Identity?.IsAuthenticated == true)
         {
-            return RedirectToAction("Dashboard", "Admin");
+            if (User.IsInRole("Admin"))
+                return RedirectToAction("Dashboard", "Admin");
+            else if (User.IsInRole("Staff"))
+                return RedirectToAction("Dashboard", "Staff");
         }
         
         // Get active announcements
