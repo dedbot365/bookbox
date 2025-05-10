@@ -6,15 +6,17 @@
        data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fas fa-heart me-1"></i> Wishlist
     </a>
-    <div class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="bookmarkDropdown" style="min-width: 320px;">
+    <div class="dropdown-menu dropdown-menu-end p-0 shadow border-0" aria-labelledby="bookmarkDropdown" style="min-width: 320px; border-radius: 8px; overflow: hidden;">
         <div class="card border-0">
-            <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
-                <span>My Wishlist</span>
-                <a href="@Url.Action("Index", "Bookmark")" class="btn btn-sm btn-outline-light">View All</a>
+            <div class="card-header d-flex justify-content-between align-items-center text-white" style="background-color: #4D4472;">
+                <span class="fw-bold"><i class="fas fa-heart me-1"></i> My Wishlist</span>
+                <a href="@Url.Action("Index", "Bookmark")" class="btn btn-sm btn-light text-dark rounded-pill">
+                    View All
+                </a>
             </div>
             <div class="card-body p-0" id="bookmarkDropdownContent">
                 <div class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status">
+                    <div class="spinner-border" style="color: #4D4472;" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
@@ -69,25 +71,25 @@
                 const imageUrl = book.imageUrl || '/images/placeholder-book.png';
                 
                 html += `
-                <li class="list-group-item p-2">
+                <li class="list-group-item p-3 border-bottom">
                     <div class="d-flex">
-                        <div class="flex-shrink-0" style="width: 50px;">
+                        <div class="flex-shrink-0" style="width: 55px;">
                             <a href="${bookUrl}">
-                                <img src="${imageUrl}" alt="${book.title}" class="img-fluid rounded" style="max-height: 70px;">
+                                <img src="${imageUrl}" alt="${book.title}" class="img-fluid rounded shadow-sm" style="max-height: 75px;">
                             </a>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0"><a href="${bookUrl}" class="text-dark">${book.title}</a></h6>
+                            <h6 class="mb-0 text-truncate"><a href="${bookUrl}" class="text-decoration-none fw-bold" style="color: #4D4472;">${book.title}</a></h6>
                             <small class="text-muted">${book.author}</small>
                             <div class="mt-1">`;
                 
                 if (book.isOnSale && book.discountedPrice) {
                     html += `
                                 <span class="text-muted"><s>NPR ${book.price.toFixed(2)}</s></span>
-                                <span class="text-danger">NPR ${book.discountedPrice.toFixed(2)}</span>
-                                <span class="badge bg-danger ms-1">SALE</span>`;
+                                <span class="text-danger fw-bold">NPR ${book.discountedPrice.toFixed(2)}</span>
+                                <span class="badge rounded-pill" style="background-color: #4D4472;">SALE</span>`;
                 } else {
-                    html += `<span class="fw-bold">NPR ${book.price.toFixed(2)}</span>`;
+                    html += `<span class="fw-bold" style="color: #4D4472;">NPR ${book.price.toFixed(2)}</span>`;
                 }
                 
                 html += `
@@ -97,7 +99,15 @@
                 </li>`;
             });
             
-            html += '</ul>';
+            html += `
+    <li class="list-group-item p-3 text-center" style="background-color: #F8F7FA;">
+        <a href="@Url.Action("Index", "Bookmark")"
+           class="btn btn-sm w-100 text-white rounded-pill shadow-sm" style="background-color: #4D4472;">
+            <i class="fas fa-list me-1"></i> View All Wishlist Items
+        </a>
+    </li>
+</ul>`;
+            
             container.innerHTML = html;
         }
     });

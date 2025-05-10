@@ -336,5 +336,24 @@ namespace Bookbox.Controllers
             
             return View(cartItems);
         }
+
+        // Add this new endpoint to CartController.cs
+        [HttpPost]
+        public async Task<IActionResult> RemoveItemAjax([FromBody] UpdateQuantityRequest request)
+        {
+            if (request == null)
+                return Json(new { success = false });
+            
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var result = await _cartService.RemoveCartItemAsync(userId, request.CartItemId);
+            
+            if (result)
+            {
+                int cartCount = await _cartService.GetCartItemCountAsync(userId);
+                return Json(new { success = true, cartCount });
+            }
+            
+            return Json(new { success = false });
+        }
     }
 }

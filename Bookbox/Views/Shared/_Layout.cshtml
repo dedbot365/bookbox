@@ -17,7 +17,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark border-bottom box-shadow mb-3" style="background-color: #4D4472;">
             <div class="container-fluid">
                 @if (isAdmin)
                 {
@@ -99,21 +99,23 @@
                             <!-- Add cart dropdown -->
                             <partial name="_CartDropdown" />
                             
-                            <!-- Add wishlist dropdown -->
+                            <!-- Add wishlist dropdown with matching modern style -->
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="bookmarkDropdown" role="button" 
                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-heart me-1"></i> Wishlist
                                 </a>
-                                <div class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="bookmarkDropdown" style="min-width: 320px;">
+                                <div class="dropdown-menu dropdown-menu-end p-0 shadow border-0" aria-labelledby="bookmarkDropdown" style="min-width: 320px; border-radius: 8px; overflow: hidden;">
                                     <div class="card border-0">
-                                        <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
-                                            <span>My Wishlist</span>
-                                            <a href="@Url.Action("Index", "Bookmark")" class="btn btn-sm btn-outline-light">View All</a>
+                                        <div class="card-header d-flex justify-content-between align-items-center text-white" style="background-color: #4D4472;">
+                                            <span class="fw-bold"><i class="fas fa-heart me-1"></i> My Wishlist</span>
+                                            <a href="@Url.Action("Index", "Bookmark")" class="btn btn-sm btn-light text-dark rounded-pill">
+                                                View All
+                                            </a>
                                         </div>
                                         <div class="card-body p-0" id="bookmarkDropdownContent">
                                             <div class="text-center py-4">
-                                                <div class="spinner-border text-primary" role="status">
+                                                <div class="spinner-border" style="color: #4D4472;" role="status">
                                                     <span class="visually-hidden">Loading...</span>
                                                 </div>
                                             </div>
