@@ -24,10 +24,13 @@ namespace Bookbox.Controllers
             string publisher = "", string language = "", decimal? minPrice = null, decimal? maxPrice = null, 
             bool? inStock = null, bool? isOnSale = null, string sortBy = "newest", int page = 1)
         {
-            // Redirect admin users to their dashboard
-            if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+            // Redirect admin and staff users to their respective dashboards
+            if (User.Identity?.IsAuthenticated == true)
             {
-                return RedirectToAction("Dashboard", "Admin");
+                if (User.IsInRole("Admin"))
+                    return RedirectToAction("Dashboard", "Admin");
+                else if (User.IsInRole("Staff"))
+                    return RedirectToAction("Dashboard", "Staff");
             }
 
             int pageSize = 12;

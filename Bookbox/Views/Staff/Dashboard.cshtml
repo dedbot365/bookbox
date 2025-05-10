@@ -1,0 +1,44 @@
+@{
+    ViewData["Title"] = "Staff Dashboard";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1>Staff Dashboard</h1>
+            <p class="lead">Welcome to the staff management area.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Book Management</h5>
+                    <p class="card-text">Manage book inventory and track books in the system.</p>
+                    <a asp-controller="Book" asp-action="Index" class="btn btn-primary">View Books</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Order Management</h5>
+                    <p class="card-text">Review and process customer orders.</p>
+                    <a href="#" class="btn btn-primary">View Orders</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Reports</h5>
+                    <p class="card-text">Access library usage reports and statistics.</p>
+                    <a href="#" class="btn btn-primary">View Reports</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
