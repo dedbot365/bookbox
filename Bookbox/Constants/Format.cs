@@ -14,6 +14,7 @@ namespace Bookbox.Constants
         Deluxe = 10,
         Illustrated = 11,
         Boxed = 12,
-        Leather = 13
+        Leather = 13,
+        
     }
 }
