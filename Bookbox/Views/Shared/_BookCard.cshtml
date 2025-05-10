@@ -173,8 +173,8 @@ else
         
         <div class="card-footer bg-white border-top-0">
             <div class="d-flex flex-wrap gap-2 justify-content-between">
-                <!-- Add to Cart button for non-admin and non-staff users -->
-                @if (!isAdmin && !isStaff)
+                <!-- Add to Cart button only for logged-in Members -->
+                @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Member"))
                 {
                     <div>
                         @if (Model.Stock > 0)
