@@ -77,6 +77,73 @@
     </div>
 </div>
 
+<!-- User Details Modal -->
+<div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="userDetailsModalLabel">User Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4" id="userImageContainer">
+                    <!-- User image will be inserted here -->
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Username</h6>
+                        <p class="fw-bold" id="detailUsername"></p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Full Name</h6>
+                        <p class="fw-bold" id="detailFullName"></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Email</h6>
+                        <p id="detailEmail"></p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Contact</h6>
+                        <p id="detailContact"></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Date of Birth</h6>
+                        <p id="detailDOB"></p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Gender</h6>
+                        <p id="detailGender"></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Role</h6>
+                        <p id="detailRole"></p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Registered Date</h6>
+                        <p id="detailRegisteredDate"></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <h6 class="text-muted">Orders Completed</h6>
+                        <p id="detailOrders"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -148,6 +215,64 @@
                         }
                         alert('Failed to update user role. Please try again.');
                     });
+                });
+            });
+
+            // Handle view user details button click
+            document.querySelectorAll('.view-user-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Get the user data from the table row
+                    const row = this.closest('tr');
+                    const userId = row.querySelector('.role-select').getAttribute('data-user-id');
+                    
+                    // Show spinner in modal body while loading
+                    const modalBody = document.querySelector('#userDetailsModal .modal-body');
+                    const originalModalContent = modalBody.innerHTML;
+                    modalBody.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+                    
+                    // Show the modal
+                    const userModal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
+                    userModal.show();
+                    
+                    // Fetch user details from the server
+                    fetch(`@Url.Action("GetUserDetails", "Admin")?userId=${encodeURIComponent(userId)}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to load user details');
+                            }
+                            return response.json();
+                        })
+                        .then(user => {
+                            // Reset modal content
+                            modalBody.innerHTML = originalModalContent;
+                            
+                            // Fill in user details
+                            document.getElementById('detailUsername').textContent = user.username;
+                            document.getElementById('detailFullName').textContent = `${user.firstName} ${user.lastName}`;
+                            document.getElementById('detailEmail').textContent = user.email;
+                            document.getElementById('detailContact').textContent = user.contactNo || 'Not provided';
+                            document.getElementById('detailDOB').textContent = user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : 'Not provided';
+                            document.getElementById('detailGender').textContent = user.gender === 0 ? 'Male' : 'Female';
+                            document.getElementById('detailRole').textContent = user.userType === 2 ? 'Member' : 'Staff';
+                            document.getElementById('detailRegisteredDate').textContent = new Date(user.registeredDate).toLocaleDateString();
+                            document.getElementById('detailOrders').textContent = user.successfulOrderCount;
+                            
+                            // Set user image
+                            const imageContainer = document.getElementById('userImageContainer');
+                            if (user.imageUrlText) {
+                                imageContainer.innerHTML = `<img src="${user.imageUrlText}" alt="Profile" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">`;
+                            } else {
+                                imageContainer.innerHTML = `<div class="bg-secondary rounded-circle text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
+                                    <i class="fas fa-user fa-4x"></i>
+                                </div>`;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching user details:', error);
+                            modalBody.innerHTML = `<div class="alert alert-danger">Failed to load user details: ${error.message}</div>`;
+                        });
                 });
             });
         });

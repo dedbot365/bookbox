@@ -88,5 +88,27 @@ namespace Bookbox.Controllers
                 return Json(new { success = false, message = $"An error occurred: {ex.Message}" });
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserDetails(string userId)
+        {
+            // Convert string to GUID
+            if (!Guid.TryParse(userId, out Guid userGuid))
+            {
+                return NotFound();
+            }
+            
+            var user = await _context.Users
+                .AsNoTracking() // For read-only operations
+                .FirstOrDefaultAsync(u => u.UserId == userGuid);
+            
+            if (user == null)
+            {
+                return NotFound();
+            }
+            
+            // Return the user data as JSON
+            return Json(user);
+        }
     }
 }
