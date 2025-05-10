@@ -1,0 +1,41 @@
+<div class="modal fade" id="deleteBookModal" tabindex="-1" aria-labelledby="deleteBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteBookModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the book "<span id="delete-book-title"></span>"?</p>
+                <p class="text-danger"><strong>This action cannot be undone.</strong> This will remove the book from the system permanently.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteBookForm" method="get">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Delete Book</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Set up delete modal with event delegation for dynamic content
+    $(document).ready(function() {
+        $(document).on('click', '.delete-book', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var id = $(this).data('id');
+            var title = $(this).data('title');
+            
+            // Set the form action and book info in the modal
+            $('#deleteBookForm').attr('action', '@Url.Action("Delete", "Book")/' + id);
+            $('#delete-book-title').text(title);
+            
+            // Show the modal
+            $('#deleteBookModal').modal('show');
+        });
+    });
+</script>

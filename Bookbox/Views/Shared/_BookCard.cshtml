@@ -1,0 +1,171 @@
+@model Bookbox.Models.Book
+@inject Bookbox.Services.Interfaces.IDiscountService DiscountService
+
+@{
+    bool isHorizontalLayout = ViewData["HorizontalLayout"] != null ? (bool)ViewData["HorizontalLayout"] : false;
+    bool isAdmin = User.IsInRole("Admin");
+    bool showAdminControls = ViewData["ShowAdminControls"] != null ? (bool)ViewData["ShowAdminControls"] : isAdmin;
+    
+    var bookDiscount = await DiscountService.GetActiveDiscountForBookAsync(Model.BookId);
+    var discountedPrice = bookDiscount != null ? 
+        DiscountService.CalculateDiscountedPrice(Model.Price, bookDiscount.DiscountPercentage) : Model.Price;
+    var daysRemaining = bookDiscount?.EndDate != null ? 
+        DiscountService.GetRemainingDays(bookDiscount.EndDate) : -1;
+    
+    string detailsUrl = Url.Action("Details", "Book", new { id = Model.BookId });
+}
+
+@if (isHorizontalLayout)
+{
+    <div class="card h-100 book-card">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <a href="@detailsUrl" class="text-decoration-none">
+                    <div class="card-img-container h-100">
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl" class="img-fluid rounded-start" alt="@Model.Title">
+                        }
+                        else
+                        {
+                            <div class="placeholder-image h-100">
+                                <i class="fas fa-book fa-3x text-secondary"></i>
+                            </div>
+                        }
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <a href="@detailsUrl" class="text-decoration-none text-dark">
+                        <h5 class="card-title book-title">@Model.Title</h5>
+                        <p class="card-text book-author">by @Model.Author</p>
+                        <p class="card-text mb-1">
+                            <span class="badge bg-secondary">@Model.Genre</span>
+                            <span class="badge bg-info">@Model.Format</span>
+                        </p>
+                        
+                        <div class="mb-2">
+                            @if (bookDiscount != null)
+                            {
+                                <div>
+                                    <span class="text-muted"><s>NPR @Model.Price.ToString("F2")</s></span>
+                                    <span class="text-danger">NPR @discountedPrice.ToString("F2")</span>
+                                    <span class="badge bg-danger ms-1">ON SALE</span>
+                                    @if (daysRemaining > 0)
+                                    {
+                                        <span class="badge bg-warning ms-1">@daysRemaining days</span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <span>NPR @Model.Price.ToString("F2")</span>
+                            }
+                        </div>
+                        
+                        <p class="mb-1">
+                            <span class="badge @(Model.Stock > 0 ? "bg-success" : "bg-danger") text-white">
+                                @(Model.Stock > 0 ? $"In Stock ({Model.Stock})" : "Out of Stock")
+                            </span>
+                        </p>
+                    </a>
+                    
+                    @if (Model.Discounts.Any(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow)))
+                    {
+                        var discount = Model.Discounts.First(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow));
+                        <div class="position-absolute top-0 end-0 d-flex">
+                            <span class="badge bg-danger me-1">ON SALE</span>
+                            @if (discount.EndDate.HasValue)
+                            {
+                                var badgeDaysRemaining = (discount.EndDate.Value - DateTime.UtcNow).Days;
+                                <span class="badge bg-warning text-dark">@badgeDaysRemaining @(badgeDaysRemaining == 1 ? "day" : "days") left</span>
+                            }
+                        </div>
+                    }
+
+                    <div class="d-flex mt-2 gap-2">
+                        @if (showAdminControls)
+                        {
+                            <a asp-controller="Book" asp-action="Edit" asp-route-id="@Model.BookId" 
+                               class="btn btn-sm btn-primary" title="Edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a asp-controller="Discount" asp-action="@(bookDiscount != null ? "Edit" : "Create")" 
+                               asp-route-id="@(bookDiscount?.DiscountId)" asp-route-bookId="@Model.BookId"
+                               class="btn btn-sm @(bookDiscount != null ? "btn-warning" : "btn-success")">
+                                <i class="fas fa-tag"></i> @(bookDiscount != null ? "Edit Discount" : "Add Discount")
+                            </a>
+                            <button type="button" class="btn btn-sm btn-danger delete-book" 
+                                    data-id="@Model.BookId" data-title="@Model.Title" title="Delete">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Vertical layout (for home and shop pages) -->
+    <a href="@detailsUrl" class="text-decoration-none text-dark">
+        <div class="card h-100 book-card">
+            <div class="card-img-container position-relative">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" class="card-img-top" alt="@Model.Title">
+                }
+                else
+                {
+                    <div class="placeholder-image">
+                        <i class="fas fa-book fa-4x text-secondary"></i>
+                    </div>
+                }
+                @if (Model.Discounts.Any(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow)))
+                {
+                    var discount = Model.Discounts.First(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow));
+                    <div class="position-absolute top-0 end-0 d-flex">
+                        <span class="badge bg-danger me-1">ON SALE</span>
+                        @if (discount.EndDate.HasValue)
+                        {
+                            var badgeDaysRemaining = (discount.EndDate.Value - DateTime.UtcNow).Days;
+                            <span class="badge bg-warning text-dark">@badgeDaysRemaining @(badgeDaysRemaining == 1 ? "day" : "days") left</span>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="card-body">
+                <h5 class="card-title book-title">@Model.Title</h5>
+                <p class="card-text book-author">by @Model.Author</p>
+                <p class="card-text mb-0">
+                    <span class="badge bg-secondary">@Model.Genre</span>
+                    <span class="badge bg-info">@Model.Format</span>
+                </p>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    @if (bookDiscount != null)
+                    {
+                        <div>
+                            <span class="text-muted"><s>NPR @Model.Price.ToString("0.00")</s></span>
+                            <span class="book-price text-danger">NPR @discountedPrice.ToString("0.00")</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="book-price">NPR @Model.Price.ToString("0.00")</span>
+                    }
+                    <span class="badge @(Model.Stock > 0 ? "bg-success" : "bg-danger")">
+                        @(Model.Stock > 0 ? "In Stock" : "Out of Stock")
+                    </span>
+                </div>
+                @if (bookDiscount != null && daysRemaining > 0)
+                {
+                    <div class="mt-1">
+                        <span class="badge bg-warning">Sale ends in @daysRemaining days</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </a>
+}

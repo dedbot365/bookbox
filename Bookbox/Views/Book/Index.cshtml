@@ -85,99 +85,11 @@
                     @foreach (var book in Model)
                     {
                         <div class="col">
-                            <div class="card h-100 book-card">
-                                <div class="row g-0">
-                                    <div class="col-md-4">
-                                        <div class="card-img-container h-100">
-                                            @if (!string.IsNullOrEmpty(book.ImageUrl))
-                                            {
-                                                <img src="@book.ImageUrl" class="img-fluid rounded-start" alt="@book.Title">
-                                            }
-                                            else
-                                            {
-                                                <div class="placeholder-image h-100">
-                                                    <i class="fas fa-book fa-3x text-secondary"></i>
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <div class="card-body">
-                                            <h5 class="card-title book-title">@book.Title</h5>
-                                            <p class="card-text book-author">by @book.Author</p>
-                                            <p class="card-text mb-1">
-                                                <span class="badge bg-secondary">@book.Genre</span>
-                                                <span class="badge bg-info">@book.Format</span>
-                                            </p>
-                                            
-                                            <div class="mb-2">
-                                                @{
-                                                    var bookDiscount = await DiscountService.GetActiveDiscountForBookAsync(book.BookId);
-                                                    var discountedPrice = bookDiscount != null ? 
-                                                        DiscountService.CalculateDiscountedPrice(book.Price, bookDiscount.DiscountPercentage) : book.Price;
-                                                    var daysRemaining = bookDiscount?.EndDate != null ? 
-                                                        DiscountService.GetRemainingDays(bookDiscount.EndDate) : -1;
-                                                }
-                                                
-                                                @if (bookDiscount != null)
-                                                {
-                                                    <div>
-                                                        <span class="text-muted"><s>NPR @book.Price.ToString("F2")</s></span>
-                                                        <span class="text-danger">NPR @discountedPrice.ToString("F2")</span>
-                                                        <span class="badge bg-danger ms-1">ON SALE</span>
-                                                        @if (daysRemaining > 0)
-                                                        {
-                                                            <span class="badge bg-warning ms-1">@daysRemaining days</span>
-                                                        }
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <span>NPR @book.Price.ToString("F2")</span>
-                                                }
-                                            </div>
-                                            
-                                            <p class="mb-1">
-                                                <span class="badge @(book.Stock > 0 ? "bg-success" : "bg-danger") text-white">
-                                                    @(book.Stock > 0 ? $"In Stock ({book.Stock})" : "Out of Stock")
-                                                </span>
-                                            </p>
-                                            
-                                            @if (book.Discounts.Any(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow)))
-                                            {
-                                                var discount = book.Discounts.First(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow));
-                                                <div class="position-absolute top-0 end-0 d-flex">
-                                                    <span class="badge bg-danger me-1">ON SALE</span>
-                                                    @if (discount.EndDate.HasValue)
-                                                    {
-                                                        var badgeDaysRemaining = (discount.EndDate.Value - DateTime.UtcNow).Days;
-                                                        <span class="badge bg-warning text-dark">@badgeDaysRemaining @(badgeDaysRemaining == 1 ? "day" : "days") left</span>
-                                                    }
-                                                </div>
-                                            }
-
-                                            <div class="d-flex mt-2 gap-2">
-                                                <a asp-action="Details" asp-route-id="@book.BookId" 
-                                                   class="btn btn-sm btn-info" title="Details">
-                                                    <i class="fas fa-info-circle"></i> Details
-                                                </a>
-                                                @if (User.IsInRole("Admin"))
-                                                {
-                                                    <a asp-action="Edit" asp-route-id="@book.BookId" 
-                                                       class="btn btn-sm btn-primary" title="Edit">
-                                                        <i class="fas fa-edit"></i> Edit
-                                                    </a>
-                                                    <a asp-controller="Discount" asp-action="@(bookDiscount != null ? "Edit" : "Create")" 
-                                                       asp-route-id="@(bookDiscount?.DiscountId)" asp-route-bookId="@book.BookId"
-                                                       class="btn btn-sm @(bookDiscount != null ? "btn-warning" : "btn-success")">
-                                                        <i class="fas fa-tag"></i> @(bookDiscount != null ? "Edit Discount" : "Add Discount")
-                                                    </a>
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            @{
+                                ViewData["HorizontalLayout"] = true;
+                                ViewData["ShowAdminControls"] = User.IsInRole("Admin");
+                            }
+                            <partial name="_BookCard" model="book" view-data="ViewData" />
                         </div>
                     }
                 </div>
@@ -257,5 +169,26 @@
             // Redirect to new URL
             window.location.href = url.toString();
         }
+        
+        $(document).ready(function() {
+            // Set up delete modal with event delegation for dynamic content
+            $(document).on('click', '.delete-book', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                var id = $(this).data('id');
+                var title = $(this).data('title');
+                
+                // Set the form action and book info in the modal
+                $('#deleteBookForm').attr('action', '@Url.Action("Delete", "Book")/' + id);
+                $('#delete-book-title').text(title);
+                
+                // Show the modal
+                $('#deleteBookModal').modal('show');
+            });
+        });
     </script>
 }
+
+<!-- Include the delete modal partial -->
+<partial name="_DeleteBookModal" />

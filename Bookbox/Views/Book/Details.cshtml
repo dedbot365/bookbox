@@ -159,6 +159,7 @@
                                 <i class="fas fa-tag"></i> Add Discount
                             </a>
                         }
+                        <!-- Update the delete button to work with the modal -->
                         <button type="button" class="btn btn-danger delete-book" 
                                 data-id="@Model.BookId" data-title="@Model.Title">
                             <i class="fas fa-trash"></i> Delete
@@ -170,20 +171,28 @@
     </div>
 </div>
 
+<!-- Include the delete modal partial -->
+<partial name="_DeleteBookModal" />
+
 @section Scripts {
+    @Html.AntiForgeryToken()
     <script>
         $(document).ready(function() {
-            // Delete book confirmation
-            $('.delete-book').click(function() {
-                const bookId = $(this).data('id');
-                const bookTitle = $(this).data('title');
+            // Set up delete modal with event delegation for dynamic content
+            $(document).on('click', '.delete-book', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 
-                if (confirm(`Are you sure you want to delete "${bookTitle}"? This action cannot be undone.`)) {
-                    window.location.href = '@Url.Action("Delete", "Book")/' + bookId;
-                }
+                var id = $(this).data('id');
+                var title = $(this).data('title');
+                
+                // Set the form action and book info in the modal
+                $('#deleteBookForm').attr('action', '@Url.Action("Delete", "Book")/' + id);
+                $('#delete-book-title').text(title);
+                
+                // Show the modal
+                $('#deleteBookModal').modal('show');
             });
         });
     </script>
-    
-    @Html.AntiForgeryToken()
 }
