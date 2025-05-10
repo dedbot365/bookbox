@@ -1,0 +1,114 @@
+@model List<Bookbox.DTOs.OrderDTO>
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="container">
+    <h1 class="mb-4">My Orders</h1>
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+    
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            You don't have any orders yet. <a asp-controller="Book" asp-action="Index">Browse our collection</a> to place your first order.
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Date</th>
+                                <th>Books</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Claim Code</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model)
+                            {
+                                <tr>
+                                    <td>@order.OrderNumber</td>
+                                    <td>@order.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>@order.Items.Sum(i => i.Quantity) item(s)</td>
+                                    <td>@order.TotalAmount.ToString("C")</td>
+                                    <td>
+                                        @switch (order.Status)
+                                        {
+                                            case Bookbox.Constants.OrderStatus.Pending:
+                                                <span class="badge bg-warning">Pending</span>
+                                                break;
+                                            case Bookbox.Constants.OrderStatus.Completed:
+                                                <span class="badge bg-success">Completed</span>
+                                                break;
+                                            case Bookbox.Constants.OrderStatus.Cancelled:
+                                                <span class="badge bg-danger">Cancelled</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-secondary">@order.StatusName</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td><code>@order.ClaimCode</code></td>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-sm btn-primary">
+                                            Details
+                                        </a>
+                                        @if (order.CanBeCancelled)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal@(order.OrderId)">
+                                                Cancel
+                                            </button>
+                                            
+                                            <!-- Cancel Modal -->
+                                            <div class="modal fade" id="cancelModal@(order.OrderId)" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="cancelModalLabel">Confirm Cancellation</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Are you sure you want to cancel this order?</p>
+                                                            <p class="text-danger">This action cannot be undone.</p>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                            <form asp-action="Cancel" asp-route-id="@order.OrderId" method="post">
+                                                                @Html.AntiForgeryToken()
+                                                                <button type="submit" class="btn btn-danger">Cancel Order</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

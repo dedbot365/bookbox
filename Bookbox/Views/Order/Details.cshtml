@@ -1,0 +1,191 @@
+@model Bookbox.DTOs.OrderDTO
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Order #@Model.OrderNumber</h1>
+        <a asp-action="Index" class="btn btn-outline-secondary">Back to Orders</a>
+    </div>
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Items</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Items)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex">
+                                                @if (!string.IsNullOrEmpty(item.CoverImageUrl))
+                                                {
+                                                    <img src="@item.CoverImageUrl" alt="@item.BookTitle" style="width: 50px; height: 75px; margin-right: 10px;"/>
+                                                }
+                                                <div>
+                                                    <p class="mb-0 fw-bold">@item.BookTitle</p>
+                                                    <small class="text-muted">by @item.BookAuthor</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@item.Price.ToString("C")</td>
+                                        <td>@item.Quantity</td>
+                                        <td class="text-end">@item.Subtotal.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Subtotal:</span>
+                            <span>@Model.Subtotal.ToString("C")</span>
+                        </div>
+                        
+                        @if (Model.DiscountApplied > 0)
+                        {
+                            <div class="d-flex justify-content-between text-success">
+                                <span>Discount:</span>
+                                <span>-@Model.DiscountApplied.ToString("C")</span>
+                            </div>
+                        }
+                        
+                        <hr/>
+                        
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total:</span>
+                            <span>@Model.TotalAmount.ToString("C")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Information</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Order ID:</span>
+                            <span class="text-muted">@Model.OrderId</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Date:</span>
+                            <span class="text-muted">@Model.OrderDate.ToString("yyyy-MM-dd HH:mm")</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Status:</span>
+                            <span>
+                                @switch (Model.Status)
+                                {
+                                    case Bookbox.Constants.OrderStatus.Pending:
+                                        <span class="badge bg-warning">Pending</span>
+                                        break;
+                                    case Bookbox.Constants.OrderStatus.Completed:
+                                        <span class="badge bg-success">Completed</span>
+                                        break;
+                                    case Bookbox.Constants.OrderStatus.Cancelled:
+                                        <span class="badge bg-danger">Cancelled</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@Model.StatusName</span>
+                                        break;
+                                }
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Claim Code:</span>
+                            <code>@Model.ClaimCode</code>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Payment Method:</span>
+                            <span class="text-muted">@Model.PaymentMethod</span>
+                        </li>
+                        @if (!string.IsNullOrEmpty(Model.Notes))
+                        {
+                            <li class="list-group-item">
+                                <strong>Notes:</strong>
+                                <p class="mb-0 text-muted">@Model.Notes</p>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            
+            @if (Model.CanBeCancelled)
+            {
+                <div class="card mb-4 border-warning">
+                    <div class="card-body">
+                        <h5 class="card-title">Cancellation Eligibility</h5>
+                        <p class="card-text">This order can be cancelled for the next @Model.TimeRemainingForCancellation.ToString(@"hh\:mm\:ss").</p>
+                        <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            Cancel Order
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Cancel Modal -->
+                <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="cancelModalLabel">Confirm Cancellation</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to cancel this order?</p>
+                                <p class="text-danger">This action cannot be undone.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <form asp-action="Cancel" asp-route-id="@Model.OrderId" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger">Cancel Order</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

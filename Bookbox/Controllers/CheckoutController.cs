@@ -14,11 +14,13 @@ namespace Bookbox.Controllers
     {
         private readonly ICheckoutService _checkoutService;
         private readonly IUserService _userService;
+        private readonly IOrderService _orderService;
         
-        public CheckoutController(ICheckoutService checkoutService, IUserService userService)
+        public CheckoutController(ICheckoutService checkoutService, IUserService userService, IOrderService orderService)
         {
             _checkoutService = checkoutService ?? throw new ArgumentNullException(nameof(checkoutService));
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
         }
         
         /// <summary>
@@ -74,7 +76,7 @@ namespace Bookbox.Controllers
                     return RedirectToAction("Login", "Account");
                 }
                 
-                // Prepare checkout data again to ensure it's fresh
+                // Prepare checkout data
                 var checkoutData = await _checkoutService.PrepareCheckoutFromCartAsync(userId);
                 
                 // Confirm the checkout (this will generate a claim code)
@@ -84,10 +86,11 @@ namespace Bookbox.Controllers
                     notes
                 );
                 
-                // Store the confirmed checkout in TempData for the success page
-                TempData["CheckoutData"] = System.Text.Json.JsonSerializer.Serialize(confirmedCheckout);
+                // Create an order from the checkout data
+                var order = await _orderService.CreateOrderFromCheckoutAsync(confirmedCheckout);
                 
-                return RedirectToAction("Success");
+                // Redirect to the Order controller's Success action with the order ID
+                return RedirectToAction("Success", "Order", new { id = order.OrderId });
             }
             catch (ApplicationException ex)
             {
@@ -105,23 +108,24 @@ namespace Bookbox.Controllers
         /// Displays the checkout success page with order details and claim code
         /// </summary>
         /// <returns>Success view with checkout data</returns>
-        public IActionResult Success()
+        public async Task<IActionResult> Success()
         {
             try
             {
-                // Retrieve the checkout data from TempData
-                if (TempData["CheckoutData"] is not string checkoutJson)
+                // Retrieve the order ID from TempData
+                if (TempData["OrderId"] is not string orderIdString || !Guid.TryParse(orderIdString, out var orderId))
                 {
                     return RedirectToAction("Index", "Home");
                 }
                 
-                var checkout = System.Text.Json.JsonSerializer.Deserialize<CheckoutDTO>(checkoutJson);
-                if (checkout == null)
+                // Get order details
+                var order = await _orderService.GetOrderByIdAsync(orderId);
+                if (order == null)
                 {
                     return RedirectToAction("Index", "Home");
                 }
                 
-                return View(checkout);
+                return View(order);
             }
             catch (Exception)
             {
