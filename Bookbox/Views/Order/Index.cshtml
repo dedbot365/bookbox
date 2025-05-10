@@ -78,29 +78,6 @@
                                             <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal@(order.OrderId)">
                                                 Cancel
                                             </button>
-                                            
-                                            <!-- Cancel Modal -->
-                                            <div class="modal fade" id="cancelModal@(order.OrderId)" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="cancelModalLabel">Confirm Cancellation</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <p>Are you sure you want to cancel this order?</p>
-                                                            <p class="text-danger">This action cannot be undone.</p>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                            <form asp-action="Cancel" asp-route-id="@order.OrderId" method="post">
-                                                                @Html.AntiForgeryToken()
-                                                                <button type="submit" class="btn btn-danger">Cancel Order</button>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         }
                                     </td>
                                 </tr>
@@ -110,5 +87,35 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Place modals outside the table for better rendering -->
+        @foreach (var order in Model)
+        {
+            @if (order.CanBeCancelled)
+            {
+                <!-- Cancel Modal -->
+                <div class="modal fade" id="cancelModal@(order.OrderId)" tabindex="-1" aria-labelledby="cancelModalLabel@(order.OrderId)" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="cancelModalLabel@(order.OrderId)">Confirm Cancellation</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to cancel order #@(order.OrderNumber)?</p>
+                                <p class="text-danger">This action cannot be undone.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <form asp-action="Cancel" asp-route-id="@order.OrderId" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger">Cancel Order</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
     }
 </div>
