@@ -10,7 +10,7 @@
         <div class="card border-0">
             <div class="card-header d-flex justify-content-between align-items-center bg-success text-white">
                 <span>My Cart</span>
-                <a href="@Url.Action("Index", "Cart")" class="btn btn-sm btn-outline-light">View Cart</a>
+                <a href="@Url.Action("ViewCart", "Cart")" class="btn btn-sm btn-outline-light">View Cart</a>
             </div>
             <div class="card-body p-0" id="cartDropdownContent">
                 <div class="text-center py-4">
@@ -117,7 +117,7 @@
                     </div>
                 </li>
                 <li class="list-group-item p-2 text-center">
-                    <a href="@Url.Action("Index", "Cart")" class="btn btn-success btn-sm me-2">
+                    <a href="@Url.Action("ViewCart", "Cart")" class="btn btn-success btn-sm me-2">
                         View Cart
                     </a>
                     <a href="@Url.Action("Checkout", "Cart")" class="btn btn-primary btn-sm">

@@ -286,6 +286,43 @@ namespace Bookbox.Controllers
             
             return View(order);
         }
+
+        // GET: Cart/ViewCart
+        public async Task<IActionResult> ViewCart()
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var cartItems = await _cartService.GetUserCartItemsAsync(userId);
+            
+            decimal totalPrice = 0;
+            foreach (var item in cartItems)
+            {
+                // Check if book has active discount
+                var discount = item.Book.Discounts.FirstOrDefault(d => 
+                    d.IsOnSale && 
+                    d.StartDate <= DateTime.UtcNow && 
+                    (d.EndDate == null || d.EndDate > DateTime.UtcNow));
+                
+                if (discount != null)
+                {
+                    decimal discountedPrice = _discountService.CalculateDiscountedPrice(
+                        item.Book.Price, discount.DiscountPercentage);
+                    
+                    totalPrice += discountedPrice * item.Quantity;
+                }
+                else
+                {
+                    totalPrice += item.Book.Price * item.Quantity;
+                }
+            }
+            
+            ViewBag.TotalPrice = totalPrice;
+            ViewBag.SubtotalPrice = totalPrice;
+            ViewBag.ShippingFee = 0; // You can adjust this based on your business logic
+            
+            return View(cartItems);
+        }
+
+
     }
 
     public class UpdateQuantityRequest

@@ -1,0 +1,284 @@
+@model IEnumerable<Bookbox.Models.CartItem>
+@inject Bookbox.Services.Interfaces.IDiscountService DiscountService
+
+@{
+    ViewData["Title"] = "View Cart";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Cart Items -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Your Cart</h4>
+                        <span class="text-muted">@Model.Count() item(s)</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                            <h4>Your cart is empty</h4>
+                            <p class="text-muted mb-4">Looks like you haven't added any books to your cart yet.</p>
+                            <a asp-controller="Shop" asp-action="Index" class="btn btn-primary">
+                                <i class="fas fa-book me-2"></i> Browse Books
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="width: 40px;"></th>
+                                        <th scope="col">Book</th>
+                                        <th scope="col" class="text-center">Quantity</th>
+                                        <th scope="col" class="text-end">Price</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        var discount = item.Book.Discounts.FirstOrDefault(d => 
+                                            d.IsOnSale && 
+                                            d.StartDate <= DateTime.UtcNow && 
+                                            (d.EndDate == null || d.EndDate > DateTime.UtcNow));
+                                        
+                                        decimal itemPrice = item.Book.Price;
+                                        bool isDiscounted = false;
+                                        decimal discountedPrice = 0;
+                                        
+                                        if (discount != null)
+                                        {
+                                            isDiscounted = true;
+                                            discountedPrice = DiscountService.CalculateDiscountedPrice(
+                                                item.Book.Price, discount.DiscountPercentage);
+                                            itemPrice = discountedPrice;
+                                        }
+                                        
+                                        <tr class="cart-item-row" data-price="@(itemPrice)" data-quantity="@(item.Quantity)" data-itemid="@(item.CartItemId)">
+                                            <td>
+                                                <input type="checkbox" class="form-check-input item-checkbox" id="check-@item.CartItemId" checked data-itemid="@item.CartItemId" />
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0" style="width: 60px;">
+                                                        @if (!string.IsNullOrEmpty(item.Book.ImageUrl))
+                                                        {
+                                                            <img src="@item.Book.ImageUrl" alt="@item.Book.Title" class="img-fluid rounded" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="placeholder-image">
+                                                                <i class="fas fa-book fa-2x text-secondary"></i>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div class="ms-3">
+                                                        <h5 class="mb-0">
+                                                            <a href="@Url.Action("Details", "Book", new { id = item.Book.BookId })" class="text-decoration-none text-dark">
+                                                                @item.Book.Title
+                                                            </a>
+                                                        </h5>
+                                                        <small class="text-muted d-block">By @item.Book.Author</small>
+                                                        <div class="mt-1">
+                                                            <span class="badge @(item.Book.Stock > 0 ? "bg-success" : "bg-danger")">
+                                                                @(item.Book.Stock > 0 ? $"In Stock ({item.Book.Stock})" : "Out of Stock")
+                                                            </span>
+                                                            @if (isDiscounted)
+                                                            {
+                                                                <span class="badge bg-danger ms-1">SALE</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="d-flex justify-content-center align-items-center">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm quantity-btn" 
+                                                            data-action="decrease" data-id="@item.CartItemId"
+                                                            @(item.Quantity <= 1 ? "disabled" : "")>
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                    <span class="mx-3 fw-bold quantity-display-@item.CartItemId">@item.Quantity</span>
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm quantity-btn" 
+                                                            data-action="increase" data-id="@item.CartItemId"
+                                                            @(item.Book.Stock <= item.Quantity ? "disabled" : "")>
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td class="text-end">
+                                                @if (isDiscounted)
+                                                {
+                                                    <span class="text-muted text-decoration-line-through">NPR @item.Book.Price.ToString("0.00")</span><br />
+                                                    <span class="text-danger">NPR @discountedPrice.ToString("0.00")</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>NPR @item.Book.Price.ToString("0.00")</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <form asp-action="RemoveItem" asp-route-cartItemId="@item.CartItemId" 
+                                                      asp-route-returnUrl="@Context.Request.Path" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-link text-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="mb-4">
+                <a asp-controller="Shop" asp-action="Index" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i> Continue Shopping
+                </a>
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">Order Summary</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Subtotal (<span id="selected-items-count">@Model.Count()</span> items)</span>
+                        <span>NPR <span id="subtotal-price">@ViewBag.SubtotalPrice.ToString("0.00")</span></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Shipping Fee</span>
+                        <span>NPR <span id="shipping-fee">@ViewBag.ShippingFee.ToString("0.00")</span></span>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="fw-bold">Total</span>
+                        <span class="fw-bold text-danger">NPR <span id="total-price">@ViewBag.TotalPrice.ToString("0.00")</span></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <input type="text" class="form-control" placeholder="Enter Voucher Code" />
+                    </div>
+                    <div class="d-grid">
+                        <button class="btn btn-outline-primary mb-2">APPLY</button>
+                    </div>
+                    
+                    @if (Model.Any())
+                    {
+                        <div class="d-grid mt-4">
+                            <a asp-action="Checkout" class="btn btn-primary">
+                                PROCEED TO CHECKOUT
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initial calculation
+            calculateTotals();
+            
+            // Handle checkbox changes
+            $('.item-checkbox').change(function() {
+                calculateTotals();
+            });
+            
+            // Function to calculate totals based on checked items
+            function calculateTotals() {
+                var subtotal = 0;
+                var selectedItemsCount = 0;
+                
+                $('.cart-item-row').each(function() {
+                    var $row = $(this);
+                    var itemId = $row.data('itemid');
+                    var $checkbox = $('#check-' + itemId);
+                    
+                    if ($checkbox.is(':checked')) {
+                        var price = parseFloat($row.data('price'));
+                        var quantity = parseInt($row.data('quantity'));
+                        subtotal += price * quantity;
+                        selectedItemsCount++;
+                    }
+                });
+                
+                // Format the subtotal to 2 decimal places
+                var formattedSubtotal = subtotal.toFixed(2);
+                
+                // Update shipping fee if needed (currently fixed at 0)
+                var shippingFee = parseFloat($('#shipping-fee').text());
+                
+                // Calculate total
+                var total = subtotal + shippingFee;
+                var formattedTotal = total.toFixed(2);
+                
+                // Update the DOM
+                $('#selected-items-count').text(selectedItemsCount);
+                $('#subtotal-price').text(formattedSubtotal);
+                $('#total-price').text(formattedTotal);
+            }
+            
+            // Handle quantity changes
+            $('.quantity-btn').click(function() {
+                if ($(this).prop('disabled')) {
+                    return; // Don't proceed if button is disabled
+                }
+                
+                var action = $(this).data('action');
+                var itemId = $(this).data('id');
+                var change = action === 'increase' ? 1 : -1;
+                
+                // Get current quantity
+                var currentQty = parseInt($('.quantity-display-' + itemId).text());
+                
+                // Additional check to prevent decreasing below 1
+                if (action === 'decrease' && currentQty <= 1) {
+                    return;
+                }
+                
+                // AJAX call to update quantity
+                $.ajax({
+                    url: '@Url.Action("UpdateQuantity")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        cartItemId: itemId,
+                        change: change
+                    }),
+                    success: function(response) {
+                        if (response.success) {
+                            // Update the displayed quantity
+                            $('.quantity-display-' + itemId).text(currentQty + change);
+                            
+                            // Update the data-quantity attribute for calculations
+                            $('tr[data-itemid="' + itemId + '"]').data('quantity', currentQty + change);
+                            
+                            // Recalculate totals
+                            calculateTotals();
+                            
+                            // Reload the page to refresh prices
+                            location.reload();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}
