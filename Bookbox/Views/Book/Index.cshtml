@@ -169,5 +169,26 @@
             // Redirect to new URL
             window.location.href = url.toString();
         }
+        
+        $(document).ready(function() {
+            // Set up delete modal with event delegation for dynamic content
+            $(document).on('click', '.delete-book', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                var id = $(this).data('id');
+                var title = $(this).data('title');
+                
+                // Set the form action and book info in the modal
+                $('#deleteBookForm').attr('action', '@Url.Action("Delete", "Book")/' + id);
+                $('#delete-book-title').text(title);
+                
+                // Show the modal
+                $('#deleteBookModal').modal('show');
+            });
+        });
     </script>
 }
+
+<!-- Include the delete modal partial -->
+<partial name="_DeleteBookModal" />
