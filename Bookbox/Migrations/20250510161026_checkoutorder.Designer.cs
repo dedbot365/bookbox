@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Bookbox.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250510155325_AddPaymentMethodToOrders")]
-    partial class AddPaymentMethodToOrders
+    [Migration("20250510161026_checkoutorder")]
+    partial class checkoutorder
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

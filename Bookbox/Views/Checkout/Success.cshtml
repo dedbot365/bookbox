@@ -1,0 +1,103 @@
+@model Bookbox.DTOs.CheckoutDTO
+@{
+    ViewData["Title"] = "Order Confirmed";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-success mb-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Order Confirmed!</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3">Thank you for your order</h4>
+                        <p class="text-muted">You will receive an email confirmation shortly.</p>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <h5 class="fw-bold">Your Claim Code</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <code class="fs-3">@Model.ClaimCode</code>
+                            <button class="btn btn-sm btn-outline-primary" onclick="copyToClipboard('@Model.ClaimCode')">
+                                <i class="fas fa-copy me-1"></i> Copy
+                            </button>
+                        </div>
+                        <p class="small mb-0 mt-2">
+                            Present this code along with your membership ID at the store to collect your books.
+                        </p>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Order Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Order Details</h6>
+                                    <ul class="list-unstyled">
+                                        <li>Total Books: <span class="fw-bold">@Model.TotalBooks</span></li>
+                                        <li>Payment Method: <span class="fw-bold">@Model.PaymentMethod</span></li>
+                                        @if (!string.IsNullOrEmpty(Model.Notes))
+                                        {
+                                            <li>Notes: <span class="fw-bold">@Model.Notes</span></li>
+                                        }
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Price Details</h6>
+                                    <ul class="list-unstyled">
+                                        <li>Subtotal: <span class="fw-bold">@Model.Subtotal.ToString("C")</span></li>
+                                        @if (Model.TotalDiscountAmount > 0)
+                                        {
+                                            <li>Discount: <span class="text-success fw-bold">-@Model.TotalDiscountAmount.ToString("C")</span></li>
+                                        }
+                                        <li>Total: <span class="fw-bold">@Model.FinalTotal.ToString("C")</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="list-group mb-4">
+                        <div class="list-group-item list-group-item-primary">
+                            <h5 class="mb-0">Books in Your Order</h5>
+                        </div>
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-0">@item.Title</h6>
+                                    <small class="text-muted">by @item.Author</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-primary rounded-pill me-2">x@(item.Quantity)</span>
+                                    <span>@item.TotalPrice.ToString("C")</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Book" asp-action="Index" class="btn btn-primary">Continue Shopping</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Claim code copied to clipboard!');
+            }, function() {
+                alert('Failed to copy claim code');
+            });
+        }
+    </script>
+}

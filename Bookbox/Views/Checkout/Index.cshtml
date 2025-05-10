@@ -1,0 +1,135 @@
+@model Bookbox.DTOs.CheckoutDTO
+@using Bookbox.Constants
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container">
+    <h1 class="mb-4">Checkout</h1>
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+    
+    @if (!Model.Items.Any())
+    {
+        <div class="alert alert-info">
+            Your cart is empty. <a asp-controller="Book" asp-action="Index">Browse books</a> to add items.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Items)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex">
+                                                @if (!string.IsNullOrEmpty(item.CoverImageUrl))
+                                                {
+                                                    <img src="@item.CoverImageUrl" alt="@item.Title" style="width: 50px; height: 75px; margin-right: 10px;"/>
+                                                }
+                                                <div>
+                                                    <p class="mb-0 fw-bold">@item.Title</p>
+                                                    <small class="text-muted">by @item.Author</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@item.Price.ToString("C")</td>
+                                        <td>@item.Quantity</td>
+                                        <td class="text-end">@item.TotalPrice.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Order Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Confirm" method="post">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Subtotal (@Model.TotalBooks items):</span>
+                                    <span>@Model.Subtotal.ToString("C")</span>
+                                </div>
+                                
+                                @if (Model.HasBulkDiscount)
+                                {
+                                    <div class="d-flex justify-content-between text-success">
+                                        <span>Bulk Discount (5%):</span>
+                                        <span>-@Model.BulkDiscountAmount.ToString("C")</span>
+                                    </div>
+                                }
+                                
+                                @if (Model.HasLoyaltyDiscount)
+                                {
+                                    <div class="d-flex justify-content-between text-success">
+                                        <span>Loyalty Discount (10%):</span>
+                                        <span>-@Model.LoyaltyDiscountAmount.ToString("C")</span>
+                                    </div>
+                                }
+                                
+                                <hr/>
+                                
+                                <div class="d-flex justify-content-between fw-bold">
+                                    <span>Total:</span>
+                                    <span>@Model.FinalTotal.ToString("C")</span>
+                                </div>
+                                
+                                @if (Model.TotalDiscountAmount > 0)
+                                {
+                                    <div class="text-success small mt-1">
+                                        You saved @Model.TotalDiscountAmount.ToString("C") on this order!
+                                    </div>
+                                }
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Payment Method</label>
+                                <select name="paymentMethod" class="form-select">
+                                    <option value="@PaymentMethod.CashOnDelivery">Cash on Delivery</option>
+                                    <option value="@PaymentMethod.CreditCard">Credit Card</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Notes (Optional)</label>
+                                <textarea name="notes" class="form-control" rows="3" placeholder="Any special instructions?"></textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">Confirm Order</button>
+                                <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-secondary">Back to Cart</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
