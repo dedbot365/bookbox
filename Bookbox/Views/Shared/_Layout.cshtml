@@ -96,6 +96,9 @@
                     <ul class="navbar-nav">
                         @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Member"))
                         {
+                            <!-- Add cart dropdown -->
+                            <partial name="_CartDropdown" />
+                            
                             <!-- Add wishlist dropdown -->
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="bookmarkDropdown" role="button" 
