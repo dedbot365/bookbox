@@ -3,10 +3,12 @@ using Bookbox.DTOs;
 using Bookbox.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Bookbox.Services.Interfaces; 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+
 
 namespace Bookbox.Controllers
 {
@@ -15,11 +17,16 @@ namespace Bookbox.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IAuthService _authService; // Add this
 
-        public ProfileController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
+        public ProfileController(
+            ApplicationDbContext context, 
+            IWebHostEnvironment webHostEnvironment,
+            IAuthService authService) // Add this
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _authService = authService; // Add this
         }
 
         // GET: Profile/EditProfile
@@ -168,7 +175,8 @@ namespace Bookbox.Controllers
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Role, User.IsInRole("Admin") ? "Admin" : "Member")
+                // Fix this line to preserve Staff role:
+                new Claim(ClaimTypes.Role, _authService.GetRoleFromUserType((int)user.UserType))
             };
 
             if (!string.IsNullOrEmpty(user.ImageUrlText))
