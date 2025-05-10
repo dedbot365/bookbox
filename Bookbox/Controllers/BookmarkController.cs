@@ -50,11 +50,8 @@ namespace Bookbox.Controllers
                 searchTerm, 
                 genre, 
                 format, 
-                null, 
-                null, 
-                minPrice, 
-                maxPrice, 
-                null
+                minPrice: minPrice, 
+                maxPrice: maxPrice
             );
 
             // Apply sorting
@@ -96,7 +93,7 @@ namespace Bookbox.Controllers
         // POST: Bookmark/Add/5 - Add a book to bookmarks
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(Guid id, string returnUrl = null)
+        public async Task<IActionResult> Add(Guid id, string? returnUrl = null)
         {
             // Get user ID from claims
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -127,7 +124,7 @@ namespace Bookbox.Controllers
         // POST: Bookmark/Remove/5 - Remove a book from bookmarks
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Remove(Guid id, string returnUrl = null)
+        public async Task<IActionResult> Remove(Guid id, string? returnUrl = null)
         {
             // Get user ID from claims
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
