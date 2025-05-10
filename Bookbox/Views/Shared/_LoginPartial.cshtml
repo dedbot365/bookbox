@@ -23,7 +23,7 @@
             @if (User.IsInRole("Staff"))
             {
                 <li><a class="dropdown-item" asp-controller="Staff" asp-action="Dashboard"><i class="fas fa-tachometer-alt me-2"></i>Staff Dashboard</a></li>
-                <li><a class="dropdown-item" asp-controller="Book" asp-action="Index"><i class="fas fa-book me-2"></i>Manage Books</a></li>
+                <li><a class="dropdown-item" asp-controller="Book" asp-action="Index"><i class="fas fa-book me-2"></i>View Books</a></li>
                 <li><hr class="dropdown-divider"></li>
             }
             @if (User.IsInRole("Member"))
