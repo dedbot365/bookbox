@@ -1,6 +1,6 @@
 using Bookbox.Data;
-using Bookbox.Models;
 using Bookbox.DTOs;
+using Bookbox.Models;
 using Bookbox.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -102,6 +102,7 @@ namespace Bookbox.Services
 
                 var book = new Book
                 {
+                    BookId = Guid.NewGuid(), // Explicitly set ID
                     Title = bookDTO.Title,
                     Author = bookDTO.Author,
                     Genre = bookDTO.Genre,
@@ -114,33 +115,36 @@ namespace Bookbox.Services
                     Language = bookDTO.Language,
                     Awards = bookDTO.Awards,
                     PhysicalStock = bookDTO.PhysicalStock,
-                    UserId = userId,  // Set the user ID from the parameter
+                    UserId = userId,
+                    ArrivalDate = DateTime.UtcNow,
                     IsComingSoon = bookDTO.IsComingSoon,
                     PublicationDate = DateTime.SpecifyKind(bookDTO.PublicationDate, DateTimeKind.Utc)
                 };
 
-                var imagesPath = Path.Combine(_webHostEnvironment.WebRootPath, "images");
-                if (!Directory.Exists(imagesPath))
-                    Directory.CreateDirectory(imagesPath);
+                // Create books directory path
+                var booksImagesPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "books");
+                if (!Directory.Exists(booksImagesPath))
+                    Directory.CreateDirectory(booksImagesPath);
 
                 if (bookDTO.ImageFile != null)
                 {
-                    // Add validation
+                    // Validate file
                     var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
                     var extension = Path.GetExtension(bookDTO.ImageFile.FileName).ToLowerInvariant();
                     if (!allowedExtensions.Contains(extension) || bookDTO.ImageFile.Length > 5242880) // 5MB
                         throw new ArgumentException("Invalid file type or size");
-                    // Continue with file handling
 
+                    // Save to books subdirectory
                     string fileName = Guid.NewGuid() + Path.GetExtension(bookDTO.ImageFile.FileName);
-                    string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "images", fileName);
+                    string filePath = Path.Combine(booksImagesPath, fileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await bookDTO.ImageFile.CopyToAsync(stream);
                     }
 
-                    book.ImageUrl = "/images/" + fileName;
+                    // Update URL path to include books subdirectory
+                    book.ImageUrl = "/images/books/" + fileName;
                 }
 
                 _context.Books.Add(book);
@@ -168,6 +172,7 @@ namespace Bookbox.Services
                 if (existingBook != null)
                     throw new InvalidOperationException("A book with this ISBN already exists");
 
+                // Update book properties
                 book.Title = bookDTO.Title;
                 book.Author = bookDTO.Author;
                 book.Genre = bookDTO.Genre;
@@ -181,19 +186,14 @@ namespace Bookbox.Services
                 book.Awards = bookDTO.Awards;
                 book.PhysicalStock = bookDTO.PhysicalStock;
                 book.IsComingSoon = bookDTO.IsComingSoon;
-                
-                // Fix for PostgreSQL datetime error - convert to UTC kind
                 book.PublicationDate = DateTime.SpecifyKind(bookDTO.PublicationDate, DateTimeKind.Utc);
-                
-                // Don't update UserId as it shouldn't change
-                // (book.UserId remains the same)
 
-                // Add this before file operations
-                var imagesPath = Path.Combine(_webHostEnvironment.WebRootPath, "images");
-                if (!Directory.Exists(imagesPath))
-                    Directory.CreateDirectory(imagesPath);
+                // Create books directory path
+                var booksImagesPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "books");
+                if (!Directory.Exists(booksImagesPath))
+                    Directory.CreateDirectory(booksImagesPath);
 
-                // Add inside UpdateBookAsync before uploading new image
+                // Delete old image if replacing it
                 if (bookDTO.ImageFile != null && !string.IsNullOrEmpty(book.ImageUrl))
                 {
                     var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, book.ImageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
@@ -203,22 +203,23 @@ namespace Bookbox.Services
 
                 if (bookDTO.ImageFile != null)
                 {
-                    // Add validation
+                    // Validate file
                     var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
                     var extension = Path.GetExtension(bookDTO.ImageFile.FileName).ToLowerInvariant();
                     if (!allowedExtensions.Contains(extension) || bookDTO.ImageFile.Length > 5242880) // 5MB
                         throw new ArgumentException("Invalid file type or size");
-                    // Continue with file handling
 
+                    // Save to books subdirectory
                     string fileName = Guid.NewGuid() + Path.GetExtension(bookDTO.ImageFile.FileName);
-                    string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "images", fileName);
+                    string filePath = Path.Combine(booksImagesPath, fileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await bookDTO.ImageFile.CopyToAsync(stream);
                     }
 
-                    book.ImageUrl = "/images/" + fileName;
+                    // Update URL path to include books subdirectory
+                    book.ImageUrl = "/images/books/" + fileName;
                 }
 
                 _context.Books.Update(book);

@@ -510,3 +510,7 @@ key.bin
 .appsettings.Development.json
 bin/
 obj/
+
+# Ignore book and profile images but maintain directories
+Bookbox/wwwroot/images/books/*
+Bookbox/images/profiles/*
