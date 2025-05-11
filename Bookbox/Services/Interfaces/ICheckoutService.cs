@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bookbox.DTOs;
 using Bookbox.Constants;
@@ -13,6 +14,14 @@ namespace Bookbox.Services.Interfaces
         /// <param name="userId">The ID of the user checking out</param>
         /// <returns>A populated CheckoutDTO with all details needed for checkout</returns>
         Task<CheckoutDTO> PrepareCheckoutFromCartAsync(Guid userId);
+        
+        /// <summary>
+        /// Prepares checkout data from selected items in the user's cart
+        /// </summary>
+        /// <param name="userId">The ID of the user checking out</param>
+        /// <param name="selectedItems">List of selected cart item IDs to include in checkout</param>
+        /// <returns>A populated CheckoutDTO with details for selected items</returns>
+        Task<CheckoutDTO> PrepareCheckoutFromCartAsync(Guid userId, List<Guid> selectedItems);
         
         /// <summary>
         /// Checks if a user is eligible for a loyalty discount (10% after every 10 successful orders)

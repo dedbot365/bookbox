@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Bookbox.Constants;
 using Bookbox.DTOs;
@@ -38,8 +40,17 @@ namespace Bookbox.Controllers
                     return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Index", "Checkout") });
                 }
                 
-                // Prepare checkout data from cart
-                var checkoutData = await _checkoutService.PrepareCheckoutFromCartAsync(userId);
+                // Check if we have selected items from TempData
+                List<Guid> selectedItems = null;
+                if (TempData["SelectedCartItems"] is string serializedItems)
+                {
+                    selectedItems = JsonSerializer.Deserialize<List<Guid>>(serializedItems);
+                    // Keep the selected items in TempData for potential use in Confirm action
+                    TempData["SelectedCartItems"] = serializedItems;
+                }
+                
+                // Prepare checkout data from cart with selected items
+                var checkoutData = await _checkoutService.PrepareCheckoutFromCartAsync(userId, selectedItems);
                 
                 return View(checkoutData);
             }
@@ -47,13 +58,13 @@ namespace Bookbox.Controllers
             {
                 // Handle empty cart or other application exceptions
                 TempData["ErrorMessage"] = ex.Message;
-                return RedirectToAction("Index", "Cart");
+                return RedirectToAction("ViewCart", "Cart");
             }
             catch (Exception ex)
             {
                 // Handle unexpected errors
                 TempData["ErrorMessage"] = "An error occurred while preparing your checkout. Please try again.";
-                return RedirectToAction("Index", "Cart");
+                return RedirectToAction("ViewCart", "Cart");
             }
         }
         
@@ -76,8 +87,15 @@ namespace Bookbox.Controllers
                     return RedirectToAction("Login", "Account");
                 }
                 
-                // Prepare checkout data
-                var checkoutData = await _checkoutService.PrepareCheckoutFromCartAsync(userId);
+                // Check if we have selected items from TempData
+                List<Guid> selectedItems = null;
+                if (TempData["SelectedCartItems"] is string serializedItems)
+                {
+                    selectedItems = JsonSerializer.Deserialize<List<Guid>>(serializedItems);
+                }
+                
+                // Prepare checkout data with selected items if available
+                var checkoutData = await _checkoutService.PrepareCheckoutFromCartAsync(userId, selectedItems);
                 
                 // Confirm the checkout (this will generate a claim code)
                 var confirmedCheckout = await _checkoutService.ConfirmCheckoutAsync(

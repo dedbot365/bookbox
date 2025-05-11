@@ -215,9 +215,14 @@
                     </div>
                     
                     <!-- Checkout Button -->
-                    <a href="@Url.Action("Index", "Checkout")" id="checkout-btn" class="btn btn-primary w-100 disabled">
-                        Proceed to Checkout (<span id="checkout-items-count">0</span>)
-                    </a>
+                    <form id="checkoutForm" asp-controller="Cart" asp-action="PrepareCheckout" method="post">
+                        <div id="selectedItemsContainer">
+                            <!-- JavaScript will inject hidden inputs here -->
+                        </div>
+                        <button type="submit" id="checkout-btn" class="btn btn-primary w-100 disabled">
+                            Proceed to Checkout (<span id="checkout-items-count">0</span>)
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -255,6 +260,9 @@
                 var subtotal = 0;
                 var selectedItemsCount = 0;
                 
+                // Clear previous selected items
+                $('#selectedItemsContainer').empty();
+                
                 $('.cart-item-row').each(function() {
                     var $row = $(this);
                     var itemId = $row.data('itemid');
@@ -265,6 +273,9 @@
                         var quantity = parseInt($row.data('quantity'));
                         subtotal += price * quantity;
                         selectedItemsCount += quantity;
+                        
+                        // Add hidden input for selected item
+                        $('#selectedItemsContainer').append('<input type="hidden" name="selectedItems" value="' + itemId + '">');
                     }
                 });
                 
