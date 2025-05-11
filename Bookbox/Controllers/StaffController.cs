@@ -52,7 +52,10 @@ namespace Bookbox.Controllers
         [HttpPost]
         public async Task<IActionResult> RedeemOrder(Guid id, string claimCode)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Book)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
             
             if (order == null)
             {
@@ -84,6 +87,18 @@ namespace Bookbox.Controllers
             if (Guid.TryParse(staffUserId, out Guid staffId))
             {
                 order.ProcessedBy = staffId;
+            }
+            
+            // Update book stock based on order items
+            foreach (var item in order.OrderItems)
+            {
+                if (item.Book != null)
+                {
+                    // Ensure stock doesn't go below zero
+                    item.Book.Stock = Math.Max(0, item.Book.Stock - item.Quantity);
+                    // Update physical stock too if needed
+                    item.Book.PhysicalStock = Math.Max(0, item.Book.PhysicalStock - item.Quantity);
+                }
             }
             
             await _context.SaveChangesAsync();
