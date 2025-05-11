@@ -1,0 +1,175 @@
+@model Bookbox.Models.Order
+@{
+    ViewData["Title"] = $"Order #{Model.OrderNumber}";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            <i class="fas fa-file-invoice me-2"></i>
+            Order #@Model.OrderNumber
+        </h1>
+        <a asp-action="Orders" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Orders
+        </a>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-book me-2"></i> Ordered Items</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @if (!string.IsNullOrEmpty(item.Book?.ImageUrl))
+                                                {
+                                                    <img src="@item.Book.ImageUrl" class="me-2" style="width: 40px; height: 60px; object-fit: cover;" alt="Book cover">
+                                                }
+                                                else
+                                                {
+                                                    <div class="bg-secondary me-2" style="width: 40px; height: 60px;"></div>
+                                                }
+                                                <div>
+                                                    <div>@item.Book?.Title</div>
+                                                    <small class="text-muted">@item.Book?.Author</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@item.Quantity</td>
+                                        <td>
+                                            @if (item.DiscountedPrice < item.Price)
+                                            {
+                                                <div>$@item.DiscountedPrice.ToString("F2")</div>
+                                                <small class="text-decoration-line-through text-muted">$@item.Price.ToString("F2")</small>
+                                            }
+                                            else
+                                            {
+                                                <div>$@item.Price.ToString("F2")</div>
+                                            }
+                                        </td>
+                                        <td class="text-end">$@((item.DiscountedPrice > 0 ? item.DiscountedPrice : item.Price) * item.Quantity)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-group-divider">
+                                @if (Model.DiscountApplied > 0)
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold">Discount:</td>
+                                        <td class="text-end text-danger">-$@Model.DiscountApplied.ToString("F2")</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold">Total:</td>
+                                    <td class="text-end fw-bold">$@Model.TotalAmount.ToString("F2")</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Order Information</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Status:</span>
+                            @if (Model.Status == Bookbox.Constants.OrderStatus.Pending)
+                            {
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            }
+                            else if (Model.Status == Bookbox.Constants.OrderStatus.Completed)
+                            {
+                                <span class="badge bg-success">Completed</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Cancelled</span>
+                            }
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Order Date:</span>
+                            <span>@Model.OrderDate.ToString("MMM dd, yyyy HH:mm")</span>
+                        </li>
+                        @if (Model.CompletedDate.HasValue)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Completed Date:</span>
+                                <span>@Model.CompletedDate.Value.ToString("MMM dd, yyyy HH:mm")</span>
+                            </li>
+                        }
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Payment Method:</span>
+                            <span>@Model.PaymentMethod.ToString()</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Redeem Code:</span>
+                            <span class="badge bg-primary">@Model.ClaimCode</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i> Customer Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> @Model.User?.FirstName @Model.User?.LastName</p>
+                    <p><strong>Username:</strong> @Model.User?.Username</p>
+                    <p><strong>Email:</strong> @Model.User?.Email</p>
+                    <p><strong>Contact:</strong> @(string.IsNullOrEmpty(Model.User?.ContactNo) ? "Not provided" : Model.User.ContactNo)</p>
+                </div>
+            </div>
+            
+            @if (Model.Status == Bookbox.Constants.OrderStatus.Pending)
+            {
+                <div class="card shadow" id="redeem">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i> Redeem Order</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Enter the claim code to redeem this order:</p>
+                        <form asp-action="RedeemOrder" method="post">
+                            <input type="hidden" name="id" value="@Model.OrderId" />
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="claimCode" placeholder="Enter claim code" required />
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check me-1"></i> Redeem Order
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
