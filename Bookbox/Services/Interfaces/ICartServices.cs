@@ -26,5 +26,7 @@ namespace Bookbox.Services.Interfaces
         Task<Order> GetOrderAsync(Guid orderId);
         
         Task<bool> ClearCartAsync(Guid userId);
+        
+        Task<bool> RemoveCartItemsByBookIdsAsync(Guid userId, List<Guid> bookIds);
     }
 }

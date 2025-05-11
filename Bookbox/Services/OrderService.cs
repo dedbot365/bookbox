@@ -65,8 +65,9 @@ namespace Bookbox.Services
                 // Save changes
                 await _context.SaveChangesAsync();
                 
-                // Clear the user's cart
-                await _cartService.ClearCartAsync(checkoutData.UserId);
+                // Extract the book IDs from checkout items to remove only these items from cart
+                var bookIdsToRemove = checkoutData.Items.Select(i => i.BookId).ToList();
+                await _cartService.RemoveCartItemsByBookIdsAsync(checkoutData.UserId, bookIdsToRemove);
                 
                 // Commit transaction
                 await transaction.CommitAsync();

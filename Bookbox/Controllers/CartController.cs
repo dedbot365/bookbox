@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Bookbox.Controllers
@@ -379,6 +381,24 @@ namespace Bookbox.Controllers
             ViewBag.UserAddress = userWithAddress?.Addresses.FirstOrDefault(); // Get the first address from collection
             
             return View(cartItems);
+        }
+
+        // POST: Cart/PrepareCheckout
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PrepareCheckout(List<Guid> selectedItems)
+        {
+            if (selectedItems == null || !selectedItems.Any())
+            {
+                TempData["ErrorMessage"] = "Please select at least one item to checkout.";
+                return RedirectToAction(nameof(ViewCart));
+            }
+            
+            // Store selected item IDs in TempData
+            TempData["SelectedCartItems"] = JsonSerializer.Serialize(selectedItems);
+            
+            // Redirect to checkout
+            return RedirectToAction("Index", "Checkout");
         }
 
         // Add this new endpoint to CartController.cs

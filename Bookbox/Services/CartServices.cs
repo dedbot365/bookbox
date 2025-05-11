@@ -272,6 +272,21 @@ namespace Bookbox.Services
             return true;
         }
         
+        public async Task<bool> RemoveCartItemsByBookIdsAsync(Guid userId, List<Guid> bookIds)
+        {
+            var cartItems = await _context.CartItems
+                .Include(ci => ci.Cart)
+                .Where(ci => ci.Cart.UserId == userId && bookIds.Contains(ci.BookId))
+                .ToListAsync();
+            
+            if (!cartItems.Any())
+                return false;
+            
+            _context.CartItems.RemoveRange(cartItems);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        
         private string GenerateRandomCode()
         {
             const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";

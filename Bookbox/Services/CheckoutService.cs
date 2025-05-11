@@ -43,7 +43,54 @@ namespace Bookbox.Services
             var checkout = new CheckoutDTO
             {
                 UserId = userId,
-                Username = user.Username ?? string.Empty,  // Changed UserName to Username
+                Username = user.Username ?? string.Empty,
+                Items = cartItems.Select(item => new CheckoutItemDTO
+                {
+                    BookId = item.BookId,
+                    Title = item.Book?.Title ?? "Unknown Book",
+                    Author = item.Book?.Author ?? "Unknown Author",
+                    CoverImageUrl = item.Book?.ImageUrl ?? string.Empty,
+                    Quantity = item.Quantity,
+                    Price = item.Book?.Price ?? 0
+                }).ToList()
+            };
+            
+            // Check loyalty discount eligibility
+            checkout.HasLoyaltyDiscount = await CheckLoyaltyDiscountEligibilityAsync(userId);
+            
+            return checkout;
+        }
+        
+        public async Task<CheckoutDTO> PrepareCheckoutFromCartAsync(Guid userId, List<Guid> selectedItems = null)
+        {
+            // Get user information
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+            
+            if (user == null)
+            {
+                throw new ApplicationException("User not found");
+            }
+            
+            // Get cart items
+            var cartItems = await _cartService.GetUserCartItemsAsync(userId);
+            
+            // Filter by selected items if provided
+            if (selectedItems != null && selectedItems.Any())
+            {
+                cartItems = cartItems.Where(ci => selectedItems.Contains(ci.CartItemId)).ToList();
+            }
+            
+            if (!cartItems.Any())
+            {
+                throw new ApplicationException("No items selected for checkout");
+            }
+            
+            // Create checkout DTO
+            var checkout = new CheckoutDTO
+            {
+                UserId = userId,
+                Username = user.Username ?? string.Empty,
                 Items = cartItems.Select(item => new CheckoutItemDTO
                 {
                     BookId = item.BookId,
