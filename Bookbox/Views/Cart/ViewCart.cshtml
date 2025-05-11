@@ -2,7 +2,7 @@
 @inject Bookbox.Services.Interfaces.IDiscountService DiscountService
 
 @{
-    ViewData["Title"] = "View Cart";
+    ViewData["Title"] = "Your Cart";
 }
 
 <div class="container mt-4">
@@ -13,7 +13,14 @@
                 <div class="card-header bg-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <h4 class="mb-0">Your Cart</h4>
-                        <span class="text-muted">@Model.Count() item(s)</span>
+                        <div>
+                            <label class="me-2">
+                                <input type="checkbox" id="selectAll" checked /> SELECT ALL
+                            </label>
+                            <button id="deleteSelected" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash"></i> DELETE
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -156,17 +163,17 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-2">
-                        <span>Subtotal </span>
-                        <span>NPR @ViewBag.SubtotalPrice.ToString("F2")</span>
+                        <span>Subtotal (<span id="selected-items-count">0</span> items)</span>
+                        <span>NPR <span id="subtotal-price">0.00</span></span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <span>Shipping Fee</span>
-                        <span>NPR @ViewBag.ShippingFee.ToString("F2")</span>
+                        <span>NPR <span id="shipping-fee">0.00</span></span>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-3">
                         <strong>Total</strong>
-                        <strong>NPR @ViewBag.TotalPrice.ToString("F2")</strong>
+                        <strong>NPR <span id="total-price">0.00</span></strong>
                     </div>
                     
                     <!-- Shipping Address Section -->
@@ -208,8 +215,8 @@
                     </div>
                     
                     <!-- Checkout Button -->
-                    <a href="@Url.Action("Index", "Checkout")" class="btn btn-primary w-100">
-                        Proceed to Checkout
+                    <a href="@Url.Action("Index", "Checkout")" id="checkout-btn" class="btn btn-primary w-100 disabled">
+                        Proceed to Checkout (<span id="checkout-items-count">0</span>)
                     </a>
                 </div>
             </div>
@@ -223,8 +230,23 @@
             // Initial calculation
             calculateTotals();
             
-            // Handle checkbox changes
+            // Handle "Select All" checkbox
+            $('#selectAll').change(function() {
+                $('.item-checkbox').prop('checked', $(this).is(':checked'));
+                calculateTotals();
+            });
+            
+            // Handle individual checkbox changes
             $('.item-checkbox').change(function() {
+                // Update "Select All" checkbox state
+                if (!$(this).is(':checked')) {
+                    $('#selectAll').prop('checked', false);
+                } else {
+                    // Check if all items are selected
+                    if ($('.item-checkbox:checked').length === $('.item-checkbox').length) {
+                        $('#selectAll').prop('checked', true);
+                    }
+                }
                 calculateTotals();
             });
             
@@ -242,7 +264,7 @@
                         var price = parseFloat($row.data('price'));
                         var quantity = parseInt($row.data('quantity'));
                         subtotal += price * quantity;
-                        selectedItemsCount++;
+                        selectedItemsCount += quantity;
                     }
                 });
                 
@@ -250,7 +272,7 @@
                 var formattedSubtotal = subtotal.toFixed(2);
                 
                 // Update shipping fee if needed (currently fixed at 0)
-                var shippingFee = parseFloat($('#shipping-fee').text());
+                var shippingFee = 0;
                 
                 // Calculate total
                 var total = subtotal + shippingFee;
@@ -259,7 +281,16 @@
                 // Update the DOM
                 $('#selected-items-count').text(selectedItemsCount);
                 $('#subtotal-price').text(formattedSubtotal);
+                $('#shipping-fee').text(shippingFee.toFixed(2));
                 $('#total-price').text(formattedTotal);
+                $('#checkout-items-count').text(selectedItemsCount);
+                
+                // Enable/disable checkout button based on selection
+                if (selectedItemsCount > 0) {
+                    $('#checkout-btn').removeClass('disabled');
+                } else {
+                    $('#checkout-btn').addClass('disabled');
+                }
             }
             
             // Handle quantity changes
@@ -305,6 +336,25 @@
                         }
                     }
                 });
+            });
+            
+            // Delete selected items button
+            $('#deleteSelected').click(function() {
+                var selectedItems = [];
+                
+                $('.item-checkbox:checked').each(function() {
+                    selectedItems.push($(this).data('itemid'));
+                });
+                
+                if (selectedItems.length === 0) {
+                    alert('Please select at least one item to delete');
+                    return;
+                }
+                
+                if (confirm('Are you sure you want to remove the selected items?')) {
+                    // Implement AJAX call to remove multiple items
+                    // This would require a new endpoint in your CartController
+                }
             });
         });
     </script>
