@@ -24,6 +24,7 @@ builder.Services.AddScoped<IBookmarkService, BookmarkService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICheckoutService, CheckoutService>();
 builder.Services.AddScoped<Bookbox.Services.Interfaces.IOrderService, Bookbox.Services.OrderService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 
 // Authentication and authorization services
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

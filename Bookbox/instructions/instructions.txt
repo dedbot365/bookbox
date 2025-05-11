@@ -25,130 +25,69 @@ and delete books and manage inventory. They can also add discounts to individual
 books, optionally flagging them as "On Sale" and setting discount periods. Admins can 
 create timed announcements for deals, new arrivals, or other informational messages. 
 }
-this the whole scenario now we are working on making the checkout feature. upon clicking  to 'proceed to checkout' button on the 'cart'page . it should go to the checkout page (the table of order attributes , st the values which arent there as 0 , will be worked later ) and in that page there should be a button to confirm order( it works from the orderstatus.cs model , add the status pending =1 , completed =2 and cancelled =3)
 
- What I Want?
+
+---
+
+What I Want?
+
 Answer:
-I want to implement the Checkout page where users can review the books they’ve added to their cart, see the calculated totals, discounts (if applicable), and proceed to confirm the checkout. This is the final step before creating the Order.
+I want to allow members to leave reviews (ratings and comments) for books they have **successfully purchased**. A purchase is only valid if the order has been **marked as Completed** by the staff (i.e., after claim code has been redeemed, the status is amrked as completed). These completed purchases should appear in a **Purchased Books** page, accessible from the user profile. Users can then write and submit reviews for each book they’ve purchased.
 
+---
 
+ How Would I Solve This Problem?
 
-{(
-
-✅ How Would I Solve This Problem?
-Answer:
-
-Create necessary DTOs (e.g., CheckoutDTO to transfer the cart and pricing data.
-
-Implement a CheckoutService and corresponding ICheckoutService interface to calculate total books, subtotal.
-
-Use CheckoutController to handle the display of the checkout summary and confirm action.
-
-Upon confirmation,  to a success page (for now, don’t create the order yet).
-
-Update the view to show: book titles, prices, quantity, subtotal, discount, final total, and a button to confirm checkout.
-
-Make sure the service pulls data from the cart  and returns the calculated values cleanly.
-
-Claim code can be generated using Guid.NewGuid().ToString().Substring(0,8).ToUpper(); and stored for now only in TempData or ViewBag.
-
-All files created should follow the layered architecture: DTOs in DTO folder, services in Services, interfaces in Interfaces, and view in Views/Checkout.
-
-✅ What I Expect You to Solve It?
 Answer:
 
-I want you to guide me step-by-step on what DTOs, services, and controller actions need to be created for the checkout logic.
+* Filter and display only **Completed Orders** (Status ID = 2) under a new section or page called **Purchased Books**.
+*  reuse a model (`Review.cs`) that contains fields like: `BookId`, `UserId`, `Rating`, `Comment' .
+* Create DTOs as needed (e.g., `ReviewDTO`, `PurchasedBookDTO`) to pass data to the view layer.
+* Build a `ReviewService` and `IReviewService` to manage:
 
-Help me connect the checkout data with the cart data already in place.
+  * Adding a review.
+  * Preventing multiple reviews for the same book by the same user.
+* In the **Purchased Books View**, display:
 
-I expect no order to be created yet—just a temporary confirmation of checkout.
+  * Book details (title, cover, author).
+  * If not reviewed: a **form to submit a review** (rating star upto 5, comment textbox which is optional).
+  * If already reviewed: show the **existing rating and comment** with an option to **edit** (optional).
+* Ensure the member is only allowed to post reviews for books from **orders with Completed status**.
+* The `Purchased Books` page can be linked in the **user profile dropdown** below '  My Orders' .
 
-Ensure the discount logic is applied correctly and that a dummy claim code is generated on confirmation.
+---
 
-Provide guidance on where to place each new file or update existing files if necessary.
+What I Expect You to Solve It?
 
+**Answer:**
 
-1.(ignore this) first create a checkoutdto file
-2. (ignore this)Create a interface forl the checkout and implement it in the service
+* Help me create a **Purchased Books page** that displays only books from **Completed Orders**.
+* Guide me to:
 
-3.(ignore this) Create a CheckoutController
+  * Show a review form (rating and comment) next to each eligible book.
+  * Save the review using a controller and service logic.
+  * Validate that the user can review a book only once per order.
+* Ensure the **view is clean**, with proper UI/UX distinction between reviewed and not-yet-reviewed books.
+* Show how to structure the folder placement for the new files (e.g., Review DTOs, Service, Controller, View).
+* Make sure the review logic checks that the book is from a **Completed order only** (Status ID = 2).
 
-4. Create view( Ignore this block since it has been done)
+---
 
- )}
+What’s Been Done?
 
+**Answer:**
+* Review. cs is already created
+* **Completed orders** are correctly marked once staff redeems the **claim code**.
+* Status of such orders is set to **Completed (2)** in the system.
+* This status logic is already working as expected.
+* Now I want to create a new page for **Purchased Books** where members can:
 
+  * View only the books from **completed orders**, and
+  * Add **rating and comment** as a review for each of them.
 
-
-
- What I Want?
-Answer:
-I want to implement the Order Status logic so that after checkout, an order is confirmed and shown to the member in their profile dropdown under a new menu item called "My Orders", placed below "Wishlist". Members should be able to view all of their confirmed orders, which initially have the status Pending (1). They should be allowed to cancel their pending orders only within 24 hours. Orders beyond that or with a different status (Completed (2) or Cancelled (3)) cannot be cancelled.
-
-How Would I Solve This Problem?
-Answer:
-
-Use the existing models: Order.cs, OrderItem.cs, and OrderStatus.cs.
-
-After checkout confirmation, create an Order entry with:
-
-Status set to Pending (status ID = 1).
-
-A Claim Code and Timestamp (OrderDateTime) for future validation.
-
-Create an OrderController with:
-
-A method to display all orders placed by the current logged-in member.
-
-A cancellation method that:
-
-Validates the order is Pending and within 24 hours.
-
-If valid, changes status to Cancelled (status ID = 3).
-
-Create an OrderService and interface to manage business logic (creating order, fetching, cancel logic, etc.).
-
-Display orders in the "My Orders" view under a dropdown in the navbar.
-
-Add a Cancel Order button conditionally shown only if:
-
-Status is Pending.
-
-Order is less than 24 hours old (calculate using DateTime.Now which is in the helper folder   - OrderDateTime <= 24 hours).
-
-Optionally display status as badges: "Pending", "Completed", "Cancelled".
-
-
-
-✅ What I Expect You to Solve It?
-Answer:
-
-Help me implement the order creation process after checkout (using OrderService, etc.).
-
-Guide me to build the "My Orders" page where users can view their orders with clear status labels and cancel button (if applicable).
-
-Add the "My Orders" link in the navbar under the logged-in user's dropdown, below the Wishlist.
-
-Provide help on writing the logic to only allow cancellation if:
-
-Status is Pending.
-
-It has been less than 24 hours since order time.
-
-Ensure Claim Code, Book Info, Order Date, and Status are visible in the "My Orders" view.
-
-Suggest how to organize or reuse existing models or DTOs for this page.
-
-✅ What’s Been Done?
-Answer:
-
-The Checkout page and logic are already implemented, and it shows a Success Message after checkout.
-
-Models (Order.cs, OrderItem.cs, and OrderStatus.cs) already exist.
-
-No order view or status tracking has been done yet.
-
-Now, I want to continue from the checkout step to store orders and allow users to track and cancel them if eligible.
+---
+(So far, review.cs model has been created , and the Dto file)
+1. Create the interface and the servie to implement
 
 
 
