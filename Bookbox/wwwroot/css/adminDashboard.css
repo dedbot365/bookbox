@@ -1,0 +1,75 @@
+/* Admin Dashboard Styles */
+
+/* Custom styling for dashboard cards */
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+/* Chart containers */
+.chart-area {
+    position: relative;
+    height: 300px;
+    margin: auto;
+}
+
+.chart-pie, .chart-bar {
+    position: relative;
+    height: 250px;
+    margin: auto;
+}
+
+/* Timeline styling */
+.timeline {
+    position: relative;
+    list-style: none;
+    padding-left: 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+}
+
+.timeline-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-content {
+    border-left: 2px solid #e3e6f0;
+    padding-left: 15px;
+    padding-bottom: 10px;
+}
+
+/* Dropdown styling */
+.dropdown-menu-right {
+    right: 0;
+    left: auto;
+}
+
+/* Card hover effects */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}

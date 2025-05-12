@@ -27,6 +27,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOrderEmailService, OrderEmailService>();
+builder.Services.AddScoped<IChartService, ChartService>();
 
 // Authentication and authorization services
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
