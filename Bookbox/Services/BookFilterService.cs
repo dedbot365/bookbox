@@ -182,7 +182,7 @@ namespace Bookbox.Services
             switch (category)
             {
                 case "bestsellers":
-                    books = books.OrderByDescending(b => b.SalesCount).Take(50);
+                    books = books.Where(b => b.SalesCount >= 1).OrderByDescending(b => b.SalesCount).Take(10);
                     viewData["CategoryName"] = "Bestsellers";
                     break;
                 case "award-winners":
