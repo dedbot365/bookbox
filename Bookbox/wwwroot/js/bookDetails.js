@@ -81,4 +81,21 @@ $(document).ready(function() {
             }
         });
     });
+
+    // Handle coming soon book display
+    const isComingSoon = $('#bookDetails').data('is-coming-soon');
+    
+    if (isComingSoon === true) {
+        // Hide stock and price elements
+        $('.stock-badge').hide();
+        $('.price-tag').hide();
+        $('.physical-stock').hide();
+        $('.add-to-cart-form').hide();
+        
+        // Show coming soon message
+        $('.coming-soon-message').show();
+    } else {
+        // Hide coming soon message
+        $('.coming-soon-message').hide();
+    }
 });
