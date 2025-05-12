@@ -118,46 +118,39 @@ namespace Bookbox.Controllers
 
             ViewBag.MonthlyRevenue = monthlyRevenue;
 
-            // Get completed orders by day for the last 30 days - Fix timezone issue
-            var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
-            
-            // Query for daily orders directly with a SQL group by to avoid timezone issues
-            var dailyOrdersQuery = await _context.Orders
-                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate >= thirtyDaysAgo)
+            // … inside Dashboard() after computing MonthlyRevenue …
+
+            // --- Daily: last 7 days ---
+            var sevenDaysAgo = DateTime.UtcNow.Date.AddDays(-6);
+            var dailyOrders = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Date >= sevenDaysAgo)
                 .GroupBy(o => o.OrderDate.Date)
                 .Select(g => new { Date = g.Key, Count = g.Count() })
                 .ToListAsync();
-                
-            // Create array of 30 days with default count 0
-            var dailyOrderCounts = new int[30];
-            for (int i = 0; i < 30; i++)
-            {
-                var date = thirtyDaysAgo.AddDays(i).Date;
-                var orderCount = dailyOrdersQuery.FirstOrDefault(x => x.Date == date)?.Count ?? 0;
-                dailyOrderCounts[i] = orderCount;
-            }
 
+            var dailyOrderCounts = new int[7];
+            for (int i = 0; i < 7; i++)
+            {
+                var date = sevenDaysAgo.AddDays(i);
+                dailyOrderCounts[i] = dailyOrders.FirstOrDefault(x => x.Date == date)?.Count ?? 0;
+            }
             ViewBag.DailyOrderCounts = dailyOrderCounts;
 
-            // Get completed orders by week for the year
-            var startOfYear = new DateTime(DateTime.UtcNow.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var weeklyOrderCounts = new int[52];
-            var completedOrdersByWeek = await _context.Orders
-                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Year == DateTime.UtcNow.Year)
-                .GroupBy(o => ((o.OrderDate - startOfYear).Days / 7) + 1)
+            // --- Weekly: last 4 weeks (28 days) ---
+            var fourWeeksAgo = DateTime.UtcNow.Date.AddDays(-28);
+            var weeklyOrders = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Date >= fourWeeksAgo)
+                .GroupBy(o => ((o.OrderDate.Date - fourWeeksAgo).Days) / 7)
                 .Select(g => new { Week = g.Key, Count = g.Count() })
-                .OrderBy(x => x.Week)
                 .ToListAsync();
 
-            foreach (var item in completedOrdersByWeek)
-            {
-                if (item.Week >= 1 && item.Week <= 52)
-                {
-                    weeklyOrderCounts[item.Week - 1] = item.Count;
-                }
-            }
-
+            var weeklyOrderCounts = new int[4];
+            for (int w = 0; w < 4; w++)
+                weeklyOrderCounts[w] = weeklyOrders.FirstOrDefault(x => x.Week == w)?.Count ?? 0;
             ViewBag.WeeklyOrderCounts = weeklyOrderCounts;
+
+            // --- Monthly: already in monthlyOrderCounts[12] …
+            ViewBag.MonthlyOrderCounts = monthlyOrderCounts;
 
             // Get completed orders by year for the last 5 years
             var fiveYearsAgo = DateTime.UtcNow.Year - 4;
