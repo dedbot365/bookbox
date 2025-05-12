@@ -236,7 +236,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var order in ViewBag.RecentOrders ?? new List<dynamic>())
+                                @foreach (var order in (ViewBag.RecentOrders as IEnumerable<dynamic> ?? new List<dynamic>()).Take(5))
                                 {
                                     <tr>
                                         <td>#ORD-@order.OrderNumber</td>
