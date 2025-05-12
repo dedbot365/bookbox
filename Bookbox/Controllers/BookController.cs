@@ -15,11 +15,13 @@ namespace Bookbox.Controllers
     {
         private readonly IBookService _bookService;
         private readonly IBookFilterService _filterService;
+        private readonly IReviewService _reviewService;
 
-        public BookController(IBookService bookService, IBookFilterService filterService)
+        public BookController(IBookService bookService, IBookFilterService filterService, IReviewService reviewService)
         {
             _bookService = bookService;
             _filterService = filterService;
+            _reviewService = reviewService;
         }
 
         // GET: Book
@@ -71,6 +73,11 @@ namespace Bookbox.Controllers
             {
                 return NotFound();
             }
+
+            // Get review statistics
+            ViewData["AverageRating"] = await _reviewService.GetAverageRatingForBookAsync(id);
+            ViewData["ReviewCount"] = await _reviewService.GetReviewCountForBookAsync(id);
+            ViewData["RecentReviews"] = await _reviewService.GetRecentReviewsForBookAsync(id, 5);
 
             return View(book);
         }

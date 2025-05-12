@@ -11,5 +11,10 @@ namespace Bookbox.Services.Interfaces
         Task<bool> AddReviewAsync(Guid userId, ReviewDTO reviewDto);
         Task<bool> HasUserReviewedBookAsync(Guid userId, Guid bookId);
         Task<ReviewDTO> GetReviewByUserAndBookAsync(Guid userId, Guid bookId);
+        
+        // New methods
+        Task<double> GetAverageRatingForBookAsync(Guid bookId);
+        Task<int> GetReviewCountForBookAsync(Guid bookId);
+        Task<List<ReviewDTO>> GetRecentReviewsForBookAsync(Guid bookId, int count = 5);
     }
 }
