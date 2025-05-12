@@ -17,12 +17,14 @@ namespace Bookbox.Controllers
         private readonly ICheckoutService _checkoutService;
         private readonly IUserService _userService;
         private readonly IOrderService _orderService;
+        private readonly IOrderEmailService _orderEmailService;
         
-        public CheckoutController(ICheckoutService checkoutService, IUserService userService, IOrderService orderService)
+        public CheckoutController(ICheckoutService checkoutService, IUserService userService, IOrderService orderService, IOrderEmailService orderEmailService)
         {
             _checkoutService = checkoutService ?? throw new ArgumentNullException(nameof(checkoutService));
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
+            _orderEmailService = orderEmailService ?? throw new ArgumentNullException(nameof(orderEmailService));
         }
         
         /// <summary>
@@ -106,6 +108,9 @@ namespace Bookbox.Controllers
                 
                 // Create an order from the checkout data
                 var order = await _orderService.CreateOrderFromCheckoutAsync(confirmedCheckout);
+                
+                // Send order creation emails
+                await _orderEmailService.SendOrderCreationEmailsAsync(order.OrderId);
                 
                 // Redirect to the Order controller's Success action with the order ID
                 return RedirectToAction("Success", "Order", new { id = order.OrderId });
