@@ -16,6 +16,49 @@
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     @await RenderSectionAsync("Styles", required: false)
+    <style>
+        /* Custom styles for navbar search */
+        .navbar-search .input-group {
+            max-width: 2000px; /* Increased from 400px */
+        }
+        
+        .navbar-search {
+            margin: 0 auto;
+            width: 100%;
+            max-width: 1000px; /* Increased from 500px */
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+        }
+        
+        /* Add specific width for the genre dropdown */
+        .navbar-search .form-select {
+            max-width: 120px; /* Reduced width for the dropdown */
+            width: auto;
+        }
+        
+        /* Custom styling for search button */
+        .navbar-search .btn-primary {
+            background-color: #413a7a;
+            border-color: #413a7a;
+        }
+        
+        .navbar-search .btn-primary:hover {
+            background-color: #554a96; /* Lighter purple version of #413a7a */
+            border-color: #554a96;
+        }
+        
+        @@media (max-width: 992px) {
+            .navbar-search {
+                position: relative;
+                left: auto;
+                transform: none;
+                margin: 10px 0;
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -44,7 +87,8 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <!-- Left side navigation -->
+                    <ul class="navbar-nav">
                         @if (!isAdmin && !isStaff)
                         {
                             <li class="nav-item">
@@ -94,7 +138,28 @@
                         }
                     </ul>
                     
-                    <!-- Create a separate navbar-nav for user-related items -->
+                    <!-- Search bar in center with absolute positioning -->
+                    @if (!isAdmin && !isStaff)
+                    {
+                        <form class="navbar-search" action="@Url.Action("Index", "Shop")" method="get">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="searchTerm" placeholder="Search books..." 
+                                       aria-label="Search">
+                                <select class="form-select d-none d-md-block" name="genre">
+                                    <option value="">All Genres</option>
+                                    @foreach (var genre in Enum.GetValues(typeof(Bookbox.Constants.Genre)))
+                                    {
+                                        <option value="@genre">@genre</option>
+                                    }
+                                </select>
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    }
+                    
+                    <!-- Right side user navigation -->
                     <ul class="navbar-nav">
                         @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Member"))
                         {
