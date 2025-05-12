@@ -114,9 +114,9 @@ namespace Bookbox.Services
             var completedOrdersCount = await _context.Orders
                 .CountAsync(o => o.UserId == userId && o.Status == OrderStatus.Completed);
             
-            // Check if we've reached a multiple of 10
-            // If the count is divisible by 10, user is eligible
-            return completedOrdersCount > 0 && completedOrdersCount % 10 == 0;
+            // Check if the next order will be the 11th, 22nd, 33rd, etc.
+            // (If completedOrdersCount + 1 is divisible by 11)
+            return (completedOrdersCount + 1) % 11 == 0;
         }
         
         public string GenerateClaimCode()

@@ -29,65 +29,38 @@ create timed announcements for deals, new arrivals, or other informational messa
 
 ---
 
-What I Want?
-
+What I want?
 Answer:
-I want to allow members to leave reviews (ratings and comments) for books they have **successfully purchased**. A purchase is only valid if the order has been **marked as Completed** by the staff (i.e., after claim code has been redeemed, the status is amrked as completed). These completed purchases should appear in a **Purchased Books** page, accessible from the user profile. Users can then write and submit reviews for each book they’ve purchased.
+I want to implement a 10% stackable discount feature for members. After every 10 successful orders, the next (11th, 22nd, 33rd, etc.) successful order should automatically receive a one-time 10% discount, which can be stacked on top of any existing discounts. No changes should be made to the database schema.
 
----
-
- How Would I Solve This Problem?
-
+How would I solve this problem?
 Answer:
 
-* Filter and display only **Completed Orders** (Status ID = 2) under a new section or page called **Purchased Books**.
-*  reuse a model (`Review.cs`) that contains fields like: `BookId`, `UserId`, `Rating`, `Comment' .
-* Create DTOs as needed (e.g., `ReviewDTO`, `PurchasedBookDTO`) to pass data to the view layer.
-* Build a `ReviewService` and `IReviewService` to manage:
+    Count the total number of successful orders for the member (e.g., those with Status == "Success").
 
-  * Adding a review.
-  * Preventing multiple reviews for the same book by the same user.
-* In the **Purchased Books View**, display:
+    If the next order being placed will be the 11th, 22nd, 33rd, etc. (i.e., if successfulOrderCount + 1 is divisible by 11), then:
 
-  * Book details (title, cover, author).
-  * If not reviewed: a **form to submit a review** (rating star upto 5, comment textbox which is optional).
-  * If already reviewed: show the **existing rating and comment** with an option to **edit** (optional).
-* Ensure the member is only allowed to post reviews for books from **orders with Completed status**.
-* The `Purchased Books` page can be linked in the **user profile dropdown** below '  My Orders' .
+        Apply the 10% discount at checkout.
 
----
+        No need to mark or reset anything in the database — the logic is based purely on modulo arithmetic ((orderCount + 1) % 11 == 0).
 
-What I Expect You to Solve It?
+    This approach keeps things clean, avoids state tracking, and ensures consistent behavior without schema modifications.
 
-**Answer:**
+What I expect you to solve it?
+Answer:
+I want you to integrate this logic into the checkout flow using the existing codebase. Specifically:
 
-* Help me create a **Purchased Books page** that displays only books from **Completed Orders**.
-* Guide me to:
+    Query the current number of successful orders for the member.
 
-  * Show a review form (rating and comment) next to each eligible book.
-  * Save the review using a controller and service logic.
-  * Validate that the user can review a book only once per order.
-* Ensure the **view is clean**, with proper UI/UX distinction between reviewed and not-yet-reviewed books.
-* Show how to structure the folder placement for the new files (e.g., Review DTOs, Service, Controller, View).
-* Make sure the review logic checks that the book is from a **Completed order only** (Status ID = 2).
+    Apply the 10% discount if the upcoming order is a multiple of 11.
 
----
+    Ensure this discount stacks with any other eligible discounts (like the existing 5%).
 
-What’s Been Done?
+    Do not modify the database structure — everything should be handled within code logic using existing models and queries.
 
-**Answer:**
-* Review. cs is already created
-* **Completed orders** are correctly marked once staff redeems the **claim code**.
-* Status of such orders is set to **Completed (2)** in the system.
-* This status logic is already working as expected.
-* Now I want to create a new page for **Purchased Books** where members can:
-
-  * View only the books from **completed orders**, and
-  * Add **rating and comment** as a review for each of them.
-
----
-(So far, review.cs model has been created , and the Dto file)
-1. Create the interface and the servie to implement
+What’s been done:
+The 5% discount for ordering 5 or more books is already implemented.
+Now, I want the 10% stackable discount to be applied on every 11th successful order 
 
 
-
+1. Implement the logic for the 10% discount
