@@ -62,8 +62,9 @@ namespace Bookbox.Controllers
                 .ToList();
                 
             // Get completed orders by month for the current year
+            var currentYear = DateTime.UtcNow.Year;
             var completedOrdersByMonth = await _context.Orders
-                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Year == DateTime.Now.Year)
+                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Year == currentYear)
                 .GroupBy(o => o.OrderDate.Month)
                 .Select(g => new { Month = g.Key, Count = g.Count() })
                 .OrderBy(x => x.Month)
@@ -107,6 +108,77 @@ namespace Bookbox.Controllers
 
             // Total orders count
             var totalOrders = await _context.Orders.CountAsync();
+
+            // Calculate monthly revenue
+            var currentMonth = DateTime.UtcNow.Month;
+            var currentUtcYear = DateTime.UtcNow.Year;
+            var monthlyRevenue = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Month == currentMonth && o.OrderDate.Year == currentUtcYear)
+                .SumAsync(o => o.TotalAmount);
+
+            ViewBag.MonthlyRevenue = monthlyRevenue;
+
+            // Get completed orders by day for the last 30 days - Fix timezone issue
+            var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
+            
+            // Query for daily orders directly with a SQL group by to avoid timezone issues
+            var dailyOrdersQuery = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate >= thirtyDaysAgo)
+                .GroupBy(o => o.OrderDate.Date)
+                .Select(g => new { Date = g.Key, Count = g.Count() })
+                .ToListAsync();
+                
+            // Create array of 30 days with default count 0
+            var dailyOrderCounts = new int[30];
+            for (int i = 0; i < 30; i++)
+            {
+                var date = thirtyDaysAgo.AddDays(i).Date;
+                var orderCount = dailyOrdersQuery.FirstOrDefault(x => x.Date == date)?.Count ?? 0;
+                dailyOrderCounts[i] = orderCount;
+            }
+
+            ViewBag.DailyOrderCounts = dailyOrderCounts;
+
+            // Get completed orders by week for the year
+            var startOfYear = new DateTime(DateTime.UtcNow.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var weeklyOrderCounts = new int[52];
+            var completedOrdersByWeek = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Year == DateTime.UtcNow.Year)
+                .GroupBy(o => ((o.OrderDate - startOfYear).Days / 7) + 1)
+                .Select(g => new { Week = g.Key, Count = g.Count() })
+                .OrderBy(x => x.Week)
+                .ToListAsync();
+
+            foreach (var item in completedOrdersByWeek)
+            {
+                if (item.Week >= 1 && item.Week <= 52)
+                {
+                    weeklyOrderCounts[item.Week - 1] = item.Count;
+                }
+            }
+
+            ViewBag.WeeklyOrderCounts = weeklyOrderCounts;
+
+            // Get completed orders by year for the last 5 years
+            var fiveYearsAgo = DateTime.UtcNow.Year - 4;
+            var yearlyOrderCounts = new int[5];
+            var completedOrdersByYear = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Year >= fiveYearsAgo)
+                .GroupBy(o => o.OrderDate.Year)
+                .Select(g => new { Year = g.Key, Count = g.Count() })
+                .OrderBy(x => x.Year)
+                .ToListAsync();
+
+            foreach (var item in completedOrdersByYear)
+            {
+                var index = item.Year - fiveYearsAgo;
+                if (index >= 0 && index < 5)
+                {
+                    yearlyOrderCounts[index] = item.Count;
+                }
+            }
+
+            ViewBag.YearlyOrderCounts = yearlyOrderCounts;
 
             // Pass data to view
             ViewBag.TotalBooks = books.Count;

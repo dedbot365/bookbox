@@ -90,7 +90,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 Monthly Revenue</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">NPR 215,000</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @ViewBag.MonthlyRevenue.ToString("N0")</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -118,11 +118,10 @@
                         <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
                              aria-labelledby="dropdownMenuLink">
                             <div class="dropdown-header">View Options:</div>
-                            <a class="dropdown-item" href="#">This Week</a>
-                            <a class="dropdown-item" href="#">This Month</a>
-                            <a class="dropdown-item" href="#">This Year</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Export Data</a>
+                            <a class="dropdown-item timeframe-option active" href="#" data-timeframe="daily">Daily</a>
+                            <a class="dropdown-item timeframe-option" href="#" data-timeframe="weekly">Weekly</a>
+                            <a class="dropdown-item timeframe-option" href="#" data-timeframe="monthly">Monthly</a>
+                            <a class="dropdown-item timeframe-option" href="#" data-timeframe="yearly">Yearly</a>
                         </div>
                     </div>
                 </div>
@@ -285,41 +284,22 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>#ORD-1234</td>
-                                    <td>John Smith</td>
-                                    <td>NPR 2,530</td>
-                                    <td><span class="badge bg-success">Completed</span></td>
-                                    <td>Jun 12, 2023</td>
-                                </tr>
-                                <tr>
-                                    <td>#ORD-1235</td>
-                                    <td>Anna Johnson</td>
-                                    <td>NPR 1,875</td>
-                                    <td><span class="badge bg-warning">Processing</span></td>
-                                    <td>Jun 11, 2023</td>
-                                </tr>
-                                <tr>
-                                    <td>#ORD-1236</td>
-                                    <td>Michael Brown</td>
-                                    <td>NPR 3,450</td>
-                                    <td><span class="badge bg-success">Completed</span></td>
-                                    <td>Jun 10, 2023</td>
-                                </tr>
-                                <tr>
-                                    <td>#ORD-1237</td>
-                                    <td>Sarah Davis</td>
-                                    <td>NPR 980</td>
-                                    <td><span class="badge bg-danger">Cancelled</span></td>
-                                    <td>Jun 09, 2023</td>
-                                </tr>
-                                <tr>
-                                    <td>#ORD-1238</td>
-                                    <td>Robert Wilson</td>
-                                    <td>NPR 4,230</td>
-                                    <td><span class="badge bg-success">Completed</span></td>
-                                    <td>Jun 08, 2023</td>
-                                </tr>
+                                @foreach (var order in ViewBag.RecentCompletedOrders ?? new List<dynamic>())
+                                {
+                                    <tr>
+                                        <td>#ORD-@order.OrderNumber</td>
+                                        <td>@order.CustomerName</td>
+                                        <td>NPR @order.Amount.ToString("N0")</td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                        <td>@order.CompletedDate.ToString("MMM dd, yyyy")</td>
+                                    </tr>
+                                }
+                                @if ((ViewBag.RecentCompletedOrders as IEnumerable<dynamic>)?.Any() != true)
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center">No completed orders found</td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
