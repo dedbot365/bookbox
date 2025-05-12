@@ -1,6 +1,7 @@
 @model Bookbox.Models.Book
 @inject Bookbox.Services.Interfaces.IDiscountService DiscountService
 @inject Bookbox.Services.Interfaces.IBookmarkService BookmarkService
+@inject Bookbox.Services.Interfaces.IReviewService ReviewService
 @using System.Security.Claims
 
 @{
@@ -14,6 +15,10 @@
         DiscountService.CalculateDiscountedPrice(Model.Price, bookDiscount.DiscountPercentage) : Model.Price;
     var daysRemaining = bookDiscount?.EndDate != null ? 
         DiscountService.GetRemainingDays(bookDiscount.EndDate) : -1;
+    
+    // Get the average rating for the book
+    double avgRating = await ReviewService.GetAverageRatingForBookAsync(Model.BookId);
+    int reviewCount = await ReviewService.GetReviewCountForBookAsync(Model.BookId);
     
     string detailsUrl = Url.Action("Details", "Book", new { id = Model.BookId });
 }
@@ -43,6 +48,30 @@
                     <a href="@detailsUrl" class="text-decoration-none text-dark">
                         <h5 class="card-title book-title">@Model.Title</h5>
                         <p class="card-text book-author">by @Model.Author</p>
+                        
+                        <!-- Always show Rating Stars -->
+                        <div class="mb-2">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (reviewCount > 0 && i <= Math.Floor(avgRating))
+                                {
+                                    <i class="fas fa-star text-warning small"></i>
+                                }
+                                else if (reviewCount > 0 && i - avgRating < 1 && i - avgRating > 0)
+                                {
+                                    <i class="fas fa-star-half-alt text-warning small"></i>
+                                }
+                                else
+                                {
+                                    <i class="far fa-star text-warning small"></i>
+                                }
+                            }
+                            @if (reviewCount > 0)
+                            {
+                                <span class="text-muted small ms-1">(@reviewCount)</span>
+                            }
+                        </div>
+                        
                         <p class="card-text mb-1">
                             <span class="badge bg-secondary">@Model.Genre</span>
                             <span class="badge bg-info">@Model.Format</span>
@@ -142,6 +171,30 @@ else
             <div class="card-body">
                 <h5 class="card-title book-title">@Model.Title</h5>
                 <p class="card-text book-author">by @Model.Author</p>
+                
+                <!-- Always show Rating Stars -->
+                <div class="mb-2">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        if (reviewCount > 0 && i <= Math.Floor(avgRating))
+                        {
+                            <i class="fas fa-star text-warning small"></i>
+                        }
+                        else if (reviewCount > 0 && i - avgRating < 1 && i - avgRating > 0)
+                        {
+                            <i class="fas fa-star-half-alt text-warning small"></i>
+                        }
+                        else
+                        {
+                            <i class="far fa-star text-warning small"></i>
+                        }
+                    }
+                    @if (reviewCount > 0)
+                    {
+                        <span class="text-muted small ms-1">(@reviewCount)</span>
+                    }
+                </div>
+                
                 <p class="card-text mb-0">
                     <span class="badge bg-secondary">@Model.Genre</span>
                     <span class="badge bg-info">@Model.Format</span>
