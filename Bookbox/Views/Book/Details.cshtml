@@ -339,6 +339,40 @@
     </div>
 </div>
 
+<!-- Recommended Books Card -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold">You Might Also Like</h6>
+    </div>
+    <div class="card-body">
+        @{
+            var recommendedBooks = (List<Bookbox.Models.Book>)ViewData["RecommendedBooks"];
+        }
+        
+        @if (recommendedBooks != null && recommendedBooks.Any())
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                @foreach (var book in recommendedBooks)
+                {
+                    <div class="col">
+                        @{
+                            ViewData["HorizontalLayout"] = false;
+                            ViewData["ShowAdminControls"] = false;
+                        }
+                        <partial name="_BookCard" model="book" view-data="ViewData" />
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-light">
+                No similar books found in this genre.
+            </div>
+        }
+    </div>
+</div>
+
 <!-- Include the delete modal partial -->
 <partial name="_DeleteBookModal" />
 

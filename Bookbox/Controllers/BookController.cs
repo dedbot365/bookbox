@@ -79,6 +79,15 @@ namespace Bookbox.Controllers
             ViewData["ReviewCount"] = await _reviewService.GetReviewCountForBookAsync(id);
             ViewData["RecentReviews"] = await _reviewService.GetRecentReviewsForBookAsync(id, 5);
 
+            // Get recommended books of same genre (excluding current book)
+            var allBooks = await _bookService.GetAllBooksAsync();
+            var recommendedBooks = allBooks
+                .Where(b => b.Genre == book.Genre && b.BookId != book.BookId)
+                .OrderBy(b => Guid.NewGuid()) // Random order
+                .Take(4) // Take 4 books
+                .ToList();
+            ViewData["RecommendedBooks"] = recommendedBooks;
+
             return View(book);
         }
 
