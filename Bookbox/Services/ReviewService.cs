@@ -22,7 +22,7 @@ namespace Bookbox.Services
 
         public async Task<IEnumerable<PurchasedBookDTO>> GetPurchasedBooksAsync(Guid userId)
         {
-            // Get books from completed orders (Status = Completed (2))
+            // Get books from completed orders (Status = Completed)
             var purchasedBooks = await _context.OrderItems
                 .Include(oi => oi.Order)
                 .Include(oi => oi.Book)
@@ -34,14 +34,39 @@ namespace Bookbox.Services
                     Author = oi.Book.Author,
                     ImageUrl = oi.Book.ImageUrl,
                     PurchaseDate = oi.Order.CompletedDate ?? oi.Order.OrderDate,
-                    IsReviewed = _context.Reviews.Any(r => r.BookId == oi.BookId && r.UserId == userId)
+                    IsReviewed = _context.Reviews.Any(r => 
+                        r.BookId == oi.BookId && 
+                        r.UserId == userId && 
+                        r.OrderItemId == oi.OrderItemId),
+                    OrderId = oi.OrderId,
+                    OrderItemId = oi.OrderItemId,
+                    OrderNumber = oi.Order.OrderNumber.ToString() // Add ToString() here
                 })
                 .ToListAsync();
 
             // For books that have been reviewed, include the review data
             foreach (var book in purchasedBooks.Where(b => b.IsReviewed))
             {
-                book.Review = await GetReviewByUserAndBookAsync(userId, book.BookId);
+                var review = await _context.Reviews
+                    .Where(r => r.BookId == book.BookId && 
+                           r.UserId == userId && 
+                           r.OrderItemId == book.OrderItemId)
+                    .Select(r => new ReviewDTO
+                    {
+                        ReviewId = r.ReviewId,
+                        BookId = r.BookId,
+                        Rating = r.Rating,
+                        Comment = r.Comment,
+                        ReviewDate = r.ReviewDate,
+                        OrderId = r.OrderId,
+                        OrderItemId = r.OrderItemId
+                    })
+                    .FirstOrDefaultAsync();
+                
+                if (review != null)
+                {
+                    book.Review = review;
+                }
             }
 
             return purchasedBooks;
@@ -50,19 +75,24 @@ namespace Bookbox.Services
         public async Task<bool> AddReviewAsync(Guid userId, ReviewDTO reviewDto)
         {
             // Verify the user has purchased this book in a completed order
-            var hasCompletedPurchase = await _context.OrderItems
-                .AnyAsync(oi => oi.BookId == reviewDto.BookId 
-                    && oi.Order.UserId == userId 
-                    && oi.Order.Status == OrderStatus.Completed);
+            var orderItem = await _context.OrderItems
+                .FirstOrDefaultAsync(oi => 
+                    oi.OrderItemId == reviewDto.OrderItemId && 
+                    oi.BookId == reviewDto.BookId &&
+                    oi.Order.UserId == userId && 
+                    oi.Order.Status == OrderStatus.Completed);
 
-            if (!hasCompletedPurchase)
+            if (orderItem == null)
             {
-                return false;
+                return false; // Order item not found or order not completed
             }
 
-            // Check if user already reviewed this book
+            // Check if user already reviewed this specific order item
             var existingReview = await _context.Reviews
-                .FirstOrDefaultAsync(r => r.BookId == reviewDto.BookId && r.UserId == userId);
+                .FirstOrDefaultAsync(r => 
+                    r.BookId == reviewDto.BookId && 
+                    r.UserId == userId && 
+                    r.OrderItemId == reviewDto.OrderItemId);
 
             if (existingReview != null)
             {
@@ -81,7 +111,9 @@ namespace Bookbox.Services
                     UserId = userId,
                     Rating = reviewDto.Rating,
                     Comment = reviewDto.Comment,
-                    ReviewDate = DateTime.UtcNow
+                    ReviewDate = DateTime.UtcNow,
+                    OrderId = reviewDto.OrderId,
+                    OrderItemId = reviewDto.OrderItemId
                 };
 
                 await _context.Reviews.AddAsync(review);

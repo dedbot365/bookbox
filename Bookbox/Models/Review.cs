@@ -25,9 +25,19 @@ namespace Bookbox.Models
         [Range(1, 5)]
         public int Rating { get; set; }
         
-        public string? Comment { get; set; }
+        public string Comment { get; set; } = string.Empty;
         
         [Required]
         public DateTime ReviewDate { get; set; } = DateTime.UtcNow;
+        
+        public Guid OrderId { get; set; }
+        
+        public Guid OrderItemId { get; set; }
+        
+        [ForeignKey("OrderId")]
+        public Order? Order { get; set; }
+        
+        [ForeignKey("OrderItemId")]
+        public OrderItem? OrderItem { get; set; }
     }
 }

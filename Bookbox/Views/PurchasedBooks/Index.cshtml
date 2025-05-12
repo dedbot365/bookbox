@@ -44,7 +44,10 @@
                                 <div class="card-body">
                                     <h5 class="card-title">@book.Title</h5>
                                     <p class="card-text">By @book.Author</p>
-                                    <p class="card-text"><small class="text-muted">Purchased on @book.PurchaseDate.ToShortDateString()</small></p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <p class="card-text mb-0"><small class="text-muted">Purchased on @book.PurchaseDate.ToShortDateString()</small></p>
+                                        <span class="badge bg-info">Order #@book.OrderNumber</span>
+                                    </div>
                                     
                                     @if (book.IsReviewed)
                                     {
@@ -66,12 +69,12 @@
                                             }
                                             
                                             <button type="button" class="btn btn-sm btn-outline-primary" 
-                                                    data-bs-toggle="modal" data-bs-target="#editReviewModal-@book.BookId">
+                                                    data-bs-toggle="modal" data-bs-target="#editReviewModal-@book.BookId-@book.OrderItemId">
                                                 <i class="fas fa-edit"></i> Edit Review
                                             </button>
                                             
                                             <!-- Edit Review Modal -->
-                                            <div class="modal fade" id="editReviewModal-@book.BookId" tabindex="-1" aria-hidden="true">
+                                            <div class="modal fade" id="editReviewModal-@book.BookId-@book.OrderItemId" tabindex="-1" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
@@ -82,18 +85,21 @@
                                                             <form asp-action="SubmitReview" method="post">
                                                                 @Html.AntiForgeryToken()
                                                                 <input type="hidden" name="BookId" value="@book.BookId" />
+                                                                <input type="hidden" name="OrderId" value="@book.OrderId" />
+                                                                <input type="hidden" name="OrderItemId" value="@book.OrderItemId" />
+                                                                <input type="hidden" name="ReviewId" value="@book.Review.ReviewId" />
                                                                 
                                                                 <div class="mb-3">
                                                                     <label class="form-label">Rating</label>
-                                                                    <div class="rating-container">
+                                                                    <div class="rating-stars">
                                                                         @for (int i = 5; i >= 1; i--)
                                                                         {
-                                                                            <div class="form-check form-check-inline">
-                                                                                <input class="form-check-input" type="radio" name="Rating" 
-                                                                                       id="rating-@book.BookId-@i" value="@i" 
-                                                                                       @(book.Review.Rating == i ? "checked" : "") />
-                                                                                <label class="form-check-label" for="rating-@book.BookId-@i">@i</label>
-                                                                            </div>
+                                                                            <input type="radio" id="edit-star-@book.BookId-@book.OrderItemId-@i" 
+                                                                                   name="Rating" value="@i" 
+                                                                                   @(book.Review.Rating == i ? "checked" : "") />
+                                                                            <label for="edit-star-@book.BookId-@book.OrderItemId-@i">
+                                                                                <i class="@(book.Review.Rating >= i ? "fas" : "far") fa-star"></i>
+                                                                            </label>
                                                                         }
                                                                     </div>
                                                                 </div>
@@ -121,14 +127,17 @@
                                             <form asp-action="SubmitReview" method="post">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="BookId" value="@book.BookId" />
+                                                <input type="hidden" name="OrderId" value="@book.OrderId" />
+                                                <input type="hidden" name="OrderItemId" value="@book.OrderItemId" />
+                                                <!-- Removed ReviewId field - new reviews don't have IDs yet -->
                                                 
                                                 <div class="mb-3">
                                                     <label class="form-label">Rating</label>
                                                     <div class="rating-stars">
                                                         @for (int i = 5; i >= 1; i--)
                                                         {
-                                                            <input type="radio" id="star-@book.BookId-@i" name="Rating" value="@i" required />
-                                                            <label for="star-@book.BookId-@i">
+                                                            <input type="radio" id="star-@book.BookId-@book.OrderItemId-@i" name="Rating" value="@i" required />
+                                                            <label for="star-@book.BookId-@book.OrderItemId-@i">
                                                                 <i class="far fa-star"></i>
                                                             </label>
                                                         }

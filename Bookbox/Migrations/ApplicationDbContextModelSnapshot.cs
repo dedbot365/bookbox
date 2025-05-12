@@ -366,7 +366,14 @@ namespace Bookbox.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Comment")
+                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrderItemId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
@@ -380,6 +387,10 @@ namespace Bookbox.Migrations
                     b.HasKey("ReviewId");
 
                     b.HasIndex("BookId");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("OrderItemId");
 
                     b.HasIndex("UserId");
 
@@ -580,6 +591,18 @@ namespace Bookbox.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Bookbox.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bookbox.Models.OrderItem", "OrderItem")
+                        .WithMany()
+                        .HasForeignKey("OrderItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Bookbox.Models.User", "User")
                         .WithMany("Reviews")
                         .HasForeignKey("UserId")
@@ -587,6 +610,10 @@ namespace Bookbox.Migrations
                         .IsRequired();
 
                     b.Navigation("Book");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("OrderItem");
 
                     b.Navigation("User");
                 });
