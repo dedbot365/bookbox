@@ -511,6 +511,6 @@ key.bin
 bin/
 obj/
 
-# Ignore book and profile images but maintain directories
-Bookbox/wwwroot/images/books/*
-Bookbox/images/profiles/*
+# # Ignore book and profile images but maintain directories
+# Bookbox/wwwroot/images/books/*
+# Bookbox/images/profiles/*
