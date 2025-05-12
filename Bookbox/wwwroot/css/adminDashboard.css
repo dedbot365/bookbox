@@ -116,3 +116,13 @@
     justify-content: center;
     font-size: 1.5rem;
 }
+
+/* Add this to the end of your CSS file */
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+/* And also add a new border style for purple elements */
+.border-left-purple {
+    border-left: 0.25rem solid #6f42c1 !important;
+}

@@ -53,6 +53,9 @@ namespace Bookbox.Controllers
             var weeklyRevenue = await _chartService.GetWeeklyRevenueAsync();
             var dailyRevenue = await _chartService.GetDailyRevenueAsync();
 
+            // Get time-based revenue data
+            var timeBasedRevenueStats = await _chartService.GetTimeBasedRevenueStatisticsAsync();
+
             // Pass data to view
             ViewBag.TotalUsers = users.Count;
             ViewBag.TotalBooks = bookStats["TotalBooks"];
@@ -72,6 +75,11 @@ namespace Bookbox.Controllers
             ViewBag.TotalRevenue = totalRevenue;
             ViewBag.WeeklyRevenue = weeklyRevenue;
             ViewBag.DailyRevenue = dailyRevenue;
+
+            ViewBag.DailyRevenueData = timeBasedRevenueStats["DailyRevenueData"];
+            ViewBag.WeeklyRevenueData = timeBasedRevenueStats["WeeklyRevenueData"];
+            ViewBag.MonthlyRevenueData = timeBasedRevenueStats["MonthlyRevenueData"];
+            ViewBag.YearlyRevenueData = timeBasedRevenueStats["YearlyRevenueData"];
 
             return View();
         }

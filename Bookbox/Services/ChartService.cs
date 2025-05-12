@@ -238,5 +238,87 @@ namespace Bookbox.Services
                 
             return dailyRevenue;
         }
+
+        public async Task<Dictionary<string, object>> GetTimeBasedRevenueStatisticsAsync()
+        {
+            var result = new Dictionary<string, object>();
+            
+            // --- Daily: last 7 days ---
+            var sevenDaysAgo = DateTime.UtcNow.Date.AddDays(-6);
+            var dailyRevenue = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Date >= sevenDaysAgo)
+                .GroupBy(o => o.OrderDate.Date)
+                .Select(g => new { Date = g.Key, Revenue = g.Sum(o => o.TotalAmount) })
+                .ToListAsync();
+
+            var dailyRevenueData = new decimal[7];
+            for (int i = 0; i < 7; i++)
+            {
+                var date = sevenDaysAgo.AddDays(i);
+                dailyRevenueData[i] = dailyRevenue.FirstOrDefault(x => x.Date == date)?.Revenue ?? 0;
+            }
+            result["DailyRevenueData"] = dailyRevenueData;
+
+            // --- Weekly: last 4 weeks (28 days) ---
+            var fourWeeksAgo = DateTime.UtcNow.Date.AddDays(-28);
+            var weeklyRevenueData = new decimal[4];
+
+            // Get all completed orders from the past 4 weeks
+            var weeklyCompletedOrders = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate >= fourWeeksAgo)
+                .ToListAsync();
+
+            // Group them manually into weeks
+            foreach (var order in weeklyCompletedOrders)
+            {
+                // Calculate which week this order belongs to (0-3)
+                int daysSince = (order.OrderDate.Date - fourWeeksAgo.Date).Days;
+                int weekIndex = Math.Min(daysSince / 7, 3); // Ensure it stays within bounds
+                
+                if (weekIndex >= 0 && weekIndex < 4)
+                {
+                    weeklyRevenueData[weekIndex] += order.TotalAmount;
+                }
+            }
+            result["WeeklyRevenueData"] = weeklyRevenueData;
+
+            // --- Monthly: revenue by month for the current year ---
+            var currentYear = DateTime.UtcNow.Year;
+            var monthlyRevenue = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Year == currentYear)
+                .GroupBy(o => o.OrderDate.Month)
+                .Select(g => new { Month = g.Key, Revenue = g.Sum(o => o.TotalAmount) })
+                .OrderBy(x => x.Month)
+                .ToListAsync();
+
+            var monthlyRevenueData = new decimal[12];
+            foreach (var item in monthlyRevenue)
+            {
+                monthlyRevenueData[item.Month - 1] = item.Revenue;
+            }
+            result["MonthlyRevenueData"] = monthlyRevenueData;
+
+            // --- Yearly: last 5 years ---
+            var fiveYearsAgo = DateTime.UtcNow.Year - 4;
+            var yearlyRevenueData = new decimal[5];
+            var yearlyRevenue = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Year >= fiveYearsAgo)
+                .GroupBy(o => o.OrderDate.Year)
+                .Select(g => new { Year = g.Key, Revenue = g.Sum(o => o.TotalAmount) })
+                .OrderBy(x => x.Year)
+                .ToListAsync();
+
+            foreach (var item in yearlyRevenue)
+            {
+                var index = item.Year - fiveYearsAgo;
+                if (index >= 0 && index < 5)
+                {
+                    yearlyRevenueData[index] = item.Revenue;
+                }
+            }
+            result["YearlyRevenueData"] = yearlyRevenueData;
+            
+            return result;
+        }
     }
 }

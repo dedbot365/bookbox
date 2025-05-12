@@ -15,5 +15,6 @@ namespace Bookbox.Services.Interfaces
         Task<decimal> GetTotalRevenueAsync();
         Task<decimal> GetWeeklyRevenueAsync();
         Task<decimal> GetDailyRevenueAsync();
+        Task<Dictionary<string, object>> GetTimeBasedRevenueStatisticsAsync();
     }
 }
