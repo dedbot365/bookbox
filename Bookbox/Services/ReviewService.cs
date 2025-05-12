@@ -146,5 +146,43 @@ namespace Bookbox.Services
                 Comment = review.Comment
             };
         }
+
+        public async Task<double> GetAverageRatingForBookAsync(Guid bookId)
+        {
+            var ratings = await _context.Reviews
+                .Where(r => r.BookId == bookId)
+                .Select(r => r.Rating)
+                .ToListAsync();
+
+            if (!ratings.Any())
+                return 0;
+
+            return Math.Round(ratings.Average(), 1);
+        }
+
+        public async Task<int> GetReviewCountForBookAsync(Guid bookId)
+        {
+            return await _context.Reviews
+                .CountAsync(r => r.BookId == bookId);
+        }
+
+        public async Task<List<ReviewDTO>> GetRecentReviewsForBookAsync(Guid bookId, int count = 5)
+        {
+            return await _context.Reviews
+                .Where(r => r.BookId == bookId)
+                .OrderByDescending(r => r.ReviewDate)
+                .Take(count)
+                .Select(r => new ReviewDTO
+                {
+                    ReviewId = r.ReviewId,
+                    BookId = r.BookId,
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    ReviewDate = r.ReviewDate,
+                    UserName = r.User.Username,
+                    UserImageUrl = r.User.ImageUrlText // Add this line to include user's image
+                })
+                .ToListAsync();
+        }
     }
 }

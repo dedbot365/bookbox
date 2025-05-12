@@ -15,11 +15,13 @@ namespace Bookbox.Controllers
     {
         private readonly IBookService _bookService;
         private readonly IBookFilterService _filterService;
+        private readonly IReviewService _reviewService;
 
-        public BookController(IBookService bookService, IBookFilterService filterService)
+        public BookController(IBookService bookService, IBookFilterService filterService, IReviewService reviewService)
         {
             _bookService = bookService;
             _filterService = filterService;
+            _reviewService = reviewService;
         }
 
         // GET: Book
@@ -71,6 +73,20 @@ namespace Bookbox.Controllers
             {
                 return NotFound();
             }
+
+            // Get review statistics
+            ViewData["AverageRating"] = await _reviewService.GetAverageRatingForBookAsync(id);
+            ViewData["ReviewCount"] = await _reviewService.GetReviewCountForBookAsync(id);
+            ViewData["RecentReviews"] = await _reviewService.GetRecentReviewsForBookAsync(id, 5);
+
+            // Get recommended books of same genre (excluding current book)
+            var allBooks = await _bookService.GetAllBooksAsync();
+            var recommendedBooks = allBooks
+                .Where(b => b.Genre == book.Genre && b.BookId != book.BookId)
+                .OrderBy(b => Guid.NewGuid()) // Random order
+                .Take(4) // Take 4 books
+                .ToList();
+            ViewData["RecommendedBooks"] = recommendedBooks;
 
             return View(book);
         }
@@ -243,6 +259,27 @@ namespace Bookbox.Controllers
 
             ViewData["SearchTerm"] = searchTerm;
             return View("Index", results);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllReviews(Guid id, int count = 10)
+        {
+            try
+            {
+                // Ensure reviews are being returned correctly with all required fields
+                var reviews = await _reviewService.GetRecentReviewsForBookAsync(id, count);
+                
+                // Log the count for debugging
+                Console.WriteLine($"Found {reviews.Count} reviews for book {id}");
+                
+                return Json(reviews);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception for debugging
+                Console.WriteLine($"Error getting reviews: {ex.Message}");
+                return Json(new List<ReviewDTO>());
+            }
         }
     }
 }
