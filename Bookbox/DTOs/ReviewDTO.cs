@@ -23,5 +23,7 @@ namespace Bookbox.DTOs
         public Guid OrderId { get; set; }
         
         public Guid OrderItemId { get; set; }
+        
+        public string UserImageUrl { get; set; } = string.Empty;
     }
 }

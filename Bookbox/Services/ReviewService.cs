@@ -179,7 +179,8 @@ namespace Bookbox.Services
                     Rating = r.Rating,
                     Comment = r.Comment,
                     ReviewDate = r.ReviewDate,
-                    UserName = r.User.Username
+                    UserName = r.User.Username,
+                    UserImageUrl = r.User.ImageUrlText // Add this line to include user's image
                 })
                 .ToListAsync();
         }
