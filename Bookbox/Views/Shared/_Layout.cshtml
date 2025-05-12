@@ -24,19 +24,19 @@
                 @if (isAdmin)
                 {
                     <a class="navbar-brand" asp-area="" asp-controller="Admin" asp-action="Dashboard">
-                        <i class="fas fa-book-reader me-2"></i> BookBox Admin
+                        <img src="~/images/logo/logo.png" alt="BookBox Logo" height="30" class="me-2" /> BookBox Admin
                     </a>
                 }
                 else if (isStaff)
                 {
                     <a class="navbar-brand" asp-area="" asp-controller="Staff" asp-action="Dashboard">
-                        <i class="fas fa-book-reader me-2"></i> BookBox Staff
+                        <img src="~/images/logo/logo.png" alt="BookBox Logo" height="30" class="me-2" /> BookBox Staff
                     </a>
                 }
                 else
                 {
                     <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                        <i class="fas fa-book-reader me-2"></i> BookBox
+                        <img src="~/images/logo/logo.png" alt="BookBox Logo" height="30" class="me-2" /> BookBox
                     </a>
                 }
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
