@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Bookbox.Data;
 using Bookbox.Models;
 using Bookbox.Constants;
+using Bookbox.Services.Interfaces;
+using System;
+using System.Threading.Tasks;
 using System.Security.Claims;
 
 namespace Bookbox.Controllers
@@ -12,10 +15,12 @@ namespace Bookbox.Controllers
     public class StaffController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IOrderEmailService _orderEmailService;
 
-        public StaffController(ApplicationDbContext context)
+        public StaffController(ApplicationDbContext context, IOrderEmailService orderEmailService)
         {
             _context = context;
+            _orderEmailService = orderEmailService;
         }
         
         public IActionResult Dashboard()
@@ -52,7 +57,10 @@ namespace Bookbox.Controllers
         [HttpPost]
         public async Task<IActionResult> RedeemOrder(Guid id, string claimCode)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Book)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
             
             if (order == null)
             {
@@ -86,6 +94,18 @@ namespace Bookbox.Controllers
                 order.ProcessedBy = staffId;
             }
             
+            // Update book stock based on order items
+            foreach (var item in order.OrderItems)
+            {
+                if (item.Book != null)
+                {
+                    // Ensure stock doesn't go below zero
+                    item.Book.Stock = Math.Max(0, item.Book.Stock - item.Quantity);
+                    // Update physical stock too if needed
+                    item.Book.PhysicalStock = Math.Max(0, item.Book.PhysicalStock - item.Quantity);
+                }
+            }
+            
             await _context.SaveChangesAsync();
             
             // Increase the user's successful order count
@@ -98,6 +118,9 @@ namespace Bookbox.Controllers
                     await _context.SaveChangesAsync();
                 }
             }
+            
+            // Send order processed emails
+            await _orderEmailService.SendOrderProcessedEmailsAsync(id, staffId);
             
             TempData["Success"] = "Order has been redeemed successfully!";
             return RedirectToAction(nameof(Orders));

@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="~/Bookbox.styles.css" asp-append-version="true" />
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
@@ -128,6 +129,8 @@
                         
                         <!-- Include login partial -->
                         <partial name="_LoginPartial" />
+                        
+                        
                     </ul>
                 </div>
             </div>
