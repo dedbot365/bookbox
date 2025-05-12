@@ -70,6 +70,8 @@ namespace Bookbox.Models
         
         public int SalesCount { get; set; } = 0;
         
+        public bool IsDeleted { get; set; } = false;
+        
         // Navigation properties
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<Discount> Discounts { get; set; } = new List<Discount>();
