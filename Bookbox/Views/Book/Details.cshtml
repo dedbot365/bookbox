@@ -13,382 +13,364 @@
     var daysRemaining = discountInfo?.EndDate != null ? 
         DiscountService.GetRemainingDays(discountInfo.EndDate) : 
         -1;
+    
+    // Move these declarations up here
+    double avgRating = (double)ViewData["AverageRating"];
+    int reviewCount = (int)ViewData["ReviewCount"];
 }
 
-<div class="container-fluid mt-4">
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold">@Model.Title</h6>
+<div class="container-fluid mt-5">
+    <!-- Main Book Details Card -->
+    <div class="card shadow-sm rounded-3 border-0 mb-5">
+        <div class="card-header py-3 bg-gradient" style="background-color: #f8f9fa; border-bottom: none;">
+            <h4 class="mb-0 fw-bold">@Model.Title</h4>
         </div>
-        <div class="card-body">
+        <div class="card-body py-4">
             <div class="row">
+                <!-- Book Cover Column -->
                 <div class="col-md-3 text-center">
-                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    <div class="position-relative mb-4">
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl" alt="@Model.Title" class="img-fluid rounded-3 shadow-sm" style="max-height: 350px; object-fit: contain;" />
+                        }
+                        else
+                        {
+                            <div class="bg-light rounded-3 p-5 mb-3 d-flex flex-column align-items-center justify-content-center" style="min-height: 350px;">
+                                <i class="fas fa-book fa-5x text-secondary mb-3"></i>
+                                <p class="text-muted">No cover image available</p>
+                            </div>
+                        }
+                        @if (Model.Stock > 0)
+                        {
+                            <span class="badge bg-success position-absolute top-0 end-0 m-2 px-3 py-2 rounded-pill shadow-sm">
+                                In Stock (@Model.Stock)
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger position-absolute top-0 end-0 m-2 px-3 py-2 rounded-pill shadow-sm">
+                                Out of Stock
+                            </span>
+                        }
+                    </div>
+                    
+                    @if (discountInfo != null)
                     {
-                        <img src="@Model.ImageUrl" alt="@Model.Title" class="img-fluid mb-3" style="max-height: 300px;" />
+                        <div class="price-tag bg-danger text-white p-2 rounded-3 d-inline-block mb-3">
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <small class="d-block text-white-50"><s>NPR @Model.Price.ToString("F2")</s></small>
+                                    <span class="fs-5 fw-bold">NPR @discountedPrice.ToString("F2")</span>
+                                </div>
+                                <div class="ms-2 px-2 py-1 bg-white text-danger rounded-pill fw-bold">
+                                    @discountInfo.DiscountPercentage%
+                                </div>
+                            </div>
+                            @if (daysRemaining > 0)
+                            {
+                                <small class="d-block mt-1">Sale ends in @daysRemaining days</small>
+                            }
+                        </div>
                     }
                     else
                     {
-                        <div class="bg-light p-5 mb-3">
-                            <i class="fas fa-book fa-5x text-secondary"></i>
-                            <p class="mt-3">No cover image available</p>
+                        <div class="price-tag bg-primary p-2 rounded-3 d-inline-block mb-3">
+                            <span class="fs-5 fw-bold text-white">NPR @Model.Price.ToString("F2")</span>
                         </div>
                     }
-                    
-                    <div class="mt-3">
-                        <div class="badge @(Model.Stock > 0 ? "bg-success" : "bg-danger") text-white p-2">
-                            @(Model.Stock > 0 ? $"In Stock ({Model.Stock})" : "Out of Stock")
-                        </div>
-                    </div>
                 </div>
+                
+                <!-- Book Details Column -->
                 <div class="col-md-9">
-                    <div class="row mb-3">
-                        <div class="col-md-3 fw-bold">Author:</div>
-                        <div class="col-md-9">@Model.Author</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <span class="text-muted small text-uppercase">Author</span>
+                                <p class="fs-5">@Model.Author</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <span class="text-muted small text-uppercase">Genre</span>
+                                <p class="fs-5">@Model.Genre</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <span class="text-muted small text-uppercase">Format</span>
+                                <p>@Model.Format</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <span class="text-muted small text-uppercase">Publisher</span>
+                                <p>@Model.Publisher</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <span class="text-muted small text-uppercase">ISBN</span>
+                                <p>@Model.ISBN</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <span class="text-muted small text-uppercase">Publication Date</span>
+                                <p>@Model.PublicationDate.ToString("MMMM dd, yyyy")</p>
+                            </div>
+                        </div>
+                        
+                        @if (Model.IsComingSoon)
+                        {
+                            <div class="col-12">
+                                <div class="alert alert-warning rounded-3 border-0">
+                                    <i class="fas fa-clock me-2"></i> This title is coming soon and will be available for purchase upon release.
+                                </div>
+                            </div>
+                        }
+                        
+                        @if (!string.IsNullOrEmpty(Model.Awards))
+                        {
+                            <div class="col-12">
+                                <div class="detail-item">
+                                    <span class="text-muted small text-uppercase">Awards</span>
+                                    <p>@Model.Awards</p>
+                                </div>
+                            </div>
+                        }
                     </div>
                     
-                    <div class="row mb-3">
-                        <div class="col-md-3 fw-bold">Genre:</div>
-                        <div class="col-md-9">@Model.Genre</div>
-                    </div>
+                    <hr class="my-4" />
                     
-                    <div class="row mb-2">
-                        <div class="col-md-3 fw-bold">Price:</div>
-                        <div class="col-md-9">
-                            @if (discountInfo != null)
+                    <!-- Description -->
+                    <div class="detail-item mb-4">
+                        <span class="text-muted small text-uppercase">Description</span>
+                        <p class="text-justify lh-lg">@Model.Description</p>
+                    </div>
+
+                    <!-- Book actions section - Add to Cart and Wishlist buttons -->
+                    <div class="d-flex flex-wrap gap-3 align-items-center mt-4">
+                        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Member"))
+                        {
+                            @if (Model.Stock > 0)
                             {
-                                <span class="text-muted"><s>NPR @Model.Price.ToString("F2")</s></span>
-                                <span class="text-danger">NPR @discountedPrice.ToString("F2")</span>
-                                <span class="badge bg-danger ms-2">ON SALE</span>
-                                @if (daysRemaining > 0)
-                                {
-                                    <span class="badge bg-warning ms-2">@daysRemaining days remaining</span>
-                                }
+                                <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="bookId" value="@Model.BookId" />
+                                    <input type="hidden" name="price" value="@discountedPrice" />
+                                    <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                                    
+                                    <div class="input-group">
+                                        <input type="number" name="quantity" class="form-control" value="1" min="1" max="@Model.Stock" style="max-width: 70px;" />
+                                        <button type="submit" class="btn btn-success rounded-end">
+                                            <i class="fas fa-shopping-cart me-1"></i> Add to Cart
+                                        </button>
+                                    </div>
+                                </form>
                             }
                             else
                             {
-                                <span>NPR @Model.Price.ToString("F2")</span>
+                                <button class="btn btn-secondary" disabled>
+                                    <i class="fas fa-shopping-cart me-1"></i> Out of Stock
+                                </button>
                             }
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-3 fw-bold">Format:</div>
-                        <div class="col-md-9">@Model.Format</div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-3 fw-bold">Publisher:</div>
-                        <div class="col-md-9">@Model.Publisher</div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-3 fw-bold">ISBN:</div>
-                        <div class="col-md-9">@Model.ISBN</div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-3 fw-bold">Publication Date:</div>
-                        <div class="col-md-9">@Model.PublicationDate.ToString("MMMM dd, yyyy")</div>
-                    </div>
 
-                    @if (Model.IsComingSoon)
-                    {
-                        <div class="row mb-3">
-                            <div class="col-md-3 fw-bold">Status:</div>
-                            <div class="col-md-9">
-                                <span class="badge bg-warning text-dark">Coming Soon</span>
-                            </div>
-                        </div>
-                    }
-
-                    @if (!string.IsNullOrEmpty(Model.Awards))
-                    {
-                        <div class="row mb-3">
-                            <div class="col-md-3 fw-bold">Awards:</div>
-                            <div class="col-md-9">@Model.Awards</div>
-                        </div>
-                    }
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-3 fw-bold">Physical Stock:</div>
-                        <div class="col-md-9">@Model.PhysicalStock</div>
-                    </div>
-                    
-                    <hr />
-                    
-                    <div class="row mb-3">
-                        <div class="col-12 fw-bold">Description:</div>
-                        <div class="col-12 mt-2">
-                            <p class="text-justify">@Model.Description</p>
-                        </div>
-                    </div>
-
-                    @if (Model.Discounts.Any(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow)))
-                    {
-                        var saleDiscount = Model.Discounts.First(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow));
-                        <div class="d-flex align-items-center mb-2">
-                            <span class="badge bg-danger me-2">ON SALE</span>
-                            @if (saleDiscount.EndDate.HasValue)
+                            var isBookmarked = await BookmarkService.IsBookmarkedByUserAsync(Model.BookId, 
+                            Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
+                            
+                            @if (isBookmarked)
                             {
-                                var saleDaysRemaining = (saleDiscount.EndDate.Value - DateTime.UtcNow).Days;
-                                <span class="badge bg-warning text-dark">@saleDaysRemaining @(saleDaysRemaining == 1 ? "day" : "days") left</span>
+                                <form asp-action="Remove" asp-controller="Bookmark" asp-route-id="@Model.BookId" 
+                                     asp-route-returnUrl="@Context.Request.Path" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="fas fa-heart-broken me-1"></i> Remove from Wishlist
+                                    </button>
+                                </form>
                             }
-                        </div>
-                    }
-
-                    <!-- Book actions section - Add to Cart and Wishlist buttons -->
-                    <div class="mt-4">
-                        <div class="d-flex flex-wrap gap-3 align-items-start">
-                            @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Member"))
+                            else
                             {
-                                <div>
-                                    @if (Model.Stock > 0)
-                                    {
-                                        <form asp-controller="Cart" asp-action="AddToCart" method="post">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="bookId" value="@Model.BookId" />
-                                            <input type="hidden" name="price" value="@discountedPrice" />
-                                            <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
-                                            
-                                            <div class="input-group">
-                                                <input type="number" name="quantity" class="form-control" value="1" min="1" max="@Model.Stock" style="max-width: 70px;" />
-                                                <button type="submit" class="btn btn-success">
-                                                    <i class="fas fa-shopping-cart me-1"></i> Add to Cart
-                                                </button>
-                                            </div>
-                                        </form>
-                                    }
-                                    else
-                                    {
-                                        <button class="btn btn-secondary" disabled>
-                                            <i class="fas fa-shopping-cart me-1"></i> Out of Stock
-                                        </button>
-                                    }
-                                </div>
+                                <form asp-action="Add" asp-controller="Bookmark" asp-route-id="@Model.BookId" 
+                                     asp-route-returnUrl="@Context.Request.Path" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-primary">
+                                        <i class="fas fa-heart me-1"></i> Add to Wishlist
+                                    </button>
+                                </form>
                             }
-
-                            @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Member"))
-                            {
-                                var isBookmarked = await BookmarkService.IsBookmarkedByUserAsync(Model.BookId, 
-                                    Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
-                                
-                                <div>
-                                    @if (isBookmarked)
-                                    {
-                                        <form asp-action="Remove" asp-controller="Bookmark" asp-route-id="@Model.BookId" 
-                                             asp-route-returnUrl="@Context.Request.Path" method="post">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-outline-danger">
-                                                <i class="fas fa-heart-broken me-1"></i> Remove from Wishlist
-                                            </button>
-                                        </form>
-                                    }
-                                    else
-                                    {
-                                        <form asp-action="Add" asp-controller="Bookmark" asp-route-id="@Model.BookId" 
-                                             asp-route-returnUrl="@Context.Request.Path" method="post">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-outline-primary">
-                                                <i class="fas fa-heart me-1"></i> Add to Wishlist
-                                            </button>
-                                        </form>
-                                    }
-                                </div>
-                            }
-                        </div>
+                        }
                     </div>
-                </div> <!-- Close the col-md-9 div -->
-            </div> <!-- Close the row div -->
-        </div> <!-- Close the card-body div -->
-        <div class="card-footer">
+                </div>
+            </div>
+        </div>
+        <div class="card-footer bg-white py-3">
             <div class="d-flex justify-content-between">
                 @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
                 {
-                    <a asp-controller="Book" asp-action="Index" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to List
+                    <a asp-controller="Book" asp-action="Index" class="btn btn-light rounded-pill px-4">
+                        <i class="fas fa-arrow-left me-1"></i> Back to List
                     </a>
                 }
                 else
                 {
-                    <a asp-controller="Shop" asp-action="Index" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to Shop
+                    <a asp-controller="Shop" asp-action="Index" class="btn btn-light rounded-pill px-4">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Shop
                     </a>
                 }
                 @if (User.IsInRole("Admin"))
                 {
-                    <div>
+                    <div class="btn-group">
                         <a asp-action="Edit" asp-route-id="@Model.BookId" class="btn btn-primary">
-                            <i class="fas fa-edit"></i> Edit
+                            <i class="fas fa-edit me-1"></i> Edit
                         </a>
                         @if (discountInfo != null)
                         {
                             <a asp-controller="Discount" asp-action="Edit" asp-route-id="@discountInfo.DiscountId" class="btn btn-warning">
-                                <i class="fas fa-tag"></i> Edit Discount
+                                <i class="fas fa-tag me-1"></i> Edit Discount
                             </a>
                         }
                         else
                         {
                             <a asp-controller="Discount" asp-action="Create" asp-route-bookId="@Model.BookId" class="btn btn-success">
-                                <i class="fas fa-tag"></i> Add Discount
+                                <i class="fas fa-tag me-1"></i> Add Discount
                             </a>
                         }
-                        <!-- Update the delete button to work with the modal -->
                         <button type="button" class="btn btn-danger delete-book" 
                                 data-id="@Model.BookId" data-title="@Model.Title">
-                            <i class="fas fa-trash"></i> Delete
+                            <i class="fas fa-trash me-1"></i> Delete
                         </button>
                     </div>
                 }
             </div>
         </div>
     </div>
-</div>
 
-<!-- New separate card for reviews -->
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold">Customer Reviews</h6>
-    </div>
-    <div class="card-body">
-        <div class="d-flex align-items-center mb-3">
-            <div class="me-3">
-                @{
-                    double avgRating = (double)ViewData["AverageRating"];
-                    int reviewCount = (int)ViewData["ReviewCount"];
-                    
-                    for (int i = 1; i <= 5; i++)
-                    {
-                        if (i <= Math.Floor(avgRating))
-                        {
-                            <i class="fas fa-star text-warning"></i>
-                        }
-                        else if (i - avgRating < 1 && i - avgRating > 0)
-                        {
-                            <i class="fas fa-star-half-alt text-warning"></i>
-                        }
-                        else
-                        {
-                            <i class="far fa-star text-warning"></i>
-                        }
-                    }
-                }
-            </div>
-            <div>
-                <span class="fw-bold">@avgRating.ToString("0.0")</span> out of 5
-                <span class="text-muted">(@reviewCount @(reviewCount == 1 ? "review" : "reviews"))</span>
-            </div>
+    <!-- Customer Reviews Card -->
+    <div class="card shadow-sm rounded-3 border-0 mb-5">
+        <div class="card-header py-3 bg-gradient d-flex justify-content-between align-items-center" style="background-color: #f8f9fa; border-bottom: none;">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-star text-warning me-2"></i>Customer Reviews</h5>
+            <span class="badge bg-primary rounded-pill px-3 py-2">@reviewCount @(reviewCount == 1 ? "review" : "reviews")</span>
         </div>
+        <div class="card-body p-4">
+            
 
-        @if (reviewCount > 0)
-        {
-            <div class="list-group">
-                @foreach (var review in (List<ReviewDTO>)ViewData["RecentReviews"])
-                {
-                    <div class="list-group-item border-0 border-bottom">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center">
-                                <!-- User profile image -->
-                                <div class="me-2">
-                                    @if (!string.IsNullOrEmpty(review.UserImageUrl))
-                                    {
-                                        <img src="@review.UserImageUrl" class="rounded-circle" alt="@review.UserName" width="40" height="40" style="object-fit: cover;" />
-                                    }
-                                    else
-                                    {
-                                        <div class="bg-secondary rounded-circle text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                            <i class="fas fa-user"></i>
+            @if (reviewCount > 0)
+            {
+                <div class="reviews-container">
+                    @foreach (var review in (List<ReviewDTO>)ViewData["RecentReviews"])
+                    {
+                        <div class="review-item p-3 mb-3 rounded-3 bg-light bg-opacity-50">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex">
+                                    <div class="me-3">
+                                        @if (!string.IsNullOrEmpty(review.UserImageUrl))
+                                        {
+                                            <img src="@review.UserImageUrl" class="rounded-circle shadow-sm" alt="@review.UserName" width="50" height="50" style="object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 50px; height: 50px;">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">@review.UserName</h6>
+                                        <div class="text-muted small">@review.ReviewDate.ToString("MMMM dd, yyyy")</div>
+                                        <div class="mt-1">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="@(i <= review.Rating ? "fas" : "far") fa-star text-warning small"></i>
+                                            }
                                         </div>
-                                    }
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">@review.UserName</h6>
-                                    <small class="text-muted">@review.ReviewDate.ToString("MMMM dd, yyyy")</small>
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                @for (int i = 1; i <= 5; i++)
-                                {
-                                    <i class="@(i <= review.Rating ? "fas" : "far") fa-star text-warning small"></i>
-                                }
-                            </div>
+                            @if (!string.IsNullOrEmpty(review.Comment))
+                            {
+                                <div class="mt-3">
+                                    <p class="mb-0">@review.Comment</p>
+                                </div>
+                            }
                         </div>
-                        @if (!string.IsNullOrEmpty(review.Comment))
-                        {
-                            <p class="mt-2 mb-0">@review.Comment</p>
-                        }
+                    }
+                </div>
+                
+                @if (reviewCount > 5)
+                {
+                    <div class="text-center mt-4">
+                        <button class="btn btn-outline-primary rounded-pill px-4" id="showAllReviews" data-book-id="@Model.BookId">
+                            <i class="fas fa-comments me-1"></i> View all @reviewCount reviews
+                        </button>
                     </div>
                 }
-            </div>
-            
-            @if (reviewCount > 5)
+            }
+            else
             {
-                <div class="text-center mt-3">
-                    <button class="btn btn-outline-primary" id="showAllReviews" data-book-id="@Model.BookId">
-                        View all @reviewCount reviews
-                    </button>
+                <div class="alert alert-light border-0 rounded-3 text-center p-4">
+                    <i class="fas fa-comment-slash fa-2x mb-3 text-muted"></i>
+                    <p class="mb-0">This book hasn't been reviewed yet.</p>
                 </div>
             }
-        }
-        else
-        {
-            <div class="alert alert-light">
-                This book hasn't been reviewed yet.
-            </div>
-        }
+        </div>
     </div>
-</div>
 
-<!-- Recommended Books Card -->
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold">You Might Also Like</h6>
+    <!-- Recommended Books Card -->
+    <div class="card shadow-sm rounded-3 border-0 mb-4">
+        <div class="card-header py-3 bg-gradient" style="background-color: #f8f9fa; border-bottom: none;">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-book-reader me-2"></i>You Might Also Like</h5>
+        </div>
+        <div class="card-body p-4">
+            @{
+                var recommendedBooks = (List<Bookbox.Models.Book>)ViewData["RecommendedBooks"];
+            }
+            
+            @if (recommendedBooks != null && recommendedBooks.Any())
+            {
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                    @foreach (var book in recommendedBooks)
+                    {
+                        <div class="col">
+                            @{
+                                ViewData["HorizontalLayout"] = false;
+                                ViewData["ShowAdminControls"] = false;
+                            }
+                            <partial name="_BookCard" model="book" view-data="ViewData" />
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-light text-center p-4 border-0 rounded-3">
+                    <i class="fas fa-search fa-2x mb-3 text-muted"></i>
+                    <p class="mb-0">No similar books found in this genre.</p>
+                </div>
+            }
+        </div>
     </div>
-    <div class="card-body">
-        @{
-            var recommendedBooks = (List<Bookbox.Models.Book>)ViewData["RecommendedBooks"];
-        }
-        
-        @if (recommendedBooks != null && recommendedBooks.Any())
-        {
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-                @foreach (var book in recommendedBooks)
-                {
-                    <div class="col">
-                        @{
-                            ViewData["HorizontalLayout"] = false;
-                            ViewData["ShowAdminControls"] = false;
-                        }
-                        <partial name="_BookCard" model="book" view-data="ViewData" />
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            <div class="alert alert-light">
-                No similar books found in this genre.
-            </div>
-        }
-    </div>
-</div>
 
-<!-- Include the delete modal partial -->
-<partial name="_DeleteBookModal" />
+    <!-- Include the delete modal partial -->
+    <partial name="_DeleteBookModal" />
 
-<!-- All Reviews Modal -->
-<div class="modal fade" id="allReviewsModal" tabindex="-1" aria-labelledby="allReviewsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="allReviewsModalLabel">All Reviews for @Model.Title</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="me-3">
-                        @{
-                            for (int i = 1; i <= 5; i++)
+    <!-- All Reviews Modal -->
+    <div class="modal fade" id="allReviewsModal" tabindex="-1" aria-labelledby="allReviewsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title" id="allReviewsModalLabel">All Reviews for @Model.Title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex align-items-center mb-4 pb-2 border-bottom">
+                        <div class="me-3 fs-3">
+                            @for (int i = 1; i <= 5; i++)
                             {
                                 if (i <= Math.Floor(avgRating))
                                 {
@@ -403,24 +385,25 @@
                                     <i class="far fa-star text-warning"></i>
                                 }
                             }
-                        }
+                        </div>
+                        <div>
+                            <span class="display-6 fw-bold">@avgRating.ToString("0.0")</span>
+                            <span class="text-muted">out of 5</span>
+                            <span class="text-muted">(@reviewCount total reviews)</span>
+                        </div>
                     </div>
-                    <div>
-                        <span class="fw-bold">@avgRating.ToString("0.0")</span> out of 5
-                        <span class="text-muted">(@reviewCount total reviews)</span>
-                    </div>
-                </div>
-                <div class="list-group" id="allReviewsList">
-                    <!-- Reviews will be loaded here via AJAX -->
-                    <div class="text-center py-3">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                    <div class="list-group list-group-flush" id="allReviewsList">
+                        <!-- Reviews will be loaded here via AJAX -->
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
@@ -436,3 +419,32 @@
         });
     </script>
 }
+
+<style>
+    .detail-item {
+        margin-bottom: 0.5rem;
+    }
+    
+    .detail-item .text-uppercase {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    
+    .detail-item p {
+        margin-bottom: 0;
+        margin-top: 0.25rem;
+    }
+    
+    .review-item {
+        transition: all 0.2s ease;
+    }
+    
+    .review-item:hover {
+        background-color: #f8f9fa !important;
+    }
+    
+    .modal-dialog-scrollable .modal-content {
+        max-height: 90vh;
+    }
+</style>
