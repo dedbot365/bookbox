@@ -6,6 +6,8 @@ using Bookbox.Models;
 using Bookbox.Constants;
 using Bookbox.Services.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
 
@@ -25,8 +27,100 @@ namespace Bookbox.Controllers
             _orderService = orderService;
         }
         
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
+            // Get books data
+            var books = await _context.Books.ToListAsync();
+            ViewBag.TotalBooks = books.Count;
+            
+            // Get books by genre
+            var booksByGenre = books
+                .GroupBy(b => b.Genre)
+                .Select(g => new { genre = g.Key.ToString(), count = g.Count() })
+                .OrderByDescending(x => x.count)
+                .ToList();
+            ViewBag.BooksByGenre = booksByGenre;
+            
+            // Get books by format
+            var booksByFormat = books
+                .GroupBy(b => b.Format)
+                .Select(g => new { format = g.Key.ToString(), count = g.Count() })
+                .OrderByDescending(x => x.count)
+                .ToList();
+            ViewBag.BooksByFormat = booksByFormat;
+            
+            // Get top selling books
+            var topSellingBooks = books
+                .OrderByDescending(b => b.SalesCount)
+                .Take(5)
+                .Select(b => new { title = b.Title, salesCount = b.SalesCount })
+                .ToList();
+            ViewBag.TopSellingBooks = topSellingBooks;
+            
+            // Get order statistics
+            var totalOrders = await _context.Orders.CountAsync();
+            ViewBag.TotalOrders = totalOrders;
+            
+            var pendingOrders = await _context.Orders
+                .CountAsync(o => o.Status == OrderStatus.Pending);
+            ViewBag.PendingOrders = pendingOrders;
+            
+            var completedOrders = await _context.Orders
+                .CountAsync(o => o.Status == OrderStatus.Completed);
+            ViewBag.CompletedOrders = completedOrders;
+            
+            var cancelledOrders = await _context.Orders
+                .CountAsync(o => o.Status == OrderStatus.Cancelled);
+            ViewBag.CancelledOrders = cancelledOrders;
+            
+            // Calculate monthly revenue
+            var currentMonth = DateTime.UtcNow.Month;
+            var currentYear = DateTime.UtcNow.Year;
+            var monthlyRevenue = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed && 
+                       o.OrderDate.Month == currentMonth && 
+                       o.OrderDate.Year == currentYear)
+                .SumAsync(o => o.TotalAmount);
+            ViewBag.MonthlyRevenue = monthlyRevenue;
+            
+            // Calculate total revenue (all completed orders)
+            var totalRevenue = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed)
+                .SumAsync(o => o.TotalAmount);
+            ViewBag.TotalRevenue = totalRevenue;
+            
+            // Get monthly order counts for the line chart
+            var completedOrdersByMonth = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Year == currentYear)
+                .GroupBy(o => o.OrderDate.Month)
+                .Select(g => new { Month = g.Key, Count = g.Count() })
+                .OrderBy(x => x.Month)
+                .ToListAsync();
+            
+            var monthlyOrderCounts = new int[12];
+            foreach (var item in completedOrdersByMonth)
+            {
+                monthlyOrderCounts[item.Month - 1] = item.Count;
+            }
+            ViewBag.MonthlyOrderCounts = monthlyOrderCounts;
+            
+            // Get recent orders
+            var recentOrders = await _context.Orders
+                .Include(o => o.User)
+                .OrderByDescending(o => o.OrderDate)
+                .Take(10)
+                .Select(o => new
+                {
+                    OrderId = o.OrderId,
+                    OrderNumber = o.OrderNumber,
+                    CustomerName = o.User.FirstName + " " + o.User.LastName,
+                    Amount = o.TotalAmount,
+                    Status = o.Status,
+                    OrderDate = o.OrderDate
+                })
+                .ToListAsync();
+            ViewBag.RecentOrders = recentOrders;
+            
             return View();
         }
         
