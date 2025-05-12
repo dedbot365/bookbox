@@ -325,12 +325,61 @@
 <!-- Include the delete modal partial -->
 <partial name="_DeleteBookModal" />
 
+<!-- All Reviews Modal -->
+<div class="modal fade" id="allReviewsModal" tabindex="-1" aria-labelledby="allReviewsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="allReviewsModalLabel">All Reviews for @Model.Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="me-3">
+                        @{
+                            for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= Math.Floor(avgRating))
+                                {
+                                    <i class="fas fa-star text-warning"></i>
+                                }
+                                else if (i - avgRating < 1 && i - avgRating > 0)
+                                {
+                                    <i class="fas fa-star-half-alt text-warning"></i>
+                                }
+                                else
+                                {
+                                    <i class="far fa-star text-warning"></i>
+                                }
+                            }
+                        }
+                    </div>
+                    <div>
+                        <span class="fw-bold">@avgRating.ToString("0.0")</span> out of 5
+                        <span class="text-muted">(@reviewCount total reviews)</span>
+                    </div>
+                </div>
+                <div class="list-group" id="allReviewsList">
+                    <!-- Reviews will be loaded here via AJAX -->
+                    <div class="text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-    @Html.AntiForgeryToken()
     <script>
         $(document).ready(function() {
-            // Set up delete modal with event delegation for dynamic content
-            $(document).on('click', '.delete-book', function(e) {
+            // Delete book functionality (already present)
+            $('.delete-book').on('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 
@@ -343,6 +392,62 @@
                 
                 // Show the modal
                 $('#deleteBookModal').modal('show');
+            });
+            
+            // Handle "View all reviews" button click
+            $('#showAllReviews').on('click', function() {
+                // Show the modal
+                $('#allReviewsModal').modal('show');
+                
+                // Fetch all reviews via AJAX
+                $.ajax({
+                    url: '@Url.Action("GetAllReviews", "Book", new { id = Model.BookId, count = 10 })',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(reviews) {
+                        // Clear the loading indicator
+                        $('#allReviewsList').empty();
+                        
+                        if (reviews.length === 0) {
+                            $('#allReviewsList').html('<div class="alert alert-light">No reviews available.</div>');
+                            return;
+                        }
+                        
+                        // Add each review to the modal
+                        $.each(reviews, function(i, review) {
+                            // Log the review to console for debugging
+                            console.log(review);
+                            
+                            var reviewHtml = '<div class="list-group-item border-0 border-bottom">' +
+                                '<div class="d-flex justify-content-between align-items-center">' +
+                                '<div>' +
+                                '<h6 class="mb-0">' + review.userName + '</h6>' +
+                                '<small class="text-muted">' + new Date(review.reviewDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + '</small>' +
+                                '</div>' +
+                                '<div>';
+                            
+                            // Add star ratings
+                            for (var i = 1; i <= 5; i++) {
+                                reviewHtml += '<i class="' + (i <= review.rating ? 'fas' : 'far') + ' fa-star text-warning small"></i>';
+                            }
+                            
+                            reviewHtml += '</div></div>';
+                            
+                            // Add comment if available
+                            if (review.comment) {
+                                reviewHtml += '<p class="mt-2 mb-0">' + review.comment + '</p>';
+                            }
+                            
+                            reviewHtml += '</div>';
+                            
+                            $('#allReviewsList').append(reviewHtml);
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error:", status, error);
+                        $('#allReviewsList').html('<div class="alert alert-danger">Failed to load reviews: ' + error + '</div>');
+                    }
+                });
             });
         });
     </script>

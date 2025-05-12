@@ -251,5 +251,26 @@ namespace Bookbox.Controllers
             ViewData["SearchTerm"] = searchTerm;
             return View("Index", results);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllReviews(Guid id, int count = 10)
+        {
+            try
+            {
+                // Ensure reviews are being returned correctly with all required fields
+                var reviews = await _reviewService.GetRecentReviewsForBookAsync(id, count);
+                
+                // Log the count for debugging
+                Console.WriteLine($"Found {reviews.Count} reviews for book {id}");
+                
+                return Json(reviews);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception for debugging
+                Console.WriteLine($"Error getting reviews: {ex.Message}");
+                return Json(new List<ReviewDTO>());
+            }
+        }
     }
 }
