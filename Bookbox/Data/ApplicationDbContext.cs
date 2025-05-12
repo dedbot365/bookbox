@@ -124,7 +124,7 @@ namespace Bookbox.Data
                 entity.HasOne(r => r.Book)
                       .WithMany(b => b.Reviews)
                       .HasForeignKey(r => r.BookId)
-                      .OnDelete(DeleteBehavior.Restrict);  // Prevent cascade delete conflicts
+                      .OnDelete(DeleteBehavior.Cascade);  // Updated to cascade delete
             });
 
             // Bookmark entity configuration
@@ -153,7 +153,7 @@ namespace Bookbox.Data
                 entity.HasOne(d => d.Book)
                       .WithMany(b => b.Discounts)
                       .HasForeignKey(d => d.BookId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.Cascade);  // Updated to cascade delete
             });
 
             // Cart entity configuration

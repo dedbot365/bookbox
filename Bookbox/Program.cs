@@ -23,7 +23,7 @@ builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<IBookmarkService, BookmarkService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICheckoutService, CheckoutService>();
-builder.Services.AddScoped<Bookbox.Services.Interfaces.IOrderService, Bookbox.Services.OrderService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOrderEmailService, OrderEmailService>();

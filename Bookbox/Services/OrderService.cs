@@ -142,6 +142,36 @@ namespace Bookbox.Services
                    (DateTime.UtcNow - order.OrderDate).TotalHours <= 24;
         }
         
+        public async Task<bool> UpdateOrderStatusAsync(Guid orderId, OrderStatus newStatus)
+        {
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Book)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null)
+                return false;
+
+            // This correctly updates SalesCount only when order is completed
+            if (newStatus == OrderStatus.Completed && order.Status != OrderStatus.Completed)
+            {
+                // Update the sales count for each book in the order
+                foreach (var orderItem in order.OrderItems)
+                {
+                    orderItem.Book.SalesCount += orderItem.Quantity;
+                }
+            }
+
+            order.Status = newStatus;
+            if (newStatus == OrderStatus.Completed)
+            {
+                order.CompletedDate = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        
         private OrderDTO MapOrderToDTO(Order order)
         {
             var orderDTO = new OrderDTO

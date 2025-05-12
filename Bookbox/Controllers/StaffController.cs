@@ -16,11 +16,13 @@ namespace Bookbox.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IOrderEmailService _orderEmailService;
+        private readonly IOrderService _orderService;
 
-        public StaffController(ApplicationDbContext context, IOrderEmailService orderEmailService)
+        public StaffController(ApplicationDbContext context, IOrderEmailService orderEmailService, IOrderService orderService)
         {
             _context = context;
             _orderEmailService = orderEmailService;
+            _orderService = orderService;
         }
         
         public IActionResult Dashboard()
@@ -83,15 +85,15 @@ namespace Bookbox.Controllers
                 return RedirectToAction(nameof(OrderDetails), new { id });
             }
             
-            // Update order status
-            order.Status = OrderStatus.Completed;
-            order.CompletedDate = DateTime.UtcNow;
+            // Use the OrderService to update the status, which will also update SalesCount
+            await _orderService.UpdateOrderStatusAsync(id, OrderStatus.Completed);
             
             // Record the staff member who processed it
             var staffUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (Guid.TryParse(staffUserId, out Guid staffId))
             {
                 order.ProcessedBy = staffId;
+                await _context.SaveChangesAsync(); // Save this change separately
             }
             
             // Update book stock based on order items

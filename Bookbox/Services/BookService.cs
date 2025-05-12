@@ -19,7 +19,9 @@ namespace Bookbox.Services
 
         public async Task<List<Book>> GetAllBooksAsync()
         {
-            return await _context.Books.ToListAsync();
+            return await _context.Books
+                .Where(b => !b.IsDeleted)  // Filter out deleted books
+                .ToListAsync();
         }
 
         public async Task<Book?> GetBookByIdAsync(Guid id)
@@ -237,29 +239,38 @@ namespace Bookbox.Services
 
         public async Task<bool> DeleteBookAsync(Guid id)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var book = await _context.Books.FindAsync(id);
-                if (book == null) return false;
+                var book = await _context.Books
+                    .Include(b => b.Reviews)
+                    .Include(b => b.Discounts)
+                    .FirstOrDefaultAsync(b => b.BookId == id);
 
-                // Delete associated image
-                if (!string.IsNullOrEmpty(book.ImageUrl))
+                if (book == null)
+                    return false;
+
+                // First, remove all reviews for this book
+                if (book.Reviews?.Any() == true)
                 {
-                    var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, book.ImageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
-                    if (File.Exists(imagePath))
-                        File.Delete(imagePath);
+                    _context.Reviews.RemoveRange(book.Reviews);
                 }
 
-                _context.Books.Remove(book);
+                // Remove any discounts
+                if (book.Discounts?.Any() == true)
+                {
+                    _context.Discounts.RemoveRange(book.Discounts);
+                }
+                
+                // Instead of deleting the book or modifying order items, just mark it as deleted
+                book.IsDeleted = true;
+                book.Stock = 0;
+                book.PhysicalStock = 0;
+                
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
                 return true;
             }
-            catch
+            catch (Exception)
             {
-                await transaction.RollbackAsync();
                 throw;
             }
         }

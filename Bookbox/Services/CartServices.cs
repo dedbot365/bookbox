@@ -219,13 +219,8 @@ namespace Bookbox.Services
                     
                     order.OrderItems.Add(orderItem);
                     
-                    // Update book stock
+                    // Update book stock only, not SalesCount
                     item.Book.Stock -= item.Quantity;
-                    item.Book.SalesCount += item.Quantity;
-                    
-                    // Add to totals
-                    totalAmount += itemPrice * item.Quantity;
-                    discountApplied += itemDiscountAmount;
                 }
                 
                 order.TotalAmount = totalAmount;
