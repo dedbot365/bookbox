@@ -49,6 +49,9 @@ namespace Bookbox.Controllers
             var timeBasedStats = await _chartService.GetTimeBasedOrderStatisticsAsync();
             var recentCompletedOrders = await _chartService.GetRecentCompletedOrdersAsync();
             var monthlyRevenue = await _chartService.GetMonthlyRevenueAsync();
+            var totalRevenue = await _chartService.GetTotalRevenueAsync();
+            var weeklyRevenue = await _chartService.GetWeeklyRevenueAsync();
+            var dailyRevenue = await _chartService.GetDailyRevenueAsync();
 
             // Pass data to view
             ViewBag.TotalUsers = users.Count;
@@ -66,6 +69,9 @@ namespace Bookbox.Controllers
             ViewBag.ReviewPercentages = reviewStats["ReviewPercentages"];
             ViewBag.RecentCompletedOrders = recentCompletedOrders;
             ViewBag.MonthlyRevenue = monthlyRevenue;
+            ViewBag.TotalRevenue = totalRevenue;
+            ViewBag.WeeklyRevenue = weeklyRevenue;
+            ViewBag.DailyRevenue = dailyRevenue;
 
             return View();
         }

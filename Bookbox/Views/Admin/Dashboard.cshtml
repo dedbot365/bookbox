@@ -15,6 +15,80 @@
 
     <!-- Key Stats Cards - First Row -->
     <div class="row mb-4">
+        <!-- Revenue Section - Financial Performance -->
+        <div class="col-md-12">
+            <div class="card shadow-sm border-left-warning mb-4">
+                <div class="card-body p-3">
+                    <h5 class="card-title border-bottom pb-2">Revenue Overview</h5>
+                    <div class="row">
+                        <!-- Total Revenue -->
+                        <div class="col-md-3">
+                            <div class="revenue-stat p-2">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Total Revenue</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @(ViewBag.TotalRevenue?.ToString("N0") ?? "0")</div>
+                                    </div>
+                                    <div class="revenue-icon bg-primary bg-opacity-10">
+                                        <i class="fas fa-coins text-primary"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Monthly Revenue -->
+                        <div class="col-md-3">
+                            <div class="revenue-stat p-2">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Monthly Revenue</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @ViewBag.MonthlyRevenue.ToString("N0")</div>
+                                    </div>
+                                    <div class="revenue-icon bg-success bg-opacity-10">
+                                        <i class="fas fa-calendar-alt text-success"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Weekly Revenue -->
+                        <div class="col-md-3">
+                            <div class="revenue-stat p-2">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            Weekly Revenue</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @(ViewBag.WeeklyRevenue?.ToString("N0") ?? "0")</div>
+                                    </div>
+                                    <div class="revenue-icon bg-info bg-opacity-10">
+                                        <i class="fas fa-calendar-week text-info"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Daily Revenue -->
+                        <div class="col-md-3">
+                            <div class="revenue-stat p-2">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                            Daily Revenue</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @(ViewBag.DailyRevenue?.ToString("N0") ?? "0")</div>
+                                    </div>
+                                    <div class="revenue-icon bg-danger bg-opacity-10">
+                                        <i class="fas fa-calendar-day text-danger"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="col-md-3">
             <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
@@ -82,37 +156,35 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Key Stats Cards - Second Row -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Monthly Revenue</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @ViewBag.MonthlyRevenue.ToString("N0")</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    </div>       
         
         <!-- Additional metrics can be added here if needed -->
     </div>
 
     <!-- Charts Row -->
     <div class="row mb-4">
-        <!-- Orders Line Chart -->
+        <!-- Books by Genre Pie Chart - NOW FIRST -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Books by Genre</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="genrePieChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small" id="genre-legend">
+                        <!-- Genre legend will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Line Chart - NOW SECOND -->
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Orders Overview</h6>
+                    <h6 class="m-0 font-weight-bold text-primary" id="orders-overview-title">Orders Overview</h6>
                     <div class="dropdown no-arrow">
                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -131,23 +203,6 @@
                 <div class="card-body">
                     <div class="chart-area">
                         <canvas id="ordersLineChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Books by Genre Pie Chart -->
-        <div class="col-lg-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Books by Genre</h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-pie">
-                        <canvas id="genrePieChart"></canvas>
-                    </div>
-                    <div class="mt-4 text-center small" id="genre-legend">
-                        <!-- Genre legend will be populated by JavaScript -->
                     </div>
                 </div>
             </div>
@@ -265,7 +320,7 @@
         </div>
     </div>
 
-    <!-- Recent Orders and Activity Row -->
+    @* <!-- Recent Orders and Activity Row -->
     <div class="row">
         <!-- Recent Orders -->
         <div class="col-lg-7 mb-4">
@@ -309,7 +364,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> *@
 </div>
 @section Scripts {
     <script>

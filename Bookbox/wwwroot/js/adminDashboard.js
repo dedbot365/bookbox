@@ -90,8 +90,8 @@ document.addEventListener('DOMContentLoaded', function() {
         ordersLineChart.data.labels = timeframeLabels[timeframe];
         ordersLineChart.data.datasets[0].data = orderData[timeframe];
         
-        // Update chart title to reflect the current view
-        const cardHeader = document.querySelector('.card-header h6');
+        // Update chart title to reflect the current view - use specific ID
+        const cardHeader = document.getElementById('orders-overview-title');
         if (cardHeader) {
             const viewNames = {
                 'daily': 'Daily (Last 7 Days)',

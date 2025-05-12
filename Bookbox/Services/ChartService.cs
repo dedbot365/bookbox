@@ -204,5 +204,39 @@ namespace Bookbox.Services
                 
             return monthlyRevenue;
         }
+
+        public async Task<decimal> GetTotalRevenueAsync()
+        {
+            // Calculate total revenue from all completed orders
+            var totalRevenue = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed)
+                .SumAsync(o => o.TotalAmount);
+                
+            return totalRevenue;
+        }
+
+        public async Task<decimal> GetWeeklyRevenueAsync()
+        {
+            // Calculate weekly revenue
+            var weekStart = DateTime.UtcNow.Date.AddDays(-(int)DateTime.UtcNow.DayOfWeek);
+            var weeklyRevenue = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed && 
+                       o.OrderDate >= weekStart)
+                .SumAsync(o => o.TotalAmount);
+                
+            return weeklyRevenue;
+        }
+
+        public async Task<decimal> GetDailyRevenueAsync()
+        {
+            // Calculate daily revenue
+            var today = DateTime.UtcNow.Date;
+            var dailyRevenue = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Completed && 
+                       o.OrderDate.Date == today)
+                .SumAsync(o => o.TotalAmount);
+                
+            return dailyRevenue;
+        }
     }
 }

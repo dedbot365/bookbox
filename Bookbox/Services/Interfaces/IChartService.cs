@@ -12,5 +12,8 @@ namespace Bookbox.Services.Interfaces
         Task<Dictionary<string, object>> GetTimeBasedOrderStatisticsAsync();
         Task<object> GetRecentCompletedOrdersAsync(int count = 5);
         Task<decimal> GetMonthlyRevenueAsync();
+        Task<decimal> GetTotalRevenueAsync();
+        Task<decimal> GetWeeklyRevenueAsync();
+        Task<decimal> GetDailyRevenueAsync();
     }
 }
