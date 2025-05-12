@@ -122,3 +122,13 @@ a:hover {
 .form-check-input:focus {
     box-shadow: 0 0 0 0.25rem rgba(77, 68, 144, 0.25);
 }
+
+/* Category icon color */
+.category-icon i {
+    color: #4D4490;
+}
+
+/* Optional: Add a hover effect to make icons slightly lighter on hover */
+a:hover .category-icon i {
+    color: var(--purple-light);
+}

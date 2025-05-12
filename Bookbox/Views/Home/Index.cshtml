@@ -5,26 +5,7 @@
     ViewData["Title"] = "BookBox - Your Favorite Book Store";
 }
 
-<!-- Hero Section -->
-<div class="hero-section py-5 mb-4 bg-light rounded-3">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold">Discover Your Next Favorite Book</h1>
-                <p class="lead">Explore our collection of bestsellers, award winners, and exclusive editions.</p>
-                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                    <a href="@Url.Action("Index", "Shop")" class="btn btn-primary btn-lg px-4 me-md-2">Browse All Books</a>
-                    <a href="#featured" class="btn btn-outline-secondary btn-lg px-4">Featured Books</a>
-                </div>
-            </div>
-            <div class="col-lg-6 d-none d-lg-block">
-                <img src="/images/Placeholder/illustration.png" alt="BookBox Collection" class="img-fluid rounded-3">
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Announcements Section - Above Search -->
+<!-- Announcements Section - At top -->
 @if (ViewBag.Announcements != null && ((IEnumerable<Bookbox.Models.Announcement>)ViewBag.Announcements).Any())
 {
     <div class="container mb-4 homepage-announcement">
@@ -33,111 +14,6 @@
         </div>
     </div>
 }
-
-<!-- Search and Filter Section -->
-<div class="container mb-5">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form asp-action="Index" method="get" class="row g-3">
-                <!-- Search Bar -->
-                <div class="col-md-6">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="searchTerm" name="searchTerm" 
-                               placeholder="Search by title, author, ISBN..." value="@ViewData["SearchTerm"]">
-                        <button class="btn btn-primary" type="submit">
-                            <i class="fas fa-search"></i> Search
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Genre Filter -->
-                <div class="col-md-3">
-                    <select class="form-select" id="genre" name="genre" onchange="this.form.submit()">
-                        <option value="">All Genres</option>
-                        @foreach (var genre in Enum.GetValues(typeof(Bookbox.Constants.Genre)))
-                        {
-                            <option value="@genre" selected="@(ViewData["SelectedGenre"]?.ToString() == genre.ToString())">
-                                @genre
-                            </option>
-                        }
-                    </select>
-                </div>
-                
-                <!-- Format Filter -->
-                <div class="col-md-3">
-                    <select class="form-select" id="format" name="format" onchange="this.form.submit()">
-                        <option value="">All Formats</option>
-                        @foreach (var format in Enum.GetValues(typeof(Bookbox.Constants.Format)))
-                        {
-                            <option value="@format" selected="@(ViewData["SelectedFormat"]?.ToString() == format.ToString())">
-                                @format
-                            </option>
-                        }
-                    </select>
-                </div>
-                
-                <!-- Hidden submit button for accessibility -->
-                <button type="submit" class="d-none">Apply Filters</button>
-            </form>
-        </div>
-    </div>
-</div>
-
-@* <!-- Announcements Section - Above Featured Books -->
-@if (ViewBag.Announcements != null && ((IEnumerable<Bookbox.Models.Announcement>)ViewBag.Announcements).Any())
-{
-    <div class="container mb-4">
-        <h2 class="fw-bold mb-3">Announcements</h2>
-        <partial name="_Announcements" model="ViewBag.Announcements" />
-    </div>
-} *@
-
-<!-- Featured Books Section -->
-<div class="container mb-5" id="featured">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">@(ViewData["SearchTerm"] != null ? "Search Results" : "Featured Books")</h2>
-        <div class="d-flex align-items-center">
-            <label for="sortBy" class="me-2">Sort by:</label>
-            <select id="sortBy" name="sortBy" class="form-select form-select-sm" style="width: auto;" onchange="updateSort(this.value)">
-                <option value="newest" selected="@(ViewData["SortBy"]?.ToString() == "newest")">Newest Arrivals</option>
-                <option value="title" selected="@(ViewData["SortBy"]?.ToString() == "title")">Title (A-Z)</option>
-                <option value="price_asc" selected="@(ViewData["SortBy"]?.ToString() == "price_asc")">Price (Low to High)</option>
-                <option value="price_desc" selected="@(ViewData["SortBy"]?.ToString() == "price_desc")">Price (High to Low)</option>
-            </select>
-        </div>
-    </div>
-
-    @if (Model.Any())
-    {
-        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
-            @foreach (var book in Model)
-            {
-                <div class="col">
-                    @{
-                        ViewData["HorizontalLayout"] = false;
-                        ViewData["ShowAdminControls"] = false;
-                    }
-                    <partial name="_BookCard" model="book" view-data="ViewData" />
-                </div>
-            }
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-info">
-            <p class="mb-0">
-                @if (ViewData["SearchTerm"] != null || ViewData["SelectedGenre"] != null || ViewData["SelectedFormat"] != null)
-                {
-                    <span>No books match your filter criteria. <a href="@Url.Action("Index", "Home")">Clear filters</a> to see all books.</span>
-                }
-                else
-                {
-                    <span>No books have been added to our catalog yet. Please check back soon!</span>
-                }
-            </p>
-        </div>
-    }
-</div>
 
 <!-- Categories Section -->
 <div class="container mb-5">
@@ -205,6 +81,125 @@
         </div>
     </div>
 </div>
+
+<!-- Search and Filter Section -->
+<div class="container mb-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="row g-3">
+                <!-- Search Bar -->
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="searchTerm" name="searchTerm" 
+                               placeholder="Search by title, author, ISBN..." value="@ViewData["SearchTerm"]">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Genre Filter -->
+                <div class="col-md-3">
+                    <select class="form-select" id="genre" name="genre" onchange="this.form.submit()">
+                        <option value="">All Genres</option>
+                        @foreach (var genre in Enum.GetValues(typeof(Bookbox.Constants.Genre)))
+                        {
+                            <option value="@genre" selected="@(ViewData["SelectedGenre"]?.ToString() == genre.ToString())">
+                                @genre
+                            </option>
+                        }
+                    </select>
+                </div>
+                
+                <!-- Format Filter -->
+                <div class="col-md-3">
+                    <select class="form-select" id="format" name="format" onchange="this.form.submit()">
+                        <option value="">All Formats</option>
+                        @foreach (var format in Enum.GetValues(typeof(Bookbox.Constants.Format)))
+                        {
+                            <option value="@format" selected="@(ViewData["SelectedFormat"]?.ToString() == format.ToString())">
+                                @format
+                            </option>
+                        }
+                    </select>
+                </div>
+                
+                <!-- Hidden submit button for accessibility -->
+                <button type="submit" class="d-none">Apply Filters</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Books Section -->
+<div class="container mb-5" id="featured">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">@(ViewData["SearchTerm"] != null ? "Search Results" : "Featured Books")</h2>
+        <div class="d-flex align-items-center">
+            <label for="sortBy" class="me-2">Sort by:</label>
+            <select id="sortBy" name="sortBy" class="form-select form-select-sm" style="width: auto;" onchange="updateSort(this.value)">
+                <option value="newest" selected="@(ViewData["SortBy"]?.ToString() == "newest")">Newest Arrivals</option>
+                <option value="title" selected="@(ViewData["SortBy"]?.ToString() == "title")">Title (A-Z)</option>
+                <option value="price_asc" selected="@(ViewData["SortBy"]?.ToString() == "price_asc")">Price (Low to High)</option>
+                <option value="price_desc" selected="@(ViewData["SortBy"]?.ToString() == "price_desc")">Price (High to Low)</option>
+            </select>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
+            @foreach (var book in Model)
+            {
+                <div class="col">
+                    @{
+                        ViewData["HorizontalLayout"] = false;
+                        ViewData["ShowAdminControls"] = false;
+                    }
+                    <partial name="_BookCard" model="book" view-data="ViewData" />
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <p class="mb-0">
+                @if (ViewData["SearchTerm"] != null || ViewData["SelectedGenre"] != null || ViewData["SelectedFormat"] != null)
+                {
+                    <span>No books match your filter criteria. <a href="@Url.Action("Index", "Home")">Clear filters</a> to see all books.</span>
+                }
+                else
+                {
+                    <span>No books have been added to our catalog yet. Please check back soon!</span>
+                }
+            </p>
+        </div>
+    }
+</div>
+
+<!-- Hero Section - Card-like implementation with reduced height -->
+<div class="container mb-5"> <!-- Matches container style of other sections -->
+    <div class="card shadow-sm bg-light rounded-3"> <!-- Made it a card to match other sections -->
+        <div class="card-body py-3"> <!-- Reduced padding from py-4 to py-3 -->
+            <div class="row align-items-center justify-content-center">
+                <div class="col-lg-5">
+                    <h2 class="fw-bold">Discover Your Next Favorite Book</h2> <!-- Changed from display-5 to h2 -->
+                    <p class="mb-3">Explore our collection of bestsellers, award winners, and exclusive editions.</p> <!-- Removed lead class, added smaller margin -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                        <a href="@Url.Action("Index", "Shop")" class="btn btn-primary px-3 me-md-2">Browse All Books</a> <!-- Removed btn-lg, reduced padding -->
+                        <a href="#featured" class="btn btn-outline-secondary px-3">Featured Books</a> <!-- Removed btn-lg, reduced padding -->
+                    </div>
+                </div>
+                <div class="col-lg-5 d-none d-lg-block text-center"> <!-- Added text-center for better alignment -->
+                    <img src="/images/Placeholder/illustration.png" alt="BookBox Collection" class="img-fluid rounded-3" style="max-height: 200px;"> <!-- Added max-height -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 @section Scripts {
     <script>
