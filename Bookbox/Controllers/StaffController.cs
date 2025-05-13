@@ -176,25 +176,36 @@ namespace Bookbox.Controllers
                     .ThenInclude(oi => oi.Book)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
             
+            // Check if request is AJAX
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            
             if (order == null)
             {
-                return NotFound();
+                return isAjax 
+                    ? Json(new { success = false, message = "Order not found." })
+                    : NotFound();
             }
             
             // Verify claim code
             if (order.ClaimCode != claimCode)
             {
                 TempData["Error"] = "Invalid claim code. Please check and try again.";
-                return RedirectToAction(nameof(OrderDetails), new { id });
+                return isAjax
+                    ? Json(new { success = false, message = "Invalid claim code. Please check and try again." })
+                    : RedirectToAction(nameof(OrderDetails), new { id });
             }
             
             // Can only redeem pending orders
             if (order.Status != OrderStatus.Pending)
             {
-                TempData["Error"] = order.Status == OrderStatus.Completed
+                string errorMessage = order.Status == OrderStatus.Completed
                     ? "This order has already been completed and cannot be redeemed again."
                     : "This order was cancelled and cannot be redeemed.";
-                return RedirectToAction(nameof(OrderDetails), new { id });
+                
+                TempData["Error"] = errorMessage;
+                return isAjax
+                    ? Json(new { success = false, message = errorMessage })
+                    : RedirectToAction(nameof(OrderDetails), new { id });
             }
             
             // Use the OrderService to update the status, which will also update SalesCount
@@ -237,7 +248,10 @@ namespace Bookbox.Controllers
             await _orderEmailService.SendOrderProcessedEmailsAsync(id, staffId);
             
             TempData["Success"] = "Order has been redeemed successfully!";
-            return RedirectToAction(nameof(Orders));
+            
+            return isAjax
+                ? Json(new { success = true, message = "Order has been redeemed successfully!" })
+                : RedirectToAction(nameof(Orders));
         }
     }
 }

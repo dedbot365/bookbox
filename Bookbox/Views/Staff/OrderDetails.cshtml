@@ -201,7 +201,7 @@
                     </div>
                     <div class="card-body">
                         <p class="text-muted mb-3">Enter the claim code to verify and complete this order:</p>
-                        <form asp-action="RedeemOrder" method="post">
+                        <form id="redeemOrderForm" asp-action="RedeemOrder" method="post">
                             <input type="hidden" name="id" value="@Model.OrderId" />
                             <div class="mb-3 position-relative">
                                 <div class="input-group">
@@ -220,6 +220,35 @@
                     </div>
                 </div>
             }
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="orderSuccessModal" tabindex="-1" aria-labelledby="orderSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-success text-white border-0">
+                <h5 class="modal-title" id="orderSuccessModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>Order Completed
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <div class="success-icon-container mb-4">
+                    <i class="fas fa-check-circle fa-4x text-success"></i>
+                </div>
+                <h4 class="mb-3">Order Redeemed Successfully!</h4>
+                <p class="text-muted mb-4">
+                    Order #@Model.OrderNumber has been marked as completed.
+                    <br>The customer will be notified via email.
+                </p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" id="continueButton" class="btn btn-primary px-4 py-2">
+                    <i class="fas fa-arrow-right me-2"></i>Continue to Orders
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -257,5 +286,77 @@
         .badge {
             font-weight: 500;
         }
+        
+        /* Success modal styling */
+        .success-icon-container {
+            width: 100px;
+            height: 100px;
+            background-color: rgba(40, 167, 69, 0.1);
+            border-radius: 50%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Handle the redeem order form submission
+            $('#redeemOrderForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form data
+                const form = $(this);
+                const url = form.attr('action');
+                const data = form.serialize();
+                const submitButton = form.find('button[type="submit"]');
+                
+                // Disable button and show loading state
+                submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...');
+                
+                // Submit the form via AJAX
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: data,
+                    success: function(response) {
+                        if (response.success) {
+                            // Show success modal
+                            const successModal = new bootstrap.Modal(document.getElementById('orderSuccessModal'));
+                            successModal.show();
+                            
+                            // Set up continue button to redirect
+                            $('#continueButton').on('click', function() {
+                                window.location.href = '@Url.Action("Orders", "Staff")';
+                            });
+                        } else {
+                            // Show error alert
+                            $('<div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">' +
+                              '<i class="fas fa-exclamation-circle me-2"></i>' +
+                              response.message +
+                              '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                              '</div>').insertBefore(form);
+                            
+                            // Reset button
+                            submitButton.prop('disabled', false).html('<i class="fas fa-check me-1"></i> Verify & Complete Order');
+                        }
+                    },
+                    error: function() {
+                        // Show error alert
+                        $('<div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">' +
+                          '<i class="fas fa-exclamation-circle me-2"></i>' +
+                          'An error occurred while processing your request. Please try again.' +
+                          '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                          '</div>').insertBefore(form);
+                        
+                        // Reset button
+                        submitButton.prop('disabled', false).html('<i class="fas fa-check me-1"></i> Verify & Complete Order');
+                    }
+                });
+            });
+        });
+    </script>
 }
