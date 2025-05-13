@@ -6,47 +6,93 @@
     Layout = "_DashboardLayout";
 }
 
-<div class="container my-5">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Add Discount for "@(book?.Title ?? "Book")"</h3>
-                </div>
-                <div class="card-body">
-                    <form asp-action="Create" method="post">
-                        <input type="hidden" asp-for="BookId" />
-                        <div class="mb-3">
-                            <label asp-for="DiscountPercentage" class="form-label">Discount Percentage (%)</label>
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">Add Discount</h1>
+            <p class="text-muted">Create a new discount offer for "@(book?.Title ?? "Book")"</p>
+        </div>
+        <a asp-controller="Book" asp-action="Details" asp-route-id="@book?.BookId" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Book
+        </a>
+    </div>
+
+    <div class="card shadow mb-4 border-0 rounded-3">
+        <div class="card-header py-3 bg-gradient" style="background-color: #f8f9fa; border-bottom: none;">
+            <h6 class="m-0 fw-bold text-primary"><i class="fas fa-tag me-2"></i>Discount Information</h6>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post">
+                <input type="hidden" asp-for="BookId" />
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="DiscountPercentage" class="form-label fw-bold"><i class="fas fa-percent text-primary me-2"></i>Discount Percentage</label>
+                        <div class="input-group">
                             <input asp-for="DiscountPercentage" class="form-control" type="number" min="1" max="90" required />
-                            <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
-                            <small class="form-text text-muted">Maximum allowed discount is 90%</small>
+                            <span class="input-group-text">%</span>
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="StartDate" class="form-label">Start Date</label>
-                            <input asp-for="StartDate" class="form-control" type="date" required />
-                            <span asp-validation-for="StartDate" class="text-danger"></span>
+                        <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
+                        <small class="form-text text-muted">Maximum allowed discount is 90%</small>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="form-check form-switch mt-4">
+                            <input asp-for="IsOnSale" class="form-check-input" type="checkbox" role="switch" id="isActive" checked />
+                            <label class="form-check-label" for="isActive">
+                                <span class="badge bg-success active-badge">Active</span>
+                                <span class="badge bg-secondary inactive-badge d-none">Inactive</span>
+                            </label>
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="EndDate" class="form-label">End Date (Optional)</label>
-                            <input asp-for="EndDate" class="form-control" type="date" />
-                            <span asp-validation-for="EndDate" class="text-danger"></span>
-                        </div>
-                        <div class="mb-3 form-check">
-                            <input asp-for="IsOnSale" class="form-check-input" />
-                            <label asp-for="IsOnSale" class="form-check-label">Active</label>
-                        </div>
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a asp-controller="Book" asp-action="Details" asp-route-id="@book.BookId" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Save Discount</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="StartDate" class="form-label fw-bold"><i class="fas fa-calendar-alt text-primary me-2"></i>Start Date</label>
+                        <input asp-for="StartDate" class="form-control" type="date" required />
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="EndDate" class="form-label fw-bold"><i class="fas fa-calendar-check text-primary me-2"></i>End Date (Optional)</label>
+                        <input asp-for="EndDate" class="form-control" type="date" />
+                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="d-flex justify-content-end">
+                    <a asp-controller="Book" asp-action="Details" asp-route-id="@book?.BookId" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-times me-1"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-1"></i> Save Discount
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const activeSwitch = document.getElementById('isActive');
+            const activeBadge = document.querySelector('.active-badge');
+            const inactiveBadge = document.querySelector('.inactive-badge');
+            
+            activeSwitch.addEventListener('change', function() {
+                if (this.checked) {
+                    activeBadge.classList.remove('d-none');
+                    inactiveBadge.classList.add('d-none');
+                } else {
+                    activeBadge.classList.add('d-none');
+                    inactiveBadge.classList.remove('d-none');
+                }
+            });
+        });
+    </script>
 }
