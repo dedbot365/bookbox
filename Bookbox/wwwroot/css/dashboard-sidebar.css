@@ -1,0 +1,260 @@
+/* Dashboard Sidebar Styles */
+
+/* Main sidebar container */
+.sidebar {
+    height: 100vh;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    background-color: #4D4490;
+    overflow-x: hidden;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Collapsed sidebar - desktop */
+.sidebar.collapsed {
+    width: 70px;
+}
+
+/* Mobile sidebar (hidden by default) */
+@media (max-width: 767.98px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.show {
+        transform: translateX(0);
+    }
+}
+
+/* Sidebar header */
+.sidebar-header {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(0,0,0,0.1);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+    min-height: 60px; /* Ensure consistent height */
+}
+
+/* The sidebar title will show/hide based on collapse state */
+.sidebar-title {
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-title {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+}
+
+/* Mini logo for collapsed state */
+.sidebar-mini {
+    display: none; /* Hidden by default */
+    color: white;
+    font-size: 1.5rem; /* Make mini icon a bit bigger for better visibility */
+}
+
+.sidebar.collapsed .sidebar-title {
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-mini {
+    display: block; /* Only show when sidebar is collapsed */
+}
+
+/* When sidebar is collapsed, show logo only */
+.sidebar.collapsed .sidebar-header img {
+    margin-right: 0 !important; /* Override Bootstrap me-2 */
+}
+
+/* Adjust spacing for collapsed header */
+.sidebar.collapsed .sidebar-header {
+    justify-content: center;
+    padding: 1rem 0;
+}
+
+/* Sidebar user section */
+.sidebar-user {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Sidebar content area - allows for scrolling */
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Sidebar footer for collapse button */
+.sidebar-footer {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 0;
+    margin-top: auto;
+}
+
+.sidebar-footer .btn {
+    text-align: left;
+    border-radius: 0;
+}
+
+.sidebar.collapsed .sidebar-footer span {
+    display: none;
+}
+
+.sidebar.collapsed .collapse-icon {
+    transform: rotate(180deg);
+}
+
+/* Sidebar link styles */
+.sidebar-link {
+    padding: 0.8rem 1.5rem;
+    display: flex;
+    align-items: center;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-link:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: #fff;
+    border-left-color: rgba(255,255,255,0.5);
+    text-decoration: none;
+}
+
+.sidebar-link.active {
+    color: #fff;
+    background-color: rgba(255,255,255,0.15);
+    border-left-color: #fff;
+    font-weight: 600;
+}
+
+.sidebar-link i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+/* When sidebar is collapsed */
+.sidebar.collapsed .sidebar-link {
+    padding: 0.8rem 0;
+    justify-content: center;
+    text-align: center;
+}
+
+.sidebar.collapsed .sidebar-link i {
+    margin-right: 0;
+    font-size: 1.2rem;
+}
+
+.sidebar.collapsed .sidebar-link span,
+.sidebar.collapsed .sidebar-heading,
+.sidebar.collapsed .sidebar-user {
+    display: none;
+}
+
+/* Section headings */
+.sidebar-heading {
+    padding: 0.8rem 1.5rem 0.5rem;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    margin-top: 1rem;
+}
+
+/* Overlay for mobile */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1030;
+    display: none;
+}
+
+.sidebar-overlay.show {
+    display: block;
+}
+
+/* Toggle button (floating) */
+.sidebar-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1020;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    transition: all 0.3s ease;
+}
+
+/* Button position when sidebar is collapsed */
+.sidebar-collapsed .sidebar-toggle-btn {
+    right: 20px;
+}
+
+/* Main content adjustment */
+.with-sidebar {
+    margin-left: 250px;
+    transition: margin-left 0.3s ease;
+    width: calc(100% - 250px);
+}
+
+.with-sidebar.sidebar-collapsed {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+}
+
+@media (max-width: 767.98px) {
+    .with-sidebar {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    /* Hide the floating button on small screens */
+    .sidebar-toggle-btn {
+        display: none;
+    }
+}
+
+/* Tooltip for collapsed sidebar items */
+.sidebar.collapsed .sidebar-link {
+    position: relative;
+}
+
+.sidebar.collapsed .sidebar-link:hover::after {
+    content: attr(data-title);
+    position: absolute;
+    left: 100%;
+    top: 0;
+    z-index: 1050;
+    margin-left: 5px;
+    padding: 5px 10px;
+    background-color: rgba(0,0,0,0.8);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+/* Animation for collapse icon */
+.collapse-icon {
+    transition: transform 0.3s ease;
+}

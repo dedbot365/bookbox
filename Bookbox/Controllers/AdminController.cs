@@ -19,190 +19,113 @@ namespace Bookbox.Controllers
         private readonly IBookService _bookService;
         private readonly IUserService _userService;
         private readonly IAnnouncementService _announcementService;
+        private readonly IChartService _chartService;
 
         public AdminController(
             ApplicationDbContext context,
             IBookService bookService,
             IUserService userService,
-            IAnnouncementService announcementService)
+            IAnnouncementService announcementService,
+            IChartService chartService)
         {
             _context = context;
             _bookService = bookService;
             _userService = userService;
             _announcementService = announcementService;
+            _chartService = chartService;
         }
 
         public async Task<IActionResult> Dashboard()
         {
-            // Get real data where available
-            var books = await _bookService.GetAllBooksAsync();
+            // Get user and announcement data
             var users = await _userService.GetAllUsersAsync();
             var announcements = await _announcementService.GetAllAnnouncementsAsync();
             var recentAnnouncements = await _announcementService.GetRecentAnnouncementsAsync(5);
-
-            // Calculate books by genre
-            var booksByGenre = books
-                .GroupBy(b => b.Genre)
-                .Select(g => new { Genre = g.Key.ToString(), Count = g.Count() })
-                .OrderByDescending(x => x.Count)
-                .ToList();
-
-            // Calculate books by format 
-            var booksByFormat = books
-                .GroupBy(b => b.Format)
-                .Select(g => new { Format = g.Key.ToString(), Count = g.Count() })
-                .OrderByDescending(x => x.Count)
-                .ToList();
-                
-            // Get top selling books
-            var topSellingBooks = books
-                .OrderByDescending(b => b.SalesCount)
-                .Take(5)
-                .Select(b => new { Title = b.Title, SalesCount = b.SalesCount })
-                .ToList();
-                
-            // Get completed orders by month for the current year
-            var currentYear = DateTime.UtcNow.Year;
-            var completedOrdersByMonth = await _context.Orders
-                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Year == currentYear)
-                .GroupBy(o => o.OrderDate.Month)
-                .Select(g => new { Month = g.Key, Count = g.Count() })
-                .OrderBy(x => x.Month)
-                .ToListAsync();
-
-            var monthlyOrderCounts = new int[12];
-            foreach (var item in completedOrdersByMonth)
-            {
-                monthlyOrderCounts[item.Month - 1] = item.Count;
-            }
             
-            // Get review statistics
-            var reviewStats = await _context.Reviews
-                .GroupBy(r => r.Rating)
-                .Select(g => new { Rating = g.Key, Count = g.Count() })
-                .ToListAsync();
+            // Get chart data from service
+            var bookStats = await _chartService.GetBookStatisticsAsync();
+            var orderStats = await _chartService.GetOrderStatisticsAsync();
+            var reviewStats = await _chartService.GetReviewStatisticsAsync();
+            var timeBasedStats = await _chartService.GetTimeBasedOrderStatisticsAsync();
+            var recentCompletedOrders = await _chartService.GetRecentCompletedOrdersAsync();
+            var monthlyRevenue = await _chartService.GetMonthlyRevenueAsync();
+            var totalRevenue = await _chartService.GetTotalRevenueAsync();
+            var weeklyRevenue = await _chartService.GetWeeklyRevenueAsync();
+            var dailyRevenue = await _chartService.GetDailyRevenueAsync();
 
-            var totalReviews = reviewStats.Sum(r => r.Count);
-            var reviewPercentages = new Dictionary<int, int>();
-            for (int i = 1; i <= 5; i++)
-            {
-                var count = reviewStats.FirstOrDefault(r => r.Rating == i)?.Count ?? 0;
-                reviewPercentages[i] = totalReviews > 0 ? (int)Math.Round((double)count / totalReviews * 100) : 0;
-            }
-            
-            // Get recent completed orders
-            var recentCompletedOrders = await _context.Orders
-                .Include(o => o.User)
-                .Where(o => o.Status == OrderStatus.Completed)
-                .OrderByDescending(o => o.CompletedDate)
-                .Take(5)
-                .Select(o => new
-                {
-                    OrderNumber = o.OrderNumber,
-                    CustomerName = o.User.FirstName + " " + o.User.LastName,
-                    Amount = o.TotalAmount,
-                    CompletedDate = o.CompletedDate ?? o.OrderDate,
-                    Status = o.Status
-                })
-                .ToListAsync();
-
-            // Total orders count
-            var totalOrders = await _context.Orders.CountAsync();
-
-            // Calculate monthly revenue
-            var currentMonth = DateTime.UtcNow.Month;
-            var currentUtcYear = DateTime.UtcNow.Year;
-            var monthlyRevenue = await _context.Orders
-                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Month == currentMonth && o.OrderDate.Year == currentUtcYear)
-                .SumAsync(o => o.TotalAmount);
-
-            ViewBag.MonthlyRevenue = monthlyRevenue;
-
-            // Get completed orders by day for the last 30 days - Fix timezone issue
-            var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
-            
-            // Query for daily orders directly with a SQL group by to avoid timezone issues
-            var dailyOrdersQuery = await _context.Orders
-                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate >= thirtyDaysAgo)
-                .GroupBy(o => o.OrderDate.Date)
-                .Select(g => new { Date = g.Key, Count = g.Count() })
-                .ToListAsync();
-                
-            // Create array of 30 days with default count 0
-            var dailyOrderCounts = new int[30];
-            for (int i = 0; i < 30; i++)
-            {
-                var date = thirtyDaysAgo.AddDays(i).Date;
-                var orderCount = dailyOrdersQuery.FirstOrDefault(x => x.Date == date)?.Count ?? 0;
-                dailyOrderCounts[i] = orderCount;
-            }
-
-            ViewBag.DailyOrderCounts = dailyOrderCounts;
-
-            // Get completed orders by week for the year
-            var startOfYear = new DateTime(DateTime.UtcNow.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var weeklyOrderCounts = new int[52];
-            var completedOrdersByWeek = await _context.Orders
-                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Year == DateTime.UtcNow.Year)
-                .GroupBy(o => ((o.OrderDate - startOfYear).Days / 7) + 1)
-                .Select(g => new { Week = g.Key, Count = g.Count() })
-                .OrderBy(x => x.Week)
-                .ToListAsync();
-
-            foreach (var item in completedOrdersByWeek)
-            {
-                if (item.Week >= 1 && item.Week <= 52)
-                {
-                    weeklyOrderCounts[item.Week - 1] = item.Count;
-                }
-            }
-
-            ViewBag.WeeklyOrderCounts = weeklyOrderCounts;
-
-            // Get completed orders by year for the last 5 years
-            var fiveYearsAgo = DateTime.UtcNow.Year - 4;
-            var yearlyOrderCounts = new int[5];
-            var completedOrdersByYear = await _context.Orders
-                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Year >= fiveYearsAgo)
-                .GroupBy(o => o.OrderDate.Year)
-                .Select(g => new { Year = g.Key, Count = g.Count() })
-                .OrderBy(x => x.Year)
-                .ToListAsync();
-
-            foreach (var item in completedOrdersByYear)
-            {
-                var index = item.Year - fiveYearsAgo;
-                if (index >= 0 && index < 5)
-                {
-                    yearlyOrderCounts[index] = item.Count;
-                }
-            }
-
-            ViewBag.YearlyOrderCounts = yearlyOrderCounts;
+            // Get time-based revenue data
+            var timeBasedRevenueStats = await _chartService.GetTimeBasedRevenueStatisticsAsync();
 
             // Pass data to view
-            ViewBag.TotalBooks = books.Count;
             ViewBag.TotalUsers = users.Count;
+            ViewBag.TotalBooks = bookStats["TotalBooks"];
             ViewBag.TotalAnnouncements = announcements.Count();
-            ViewBag.TotalOrders = totalOrders;
+            ViewBag.TotalOrders = orderStats["TotalOrders"];
             ViewBag.Announcements = recentAnnouncements;
-            ViewBag.BooksByGenre = booksByGenre;
-            ViewBag.BooksByFormat = booksByFormat;
-            ViewBag.TopSellingBooks = topSellingBooks;
-            ViewBag.MonthlyOrderCounts = monthlyOrderCounts;
-            ViewBag.ReviewPercentages = reviewPercentages;
+            ViewBag.BooksByGenre = bookStats["BooksByGenre"];
+            ViewBag.BooksByFormat = bookStats["BooksByFormat"];
+            ViewBag.TopSellingBooks = bookStats["TopSellingBooks"];
+            ViewBag.MonthlyOrderCounts = timeBasedStats["MonthlyOrderCounts"];
+            ViewBag.DailyOrderCounts = timeBasedStats["DailyOrderCounts"];
+            ViewBag.WeeklyOrderCounts = timeBasedStats["WeeklyOrderCounts"];
+            ViewBag.YearlyOrderCounts = timeBasedStats["YearlyOrderCounts"];
+            ViewBag.ReviewPercentages = reviewStats["ReviewPercentages"];
             ViewBag.RecentCompletedOrders = recentCompletedOrders;
+            ViewBag.MonthlyRevenue = monthlyRevenue;
+            ViewBag.TotalRevenue = totalRevenue;
+            ViewBag.WeeklyRevenue = weeklyRevenue;
+            ViewBag.DailyRevenue = dailyRevenue;
+
+            ViewBag.DailyRevenueData = timeBasedRevenueStats["DailyRevenueData"];
+            ViewBag.WeeklyRevenueData = timeBasedRevenueStats["WeeklyRevenueData"];
+            ViewBag.MonthlyRevenueData = timeBasedRevenueStats["MonthlyRevenueData"];
+            ViewBag.YearlyRevenueData = timeBasedRevenueStats["YearlyRevenueData"];
 
             return View();
         }
 
-        public async Task<IActionResult> ManageUsers()
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ManageUsers(string searchTerm = "", int page = 1)
         {
+            // Set page size
+            int pageSize = 15;
+            
             // Get all users except admins
-            var users = await _context.Users
+            var query = _context.Users
                 .Where(u => u.UserType != UserType.Admin)
+                .AsQueryable();
+            
+            // Apply search filter if provided
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(u => 
+                    u.FirstName.ToLower().Contains(searchTerm) || 
+                    u.LastName.ToLower().Contains(searchTerm) || 
+                    u.Username.ToLower().Contains(searchTerm) ||
+                    u.Email.ToLower().Contains(searchTerm));
+                    
+                ViewBag.SearchTerm = searchTerm;
+            }
+            
+            // Get total count for pagination
+            int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalItems / (float)pageSize);
+            
+            // Ensure valid page number
+            page = Math.Max(1, Math.Min(page, Math.Max(1, totalPages)));
+            
+            // Apply sorting and pagination
+            var users = await query
                 .OrderBy(u => u.Username)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+            
+            // Set pagination data for the view
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalItems = totalItems;
             
             return View(users);
         }

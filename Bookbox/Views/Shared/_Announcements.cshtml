@@ -34,7 +34,12 @@
                             </div>
                             <div class="announcement-title-container">
                                 <h5 class="announcement-title">@announcement.Title</h5>
-                                <span class="announcement-date">Posted @((DateTime.UtcNow - announcement.LastModified).Days <= 7 ? (announcement.LastModified).ToString("MMM dd, yyyy") : "recently")</span>
+                                <span class="announcement-date">
+                                    <i class="far fa-clock me-1"></i>
+                                    Posted @((DateTime.UtcNow - announcement.LastModified).Days <= 7 
+                                        ? announcement.LastModified.ToString("MMM dd, yyyy") 
+                                        : "recently")
+                                </span>
                             </div>
                         </div>
                         <div class="announcement-body">

@@ -17,19 +17,63 @@ namespace Bookbox.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IAuthService _authService; // Add this
+        private readonly IAuthService _authService; 
 
         public ProfileController(
             ApplicationDbContext context, 
             IWebHostEnvironment webHostEnvironment,
-            IAuthService authService) // Add this
+            IAuthService authService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
-            _authService = authService; // Add this
+            _authService = authService;
         }
 
-        // GET: Profile/EditProfile
+        // GET: Profile/Index or Profile/
+        public async Task<IActionResult> Index()
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized("User identity could not be determined");
+            }
+
+            var user = await _context.Users
+                .Include(u => u.Addresses)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var address = user.Addresses.FirstOrDefault();
+
+            var model = new ProfileDTO
+            {
+                Username = user.Username,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                ContactNo = user.ContactNo,
+                DateOfBirth = user.DateOfBirth,
+                Gender = user.Gender,
+                ImageUrl = user.ImageUrlText,
+                RegisteredDate = user.RegisteredDate,
+                SuccessfulOrderCount = user.SuccessfulOrderCount
+            };
+
+            if (address != null)
+            {
+                model.Address1 = address.Address1;
+                model.Address2 = address.Address2;
+                model.City = address.City;
+                model.State = address.State;
+                model.Country = address.Country;
+            }
+
+            return View(model);
+        }        // GET: Profile/EditProfile
         public async Task<IActionResult> EditProfile()
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -38,12 +82,16 @@ namespace Bookbox.Controllers
                 return Unauthorized("User identity could not be determined");
             }
 
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _context.Users
+                .Include(u => u.Addresses)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
 
             if (user == null)
             {
                 return NotFound();
             }
+
+            var address = user.Addresses.FirstOrDefault();
 
             var model = new ProfileEditDTO
             {
@@ -58,6 +106,16 @@ namespace Bookbox.Controllers
                 OriginalUsername = user.Username,
                 OriginalEmail = user.Email
             };
+
+            if (address != null)
+            {
+                model.Address1 = address.Address1;
+                model.Address2 = address.Address2;
+                model.City = address.City;
+                model.State = address.State;
+                model.Country = address.Country;
+                model.AddressId = address.AddressId;
+            }
 
             return View(model);
         }
@@ -112,9 +170,7 @@ namespace Bookbox.Controllers
             if (model.DateOfBirth.HasValue)
             {
                 model.DateOfBirth = DateTime.SpecifyKind(model.DateOfBirth.Value, DateTimeKind.Utc);
-            }
-
-            // Update user information
+            }            // Update user information
             user.Username = model.Username;
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
@@ -122,6 +178,36 @@ namespace Bookbox.Controllers
             user.ContactNo = model.ContactNo;
             user.DateOfBirth = model.DateOfBirth;
             user.Gender = model.Gender;
+
+            // Update or create address
+            var address = await _context.Addresses.FirstOrDefaultAsync(a => a.UserId == userId);
+            
+            if (address != null)
+            {
+                // Update existing address
+                address.Address1 = model.Address1;
+                address.Address2 = model.Address2;
+                address.City = model.City;
+                address.State = model.State;
+                address.Country = model.Country;
+                
+                _context.Addresses.Update(address);
+            }
+            else
+            {
+                // Create new address
+                var newAddress = new Address
+                {
+                    UserId = userId,
+                    Address1 = model.Address1,
+                    Address2 = model.Address2,
+                    City = model.City,
+                    State = model.State,
+                    Country = model.Country
+                };
+                
+                _context.Addresses.Add(newAddress);
+            }
 
             // Handle profile image upload
             if (model.ImageFile != null)
@@ -194,7 +280,7 @@ namespace Bookbox.Controllers
                 authProperties);
 
             TempData["SuccessMessage"] = "Profile updated successfully!";
-            return RedirectToAction("EditProfile");
+            return RedirectToAction("Index");  // Change this to redirect to Index instead of EditProfile
         }
 
         // GET: Profile/ChangePassword
@@ -239,7 +325,7 @@ namespace Bookbox.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Password changed successfully!";
-            return RedirectToAction("ChangePassword");
+            return RedirectToAction("Index");  // Change this to redirect to Index instead of ChangePassword
         }
     }
 }

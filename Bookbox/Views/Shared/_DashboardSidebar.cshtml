@@ -1,0 +1,140 @@
+@{
+    bool isAdmin = User.Identity?.IsAuthenticated == true && User.IsInRole("Admin");
+    bool isStaff = User.Identity?.IsAuthenticated == true && User.IsInRole("Staff");
+    bool isMember = User.Identity?.IsAuthenticated == true && User.IsInRole("Member");
+    
+    // Get current controller and action to highlight active link
+    string currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    string currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    
+    // Helper function to determine if a link should be active
+    Func<string, string, string> IsActive = (controller, action) => {
+        if (controller == currentController && (action == currentAction || action == "*"))
+            return "active";
+        return "";
+    };
+}
+
+<div id="dashboardSidebar" class="sidebar">
+    <div class="sidebar-header">
+        <div class="d-flex align-items-center">
+            <img src="~/images/logo/logo.png" alt="BookBox Logo" height="30" class="me-2" />
+            <!-- Keep the BookBox title always visible, use classes to control it -->
+            <div class="sidebar-title">
+                <h5 class="mb-0 text-white">
+                    BookBox 
+                    @if (isAdmin) { <span>Admin</span> }
+                    @if (isStaff) { <span>Staff</span> }
+                    @if (isMember) { <span>Member</span> }
+                </h5>
+            </div>
+            <!-- Remove the separate mini icon, we'll use CSS to handle this -->
+        </div>
+        <button id="sidebarToggle" class="btn btn-link d-md-none text-white">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="sidebar-user p-3">
+        <div class="d-flex align-items-center mb-3">
+            @if (User.FindFirst("ImageUrl")?.Value != null)
+            {
+                <img src="@User.FindFirst("ImageUrl")?.Value" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;" alt="Profile" />
+            }
+            else
+            {
+                <i class="fas fa-user-circle me-2 fs-3 text-white-50"></i>
+            }
+            <div>
+                <div class="fw-bold text-white">@User.Identity?.Name</div>
+                <small class="text-white-50">@(isAdmin ? "Administrator" : isStaff ? "Staff Member" : "Member")</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="sidebar-content">
+        <div class="sidebar-nav">            @if (isAdmin)
+            {
+                <!-- Admin Navigation -->
+                <div class="sidebar-heading">Administration</div>
+                <a href="@Url.Action("Dashboard", "Admin")" class="sidebar-link @IsActive("Admin", "Dashboard")">
+                    <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+                </a>
+                <a href="@Url.Action("Index", "Book")" class="sidebar-link @IsActive("Book", "*")">
+                    <i class="fas fa-book"></i> <span>Manage Books</span>
+                </a>
+                <a href="@Url.Action("Index", "Announcement")" class="sidebar-link @IsActive("Announcement", "*")">
+                    <i class="fas fa-bullhorn"></i> <span>Announcements</span>
+                </a>
+                <a href="@Url.Action("ManageUsers", "Admin")" class="sidebar-link @IsActive("Admin", "ManageUsers")">
+                    <i class="fas fa-users"></i> <span>Manage Users</span>
+                </a>
+            }
+            @if (isStaff)
+            {
+                <!-- Staff Navigation -->
+                <div class="sidebar-heading">Staff Area</div>
+                <a href="@Url.Action("Dashboard", "Staff")" class="sidebar-link @IsActive("Staff", "Dashboard")">
+                    <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+                </a>
+                <a href="@Url.Action("Index", "Book")" class="sidebar-link @IsActive("Book", "*")">
+                    <i class="fas fa-book"></i> <span>Book Inventory</span>
+                </a>
+                <a href="@Url.Action("Orders", "Staff")" class="sidebar-link @IsActive("Staff", "Orders")">
+                    <i class="fas fa-shopping-cart"></i> <span>Orders</span>
+                </a>
+            }
+            @if (isMember)
+            {
+                <!-- Member Navigation -->
+                <div class="sidebar-heading">My Account</div>
+                <a href="@Url.Action("Index", "Member")" class="sidebar-link @IsActive("Member", "Index")">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </a>
+                <a href="@Url.Action("Index", "Order")" class="sidebar-link @IsActive("Order", "*")">
+                    <i class="fas fa-shopping-bag"></i> <span>My Orders</span>
+                </a>
+                <a href="@Url.Action("Index", "Bookmark")" class="sidebar-link @IsActive("Bookmark", "*")">
+                    <i class="fas fa-heart"></i> <span>My Wishlist</span>
+                </a>
+                <a href="@Url.Action("Index", "PurchasedBooks")" class="sidebar-link @IsActive("PurchasedBooks", "*")">
+                    <i class="fas fa-book-reader"></i> <span>Purchased Books</span>
+                </a>
+            }            <!-- Common for all users -->
+            <div class="sidebar-heading">Account</div>
+            <a href="@Url.Action("Index", "Profile")" class="sidebar-link @IsActive("Profile", "*")">
+                <i class="fas fa-user"></i> <span>My Profile</span>
+            </a>
+            <a href="@Url.Action("Logout", "Auth")" class="sidebar-link">
+                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+            </a>
+            
+            @if (isMember && !isAdmin && !isStaff)
+            {
+                <div class="sidebar-heading">Main Site</div>
+                <a href="@Url.Action("Index", "Home")" class="sidebar-link">
+                    <i class="fas fa-home"></i> <span>Return to Homepage</span>
+                </a>
+                <a href="@Url.Action("Index", "Shop")" class="sidebar-link">
+                    <i class="fas fa-store"></i> <span>Go to Bookshop</span>
+                </a>
+            }
+        </div>
+    </div>
+    
+    <!-- In-sidebar collapse button -->
+    <div class="sidebar-footer">
+        <button id="sidebarCollapseInside" class="btn btn-link text-white w-100 py-3">
+            <i class="fas fa-angle-double-left collapse-icon"></i>
+            <span>Collapse Sidebar</span>
+        </button>
+    </div>
+</div>
+
+<!-- Overlay for mobile -->
+<div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+<!-- Floating toggle button (always visible) -->
+<button id="sidebarCollapseBtn" class="btn btn-primary sidebar-toggle-btn d-md-block">
+    <i class="fas fa-bars"></i>
+</button>

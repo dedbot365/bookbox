@@ -1,0 +1,54 @@
+/* Announcement Operations Modal Styling */
+
+.operation-success-icon {
+    color: #4D4490;
+    transition: all 0.3s ease;
+}
+
+.operation-success-modal .modal-content {
+    border: none;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+}
+
+.operation-success-modal .modal-header {
+    border-bottom: none;
+    padding: 1.25rem;
+}
+
+.operation-success-modal .modal-footer {
+    border-top: none;
+    padding: 1.25rem;
+}
+
+.operation-success-modal .btn-close-white {
+    filter: brightness(0) invert(1);
+}
+
+.operation-success-modal .modal-body {
+    padding: 2rem 1.5rem;
+    text-align: center;
+}
+
+.operation-success-modal .success-message {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.operation-success-modal .success-title {
+    font-size: 0.95rem;
+    color: #6c757d;
+    word-break: break-word;
+}
+
+/* Animation for success icon */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.operation-success-modal .success-icon {
+    animation: pulse 1.5s infinite;
+}

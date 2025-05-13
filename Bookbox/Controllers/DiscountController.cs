@@ -53,8 +53,11 @@ namespace Bookbox.Controllers
             }
 
             await _discountService.CreateDiscountAsync(discount);
-            TempData["SuccessMessage"] = "Discount added successfully!";
-            return RedirectToAction("Details", "Book", new { id = discount.BookId });
+            
+            // Change redirect to Book/Index and update success message
+            var updatedBook = await _bookService.GetBookByIdAsync(discount.BookId);
+            TempData["SuccessMessage"] = $"Discount for '{updatedBook?.Title}' added successfully!";
+            return RedirectToAction("Index", "Book");
         }
 
         [HttpGet]
@@ -80,17 +83,26 @@ namespace Bookbox.Controllers
             }
 
             await _discountService.UpdateDiscountAsync(discount);
-            TempData["SuccessMessage"] = "Discount updated successfully!";
-            return RedirectToAction("Details", "Book", new { id = discount.BookId });
+            
+            // Change redirect to Book/Index and update success message
+            var updatedBook = await _bookService.GetBookByIdAsync(discount.BookId);
+            TempData["SuccessMessage"] = $"Discount for '{updatedBook?.Title}' updated successfully!";
+            return RedirectToAction("Index", "Book");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id, Guid bookId)
         {
+            // Get book details before deletion for the success message
+            var book = await _bookService.GetBookByIdAsync(bookId);
+            string bookTitle = book?.Title ?? "Unknown book";
+            
             await _discountService.DeleteDiscountAsync(id);
-            TempData["SuccessMessage"] = "Discount removed successfully!";
-            return RedirectToAction("Details", "Book", new { id = bookId });
+            
+            // Change redirect to Book/Index and update success message
+            TempData["SuccessMessage"] = $"Discount for '{bookTitle}' removed successfully!";
+            return RedirectToAction("Index", "Book");
         }
     }
 }

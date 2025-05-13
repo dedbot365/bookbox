@@ -1,0 +1,128 @@
+/* Admin Dashboard Styles */
+
+/* Custom styling for dashboard cards */
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+/* Chart containers */
+.chart-area {
+    position: relative;
+    height: 300px;
+    margin: auto;
+}
+
+.chart-pie, .chart-bar {
+    position: relative;
+    height: 250px;
+    margin: auto;
+}
+
+/* Ensure the genre chart's stacking order is correct */
+.chart-pie {
+    position: relative;
+    z-index: 10;
+}
+
+/* Timeline styling */
+.timeline {
+    position: relative;
+    list-style: none;
+    padding-left: 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+}
+
+.timeline-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-content {
+    border-left: 2px solid #e3e6f0;
+    padding-left: 15px;
+    padding-bottom: 10px;
+}
+
+/* Dropdown styling */
+.dropdown-menu-right {
+    right: 0;
+    left: auto;
+}
+
+/* Fix for dropdown menus appearing behind charts */
+.dropdown-menu-right.shadow.animated--fade-in {
+    z-index: 9999 !important;
+    position: absolute;
+}
+
+.dropdown.no-arrow {
+    position: relative;
+}
+
+/* Card hover effects */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Make chart headers maintain proper stacking context */
+.card-header {
+    position: relative;
+    z-index: 20;
+}
+
+/* Revenue section styling */
+.revenue-stat {
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.revenue-stat:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    transform: translateY(-3px);
+}
+
+.revenue-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* Add this to the end of your CSS file */
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+/* And also add a new border style for purple elements */
+.border-left-purple {
+    border-left: 0.25rem solid #6f42c1 !important;
+}

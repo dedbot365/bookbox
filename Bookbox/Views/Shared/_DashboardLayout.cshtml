@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BookBox</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/bootstrap-overrides.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Bookbox.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard-sidebar.css" asp-append-version="true" />
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Dashboard Sidebar -->
+        <partial name="_DashboardSidebar" />
+        
+        <!-- Main Content -->
+        <div id="mainContent" class="flex-grow-1 with-sidebar">
+            <div class="container-fluid p-0">
+                <!-- Top navigation -->
+                <nav class="navbar navbar-expand-lg navbar-dark mb-3" style="background-color: #4D4490;">
+                    <div class="container-fluid">
+                        <button id="sidebarCollapseBtn" class="btn btn-link text-white d-md-none me-2">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        
+                        <a class="navbar-brand" href="#">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <span>BookBox Admin</span>
+                            }
+                            else if (User.IsInRole("Staff"))
+                            {
+                                <span>BookBox Staff</span>
+                            }
+                            else
+                            {
+                                <span>BookBox Member</span>
+                            }
+                        </a>
+                        
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        
+                        <div class="collapse navbar-collapse" id="navbarContent">
+                            <ul class="navbar-nav ms-auto">
+                                <partial name="_LoginPartial" />
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- Page content -->
+                <main class="p-4">
+                    @RenderBody()
+                </main>
+                
+                <!-- Footer -->
+                <footer class="border-top footer text-muted bg-light mt-5">
+                    <div class="container py-4">
+                        <div class="text-center mt-4">
+                            <p>&copy; @DateTime.Now.Year - BookBox - All rights reserved.</p>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/dashboard-sidebar.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
