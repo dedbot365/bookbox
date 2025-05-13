@@ -1,52 +1,90 @@
-﻿@* @page "/Auth/Login" *@
-@model Bookbox.DTOs.LoginDTO
+﻿@model Bookbox.DTOs.LoginDTO
 
 @{
     ViewData["Title"] = "Login";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white text-center">
-                    <h2>Login to BookBox</h2>
+<div class="container-fluid p-0">
+    <div class="row g-0 vh-100">
+        <!-- Left side - Illustration -->
+        <div class="col-lg-6 d-none d-lg-block bg-light">
+            <div class="d-flex justify-content-center align-items-center h-100 p-4">
+                <div class="text-center">
+                    <img src="/images/Placeholder/illustration.png" alt="BookBox Library" class="img-fluid mb-4 rounded-3 shadow-sm" style="max-height: 500px;" />
+                    <h3 class="fw-bold text-primary">Welcome to BookBox</h3>
+                    <p class="text-muted">Your gateway to a world of books and knowledge</p>
                 </div>
-                <div class="card-body p-4">
-                    @if (TempData["SuccessMessage"] != null)
-                    {
-                        <div class="alert alert-success">
-                            @TempData["SuccessMessage"]
-                        </div>
-                    }
-                    
-                    <form asp-action="Login" method="post">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            </div>
+        </div>
+
+        <!-- Right side - Login Form -->
+        <div class="col-12 col-lg-6">
+            <div class="d-flex align-items-center justify-content-center h-100">
+                <div class="card border-0 shadow-sm rounded-3 w-100 mx-auto" style="max-width: 450px;">
+                    <div class="card-header bg-light text-center p-4" style="border-bottom: none;">
+                        <i class="fas fa-book-reader fa-2x mb-2 text-primary" style="color: #4D4490 !important;"></i>
+                        <h2 class="mb-0" style="color: #4D4490;">Login to BookBox</h2>
+                    </div>
+                    <div class="card-body p-4 p-lg-5">
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success d-flex align-items-center" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <div>@TempData["SuccessMessage"]</div>
+                            </div>
+                        }
                         
-                        <div class="mb-3">
-                            <label asp-for="UsernameOrEmail" class="form-label">Username or Email</label>
-                            <input asp-for="UsernameOrEmail" class="form-control" />
-                            <span asp-validation-for="UsernameOrEmail" class="text-danger"></span>
-                        </div>
+                        <form asp-action="Login" method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            
+                            <div class="mb-4">
+                                <label asp-for="UsernameOrEmail" class="form-label fw-bold">
+                                    <i class="fas fa-user text-primary me-2"></i>Username or Email
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-at"></i></span>
+                                    <input asp-for="UsernameOrEmail" class="form-control" placeholder="Enter username or email" />
+                                </div>
+                                <span asp-validation-for="UsernameOrEmail" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label asp-for="Password" class="form-label fw-bold">
+                                    <i class="fas fa-lock text-primary me-2"></i>Password
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-key"></i></span>
+                                    <input asp-for="Password" class="form-control" type="password" placeholder="Enter password" />
+                                </div>
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="mb-4 form-check">
+                                <input asp-for="RememberMe" class="form-check-input" type="checkbox" />
+                                <label asp-for="RememberMe" class="form-check-label">
+                                    <i class="fas fa-clock me-1 text-muted"></i>Remember Me
+                                </label>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                                </button>
+                            </div>
+                        </form>
                         
-                        <div class="mb-3">
-                            <label asp-for="Password" class="form-label">Password</label>
-                            <input asp-for="Password" class="form-control" type="password" />
-                            <span asp-validation-for="Password" class="text-danger"></span>
+                        <div class="text-center py-3 mt-4">
+                            <p class="mb-0">
+                                Don't have an account? 
+                                <a asp-action="Register" class="text-primary fw-bold">
+                                    <i class="fas fa-user-plus me-1"></i>Register
+                                </a>
+                            </p>
+                            <div class="mt-3 text-muted">
+                                <small><i class="fas fa-shield-alt me-1"></i> Your data is securely protected</small>
+                            </div>
                         </div>
-                        
-                        <div class="mb-3 form-check">
-                            <input asp-for="RememberMe" class="form-check-input" type="checkbox" />
-                            <label asp-for="RememberMe" class="form-check-label">Remember Me</label>
-                        </div>
-                        
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">Login</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="card-footer text-center">
-                    <p class="mb-0">Don't have an account? <a asp-action="Register">Register</a></p>
+                    </div>
                 </div>
             </div>
         </div>
