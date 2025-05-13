@@ -1,0 +1,131 @@
+/* Main theme styles */
+.bg-gradient-primary {
+    background: linear-gradient(45deg, #4D4490, #554a96);
+}
+
+/* Table styles */
+#usersTable tr {
+    transition: all 0.2s ease;
+}
+
+#usersTable tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Avatar styles */
+.avatar-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Button styles */
+.btn-group .btn:first-child {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.btn-group .btn:last-child {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+
+/* Modal styles */
+.modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Pagination styles */
+.pagination .page-item .page-link {
+    color: #4D4490;
+    border-radius: 4px;
+    margin: 0 2px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #4D4490;
+    border-color: #4D4490;
+}
+
+/* Search form styles */
+#userSearchForm .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-color: rgba(255,255,255,0.5);
+    background-color: rgba(255,255,255,0.2);
+    color: white;
+    padding-right: 20px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* Add white placeholder text */
+#userSearchForm .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.8);
+    opacity: 1;
+}
+
+/* Support for older browsers */
+#userSearchForm .form-control::-webkit-input-placeholder {
+    color: rgba(255, 255, 255, 0.8);
+    opacity: 1;
+}
+
+#userSearchForm .form-control::-moz-placeholder {
+    color: rgba(255, 255, 255, 0.8);
+    opacity: 1;
+}
+
+#userSearchForm .form-control:-ms-input-placeholder {
+    color: rgba(255, 255, 255, 0.8);
+    opacity: 1;
+}
+
+#userSearchForm .form-control:focus {
+    /* Remove the glow effect */
+    box-shadow: none; 
+}
+
+#userSearchForm .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    min-width: 45px;
+}
+
+/* Make sure the input group handles overflow properly */
+#userSearchForm .input-group {
+    position: relative;
+    flex-wrap: nowrap;
+}
+
+.search-container {
+    max-width: 500px;
+    width: 100%;
+    transition: all 0.3s ease;
+    position: relative;
+    left: 0; /* Center the search container */
+}
+
+/* Remove the scale effect on focus */
+.search-container:focus-within {
+    transform: none;
+}
+
+/* Add this new rule to improve the search container's behavior */
+.search-container .input-group {
+    width: 100%;
+}

@@ -84,13 +84,48 @@ namespace Bookbox.Controllers
             return View();
         }
 
-        public async Task<IActionResult> ManageUsers()
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ManageUsers(string searchTerm = "", int page = 1)
         {
+            // Set page size
+            int pageSize = 15;
+            
             // Get all users except admins
-            var users = await _context.Users
+            var query = _context.Users
                 .Where(u => u.UserType != UserType.Admin)
+                .AsQueryable();
+            
+            // Apply search filter if provided
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                query = query.Where(u => 
+                    u.FirstName.ToLower().Contains(searchTerm) || 
+                    u.LastName.ToLower().Contains(searchTerm) || 
+                    u.Username.ToLower().Contains(searchTerm) ||
+                    u.Email.ToLower().Contains(searchTerm));
+                    
+                ViewBag.SearchTerm = searchTerm;
+            }
+            
+            // Get total count for pagination
+            int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalItems / (float)pageSize);
+            
+            // Ensure valid page number
+            page = Math.Max(1, Math.Min(page, Math.Max(1, totalPages)));
+            
+            // Apply sorting and pagination
+            var users = await query
                 .OrderBy(u => u.Username)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+            
+            // Set pagination data for the view
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalItems = totalItems;
             
             return View(users);
         }
