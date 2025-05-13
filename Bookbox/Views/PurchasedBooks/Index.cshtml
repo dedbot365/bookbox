@@ -284,32 +284,78 @@
     }
 }
 
+<!-- Include the review updated modal -->
+<partial name="_ReviewUpdatedModal" />
+
 @section Scripts {
-    <script src="~/js/purchased-books.js" asp-append-version="true"></script>
-    <script>
+    <script src="~/js/purchased-books.js" asp-append-version="true"></script>    <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Fix modal event handling
-            const modalTriggers = document.querySelectorAll('[data-bs-toggle="modal"]');
-            modalTriggers.forEach(trigger => {
+            // Move all modals to the document body for proper rendering
+            document.querySelectorAll('.review-modal').forEach(modal => {
+                if (modal.parentElement !== document.body) {
+                    document.body.appendChild(modal);
+                }
+            });
+            
+            // Fix modal event handling for all modals
+            document.querySelectorAll('[data-bs-toggle="modal"]').forEach(trigger => {
                 trigger.addEventListener('click', function(e) {
                     e.preventDefault();
                     const targetModal = this.getAttribute('data-bs-target');
                     
-                    // Ensure any open modals are closed first
-                    document.querySelectorAll('.modal.show').forEach(modal => {
-                        const bsModal = bootstrap.Modal.getInstance(modal);
-                        if (bsModal) {
-                            bsModal.hide();
+                    // Close any existing modals first
+                    const openModals = document.querySelectorAll('.modal.show');
+                    openModals.forEach(openModal => {
+                        const modalInstance = bootstrap.Modal.getInstance(openModal);
+                        if (modalInstance) {
+                            modalInstance.hide();
                         }
                     });
                     
-                    // Open the target modal with a slight delay to prevent glitching
+                    // Create a fresh modal instance
                     setTimeout(() => {
-                        const modal = new bootstrap.Modal(document.querySelector(targetModal));
+                        const modalElement = document.querySelector(targetModal);
+                        
+                        // Make sure backdrop and keyboard settings are correct
+                        modalElement.setAttribute('data-bs-backdrop', 'static');
+                        modalElement.setAttribute('data-bs-keyboard', 'true');
+                        
+                        // Create and show the modal
+                        const modal = new bootstrap.Modal(modalElement);
                         modal.show();
-                    }, 100);
+                        
+                        // Ensure clicking outside doesn't cause problems
+                        document.querySelector('.modal-backdrop').addEventListener('click', function(event) {
+                            event.stopPropagation();
+                        });
+                    }, 50);
                 });
             });
+            
+            // Handle modal cleanup on hide
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('hidden.bs.modal', function() {
+                    // Clean up Bootstrap's inline styles
+                    document.body.style.paddingRight = '';
+                    document.body.style.overflow = '';
+                    document.body.classList.remove('modal-open');
+                    
+                    // Remove leftover backdrops
+                    document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                        backdrop.remove();
+                    });
+                });
+            });
+            
+            // Initialize review updated modal with timer
+            initModalWithTimer(
+                '@TempData["ReviewUpdated"]',
+                '@TempData["ReviewBookTitle"]',
+                'reviewModalBookTitle',
+                'reviewUpdatedModal',
+                'reviewModalTimer',
+                'reviewModalTimerText'
+            );
             
             // Handle sort changes
             function updateSort(sortValue) {
@@ -335,43 +381,62 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/purchased-books.css" asp-append-version="true" />
-    <style>
-        /* Additional inline styles to fix modal issues */
-        body.modal-open .modal {
-            display: flex !important;
-            align-items: center;
-            z-index: 1050 !important;
-        }
-        
-        .modal-backdrop {
-            z-index: 1040 !important;
-        }
-
-        .modal-open {
+    <link rel="stylesheet" href="~/css/purchased-books.css" asp-append-version="true" />    <style>
+        /* Modal styling for proper positioning and interactions */
+        body.modal-open {
             overflow: hidden;
             padding-right: 0 !important;
         }
-
-        /* Create portal effect for modals */
+        
+        /* Ensure proper modal position in document flow */
         .review-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            outline: 0;
+            z-index: 1060 !important; /* Higher z-index to ensure it's on top */
+        }
+        
+        /* Modal backdrop styling */
+        .modal-backdrop {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            pointer-events: none;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1055 !important;
         }
-
-        .review-modal.show {
+        
+        /* Modal dialog positioning */
+        .review-modal .modal-dialog {
+            max-width: 700px; /* Larger width for the review modal */
+            margin: 1.75rem auto;
+            transform: none !important; /* Prevent transform issues */
             pointer-events: auto;
         }
         
-        /* Prevent content shifting */
-        .review-modal .modal-dialog {
-            margin: 1.75rem auto;
-            max-width: 500px;
-            transition: transform 0.15s ease-out;
+        /* Fix animation transitions */
+        .modal.fade .modal-dialog {
+            transition: opacity 0.2s linear !important;
+            transform: none !important;
+        }
+        
+        /* Override any additional bootstrap styling */
+        .modal-content {
+            border: 0;
+            border-radius: 0.75rem !important;
+        }
+        
+        /* Fix modal dialog centering */
+        .modal-dialog-centered {
+            display: flex;
+            align-items: center;
+            min-height: calc(100% - 3.5rem);
         }
     </style>
 }

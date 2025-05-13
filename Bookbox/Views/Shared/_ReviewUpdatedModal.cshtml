@@ -1,0 +1,109 @@
+<div class="modal fade" id="reviewUpdatedModal" tabindex="-1" aria-labelledby="reviewUpdatedModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow border-0">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="reviewUpdatedModalLabel">
+                    <i class="fas fa-star me-2"></i>Review Updated
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <div class="success-icon-container mb-3" style="background-color: rgba(13, 110, 253, 0.1);">
+                        <i class="fas fa-star fa-3x text-primary"></i>
+                    </div>
+                    <h4 id="reviewModalBookTitle"></h4>
+                    <p class="text-muted" id="reviewModalMessage">Your review has been updated successfully.</p>
+                </div>
+                <div class="d-flex align-items-center justify-content-center mb-3">
+                    <div class="progress w-75">
+                        <div id="reviewModalTimer" class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
+                    </div>
+                    <span id="reviewModalTimerText" class="ms-2">10s</span>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+                <a href="@Url.Action("Index", "PurchasedBooks")" class="btn btn-primary">
+                    <i class="fas fa-book me-1"></i> View All Books
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ensure the modal is properly initialized and can be closed
+        const reviewUpdatedModal = document.getElementById('reviewUpdatedModal');
+        
+        if (reviewUpdatedModal) {
+            // Move the modal to body to prevent DOM hierarchy issues
+            if (reviewUpdatedModal.parentElement !== document.body) {
+                document.body.appendChild(reviewUpdatedModal);
+            }
+            
+            // Set proper backdrop options
+            reviewUpdatedModal.setAttribute('data-bs-backdrop', 'static');
+            reviewUpdatedModal.setAttribute('data-bs-keyboard', 'true');
+            
+            // Handle modal showing
+            reviewUpdatedModal.addEventListener('shown.bs.modal', function() {
+                // Fix z-index issues
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                    backdrop.style.zIndex = '1050';
+                });
+                this.style.zIndex = '1055';
+            });
+            
+            // Add keyboard event for Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && reviewUpdatedModal.classList.contains('show')) {
+                    const modalInstance = bootstrap.Modal.getInstance(reviewUpdatedModal);
+                    if (modalInstance) modalInstance.hide();
+                }
+            });
+            
+            // Clean up after hiding
+            reviewUpdatedModal.addEventListener('hidden.bs.modal', function() {
+                // Remove inline styles added by Bootstrap
+                document.body.style.paddingRight = '';
+                document.body.style.overflow = '';
+                
+                // Remove modal-specific classes
+                document.body.classList.remove('modal-open');
+            });
+        }
+    });
+</script>
+
+<style>
+    /* Modal styling for proper positioning and stacking */
+    #reviewUpdatedModal.modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1055 !important;
+    }
+    
+    #reviewUpdatedModal .modal-dialog {
+        margin: 1.75rem auto;
+        max-width: 500px;
+        width: 100%;
+        pointer-events: auto;
+    }
+    
+    /* Ensure backdrop is behind modal but above other content */
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1050 !important;
+    }
+</style>

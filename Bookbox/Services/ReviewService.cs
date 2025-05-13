@@ -184,5 +184,11 @@ namespace Bookbox.Services
                 })
                 .ToListAsync();
         }
+
+        public async Task<string> GetBookTitleAsync(Guid bookId)
+        {
+            var book = await _context.Books.FindAsync(bookId);
+            return book?.Title ?? "Unknown Book";
+        }
     }
 }

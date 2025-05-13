@@ -66,10 +66,15 @@ namespace Bookbox.Controllers
 
             var userId = new Guid(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var result = await _reviewService.AddReviewAsync(userId, reviewDto);
+            
+            // Get the book title (you'll need to add a method to your service to fetch the book title)
+            var bookTitle = await _reviewService.GetBookTitleAsync(reviewDto.BookId);
 
             if (result)
             {
-                TempData["Success"] = "Your review has been submitted successfully.";
+                // Set TempData for the modal instead of inline alert
+                TempData["ReviewUpdated"] = "True";
+                TempData["ReviewBookTitle"] = bookTitle;
             }
             else
             {
