@@ -89,31 +89,128 @@ namespace Bookbox.Services
 
         public async Task SendOrderProcessedEmailAsync(User user, Order order, bool isStaff)
         {
-            var subject = $"Order #{order.OrderNumber} Has Been Processed";
-            string body;
-
+            var subject = isStaff 
+                ? $"Order #{order.OrderNumber} Has Been Processed" 
+                : $"Your BookBox Order #{order.OrderNumber} is Ready for Pickup";
+            
+            // Build the order items table
+            var orderItemsHtml = "";
+            decimal subtotal = 0;
+            
+            foreach (var item in order.OrderItems)
+            {
+                var itemSubtotal = item.Price * item.Quantity;
+                subtotal += itemSubtotal;
+                
+                orderItemsHtml += $@"
+                    <tr>
+                        <td style='padding: 10px; border-bottom: 1px solid #ddd;'>{item.Book?.Title ?? "Book"}</td>
+                        <td style='padding: 10px; border-bottom: 1px solid #ddd;'>{item.Book?.Author ?? "Unknown"}</td>
+                        <td style='padding: 10px; border-bottom: 1px solid #ddd; text-align: center;'>{item.Quantity}</td>
+                        <td style='padding: 10px; border-bottom: 1px solid #ddd; text-align: right;'>NPR {item.Price:N2}</td>
+                        <td style='padding: 10px; border-bottom: 1px solid #ddd; text-align: right;'>NPR {itemSubtotal:N2}</td>
+                    </tr>";
+            }
+            
+            // Calculate discount if any
+            var discount = subtotal - order.TotalAmount;
+            
             if (isStaff)
             {
-                body = $@"
+                var body = $@"
                     <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
                         <h2>Order #{order.OrderNumber} Processed</h2>
-                        <p>You have successfully processed order #{order.OrderNumber}.</p>
+                        <p>You have successfully processed order #{order.OrderNumber} for {order.User?.FirstName} {order.User?.LastName}.</p>
                         <p>The customer has been notified that their order is ready for pickup.</p>
+                        
+                        <div style='margin-top: 20px; margin-bottom: 20px;'>
+                            <h3>Order Invoice</h3>
+                            <table style='width: 100%; border-collapse: collapse;'>
+                                <tr style='background-color: #f5f5f5;'>
+                                    <th colspan='2' style='text-align: left; padding: 10px;'>Order Details</th>
+                                    <th colspan='3' style='text-align: right; padding: 10px;'>Date: {order.OrderDate:MMM dd, yyyy}</th>
+                                </tr>
+                                <tr>
+                                    <td colspan='5' style='padding: 10px; border-bottom: 1px solid #ddd;'>
+                                        <strong>Customer:</strong> {order.User?.FirstName} {order.User?.LastName}<br>
+                                        <strong>Email:</strong> {order.User?.Email}<br>
+                                        <strong>Status:</strong> Completed<br>
+                                        <strong>Claim Code:</strong> {order.ClaimCode}
+                                    </td>
+                                </tr>
+                                <tr style='background-color: #f5f5f5;'>
+                                    <th style='padding: 10px; text-align: left;'>Book Title</th>
+                                    <th style='padding: 10px; text-align: left;'>Author</th>
+                                    <th style='padding: 10px; text-align: center;'>Qty</th>
+                                    <th style='padding: 10px; text-align: right;'>Price</th>
+                                    <th style='padding: 10px; text-align: right;'>Subtotal</th>
+                                </tr>
+                                {orderItemsHtml}
+                                <tr>
+                                    <td colspan='4' style='text-align: right; padding: 10px;'><strong>Subtotal:</strong></td>
+                                    <td style='text-align: right; padding: 10px;'>NPR {subtotal:N2}</td>
+                                </tr>
+                                {(discount > 0 ? $@"
+                                <tr>
+                                    <td colspan='4' style='text-align: right; padding: 10px;'><strong>Discount:</strong></td>
+                                    <td style='text-align: right; padding: 10px; color: #28a745;'>-NPR {discount:N2}</td>
+                                </tr>" : "")}
+                                <tr>
+                                    <td colspan='4' style='text-align: right; padding: 10px;'><strong>Total:</strong></td>
+                                    <td style='text-align: right; padding: 10px; font-weight: bold;'>NPR {order.TotalAmount:N2}</td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 ";
+                
+                await SendEmailAsync(user.Email, subject, body);
             }
             else
             {
-                body = $@"
+                var body = $@"
                     <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
                         <h2>Good news, {user.FirstName}!</h2>
                         <p>Your order #{order.OrderNumber} has been processed .</p>
+                        
+                        <div style='margin-top: 20px; margin-bottom: 20px;'>
+                            <h3>Order Invoice</h3>
+                            <table style='width: 100%; border-collapse: collapse;'>
+                                <tr style='background-color: #f5f5f5;'>
+                                    <th colspan='2' style='text-align: left; padding: 10px;'>Order #{order.OrderNumber}</th>
+                                    <th colspan='3' style='text-align: right; padding: 10px;'>Date: {order.OrderDate:MMM dd, yyyy}</th>
+                                </tr>
+                                <tr style='background-color: #f5f5f5;'>
+                                    <th style='padding: 10px; text-align: left;'>Book Title</th>
+                                    <th style='padding: 10px; text-align: left;'>Author</th>
+                                    <th style='padding: 10px; text-align: center;'>Qty</th>
+                                    <th style='padding: 10px; text-align: right;'>Price</th>
+                                    <th style='padding: 10px; text-align: right;'>Subtotal</th>
+                                </tr>
+                                {orderItemsHtml}
+                                <tr>
+                                    <td colspan='4' style='text-align: right; padding: 10px;'><strong>Subtotal:</strong></td>
+                                    <td style='text-align: right; padding: 10px;'>NPR {subtotal:N2}</td>
+                                </tr>
+                                {(discount > 0 ? $@"
+                                <tr>
+                                    <td colspan='4' style='text-align: right; padding: 10px;'><strong>Discount:</strong></td>
+                                    <td style='text-align: right; padding: 10px; color: #28a745;'>-NPR {discount:N2}</td>
+                                </tr>" : "")}
+                                <tr>
+                                    <td colspan='4' style='text-align: right; padding: 10px;'><strong>Total:</strong></td>
+                                    <td style='text-align: right; padding: 10px; font-weight: bold;'>NPR {order.TotalAmount:N2}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                       
                         <p>Thank you for shopping with BookBox!</p>
                     </div>
                 ";
+                
+                await SendEmailAsync(user.Email, subject, body);
             }
-
-            await SendEmailAsync(user.Email, subject, body);
         }
     }
 }

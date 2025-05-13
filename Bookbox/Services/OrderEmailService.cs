@@ -25,6 +25,8 @@ namespace Bookbox.Services
             // Get order with user details
             var order = await _context.Orders
                 .Include(o => o.User)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Book)
                 .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
             if (order == null)
