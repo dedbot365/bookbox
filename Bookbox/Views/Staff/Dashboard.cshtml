@@ -3,43 +3,537 @@
     Layout = "_DashboardLayout";
 }
 
-<div class="container mt-4">
+<!-- Include Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">Staff Dashboard</h1>
+        <p class="lead mb-0">Manage inventory, process orders, and view store statistics</p>
+    </div>
+
+   <!-- Key Stats Cards -->
     <div class="row mb-4">
-        <div class="col-md-12">
-            <h1>Staff Dashboard</h1>
-            <p class="lead">Welcome to the staff management area.</p>
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Total Revenue</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @((ViewBag.TotalRevenue ?? 0).ToString("N0"))</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-money-bill-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Monthly Revenue</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @((ViewBag.MonthlyRevenue ?? 0).ToString("N0"))</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(ViewBag.TotalOrders ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Books</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(ViewBag.TotalBooks ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-book fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
+
+    <!-- Orders Status Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
-                    <h5 class="card-title">Book Management</h5>
-                    <p class="card-text">Manage book inventory and track books in the system.</p>
-                    <a asp-controller="Book" asp-action="Index" class="btn btn-primary">View Books</a>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Completed Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(ViewBag.CompletedOrders ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
+
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
-                    <h5 class="card-title">Order Management</h5>
-                    <p class="card-text">Review and process customer orders.</p>
-                    <a asp-controller="Staff" asp-action="Orders" class="btn btn-primary">View Orders</a>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Pending Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(ViewBag.PendingOrders ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
+
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
                 <div class="card-body">
-                    <h5 class="card-title">Reports</h5>
-                    <p class="card-text">Access library usage reports and statistics.</p>
-                    <a href="#" class="btn btn-primary">View Reports</a>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Cancelled Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(ViewBag.CancelledOrders ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Orders</h6>
+                    <a asp-controller="Staff" asp-action="Orders" class="btn btn-sm btn-primary shadow-sm">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in (ViewBag.RecentOrders as IEnumerable<dynamic> ?? new List<dynamic>()).Take(5))
+                                {
+                                    <tr>
+                                        <td>#ORD-@order.OrderNumber</td>
+                                        <td>@order.CustomerName</td>
+                                        <td>NPR @order.Amount.ToString("N0")</td>
+                                        <td>
+                                            @if (order.Status == Bookbox.Constants.OrderStatus.Pending)
+                                            {
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            }
+                                            else if (order.Status == Bookbox.Constants.OrderStatus.Completed)
+                                            {
+                                                <span class="badge bg-success">Completed</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Cancelled</span>
+                                            }
+                                        </td>
+                                        <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            <a asp-controller="Staff" asp-action="OrderDetails" asp-route-id="@order.OrderId" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                                @if ((ViewBag.RecentOrders as IEnumerable<dynamic>)?.Any() != true)
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center">No recent orders found</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- Orders Line Chart -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Orders Overview</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="ordersLineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Books by Genre Pie Chart -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Books by Genre</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="genrePieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Status Distribution -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Order Status Distribution</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="orderStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Selling Books -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top Selling Books</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-bar">
+                        <canvas id="topSellingBooksChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Books by Format -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Books by Format</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="formatDonutChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Orders Line Chart
+            const ordersCtx = document.getElementById('ordersLineChart').getContext('2d');
+            const ordersLineChart = new Chart(ordersCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Orders',
+                        lineTension: 0.3,
+                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        pointRadius: 3,
+                        pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                        pointBorderColor: 'rgba(78, 115, 223, 1)',
+                        pointHoverRadius: 3,
+                        pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                        pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                        pointHitRadius: 10,
+                        pointBorderWidth: 2,
+                        data: @Html.Raw(Json.Serialize(ViewBag.MonthlyOrderCounts ?? new int[12])),
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 25,
+                            top: 25,
+                            bottom: 0
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                maxTicksLimit: 5,
+                                padding: 10
+                            },
+                            grid: {
+                                color: 'rgb(234, 236, 244)',
+                                drawBorder: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Genre Pie Chart
+            const genreCtx = document.getElementById('genrePieChart').getContext('2d');
+            const genreData = @Html.Raw(Json.Serialize(ViewBag.BooksByGenre ?? new List<object>()));
+            const genreLabels = genreData.map(item => item.genre);
+            const genreCounts = genreData.map(item => item.count);
+            
+            const backgroundColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', 
+                                     '#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60616f'];
+            const hoverBackgroundColors = ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60616f',
+                                          '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'];
+            
+            const genrePieChart = new Chart(genreCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: genreLabels,
+                    datasets: [{
+                        data: genreCounts,
+                        backgroundColor: backgroundColors.slice(0, genreLabels.length),
+                        hoverBackgroundColor: hoverBackgroundColors.slice(0, genreLabels.length),
+                        hoverBorderColor: 'rgba(234, 236, 244, 1)',
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            display: genreLabels.length <= 8
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%',
+                }
+            });
+
+            // Order Status Doughnut Chart
+            const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+            const orderStatusData = [
+                { label: 'Completed', count: @(ViewBag.CompletedOrders ?? 0), color: '#1cc88a' },
+                { label: 'Pending', count: @(ViewBag.PendingOrders ?? 0), color: '#f6c23e' },
+                { label: 'Cancelled', count: @(ViewBag.CancelledOrders ?? 0), color: '#e74a3b' }
+            ];
+            const orderStatusLabels = orderStatusData.map(item => item.label);
+            const orderStatusCounts = orderStatusData.map(item => item.count);
+            const orderStatusColors = orderStatusData.map(item => item.color);
+
+            const orderStatusChart = new Chart(orderStatusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: orderStatusLabels,
+                    datasets: [{
+                        data: orderStatusCounts,
+                        backgroundColor: orderStatusColors,
+                        hoverBackgroundColor: ['#17a673', '#dda20a', '#be2617'],
+                        hoverBorderColor: 'rgba(234, 236, 244, 1)',
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            display: true
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%',
+                }
+            });
+
+            // Top Selling Books Bar Chart
+            const topBooksCtx = document.getElementById('topSellingBooksChart').getContext('2d');
+            const topSellingData = @Html.Raw(Json.Serialize(ViewBag.TopSellingBooks ?? new List<object>()));
+            const bookLabels = topSellingData.map(item => item.title);
+            const salesCounts = topSellingData.map(item => item.salesCount);
+
+            const topBooksChart = new Chart(topBooksCtx, {
+                type: 'bar',
+                data: {
+                    labels: bookLabels,
+                    datasets: [{
+                        label: 'Sales',
+                        backgroundColor: '#4e73df',
+                        hoverBackgroundColor: '#2e59d9',
+                        data: salesCounts,
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                maxTicksLimit: 5,
+                                padding: 10
+                            },
+                            grid: {
+                                color: 'rgb(234, 236, 244)',
+                                drawBorder: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Format Donut Chart
+            const formatCtx = document.getElementById('formatDonutChart').getContext('2d');
+            const formatData = @Html.Raw(Json.Serialize(ViewBag.BooksByFormat ?? new List<object>()));
+            const formatLabels = formatData.map(item => item.format);
+            const formatCounts = formatData.map(item => item.count);
+
+            const formatDonutChart = new Chart(formatCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: formatLabels,
+                    datasets: [{
+                        data: formatCounts,
+                        backgroundColor: backgroundColors.slice(0, formatLabels.length),
+                        hoverBackgroundColor: hoverBackgroundColors.slice(0, formatLabels.length),
+                        hoverBorderColor: 'rgba(234, 236, 244, 1)',
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            display: formatLabels.length <= 8
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%',
+                }
+            });
+        });
+    </script>
+}

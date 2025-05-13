@@ -1,4 +1,4 @@
-﻿@{
+@{
     bool isAdmin = User.Identity?.IsAuthenticated == true && User.IsInRole("Admin");
     bool isStaff = User.Identity?.IsAuthenticated == true && User.IsInRole("Staff");
     bool isMember = User.Identity?.IsAuthenticated == true && User.IsInRole("Member");
