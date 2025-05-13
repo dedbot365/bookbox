@@ -6,124 +6,188 @@
 }
 
 <div class="container-fluid mt-4">
-    <h1 class="h3 mb-2 text-gray-800">Edit Book</h1>
-    <p class="mb-4">Update book information in the catalog.</p>
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold">Book Information</h6>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">Edit Book</h1>
+            <p class="text-muted">Update book information in the catalog.</p>
         </div>
-        <div class="card-body">
-            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Books
+        </a>
+    </div>
+
+    <div class="card shadow mb-4 border-0 rounded-3">
+        <div class="card-header py-3 bg-gradient" style="background-color: #f8f9fa; border-bottom: none;">
+            <h6 class="m-0 fw-bold text-primary"><i class="fas fa-book me-2"></i>Book Information</h6>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                 <input type="hidden" name="id" value="@ViewContext.RouteData.Values["id"]" />
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="Title" class="form-label">Title</label>
-                            <input asp-for="Title" class="form-control" />
-                            <span asp-validation-for="Title" class="text-danger"></span>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <!-- Basic Book Details Section -->
+                            <div class="col-md-6">
+                                <div class="form-group mb-4">
+                                    <label asp-for="Title" class="form-label fw-bold"><i class="fas fa-heading text-primary me-2"></i>Title</label>
+                                    <input asp-for="Title" class="form-control" placeholder="Enter book title..." />
+                                    <span asp-validation-for="Title" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="form-group mb-4">
+                                    <label asp-for="Author" class="form-label fw-bold"><i class="fas fa-user-edit text-primary me-2"></i>Author</label>
+                                    <input asp-for="Author" class="form-control" placeholder="Enter author name..." />
+                                    <span asp-validation-for="Author" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="form-group mb-4">
+                                    <label asp-for="ISBN" class="form-label fw-bold"><i class="fas fa-barcode text-primary me-2"></i>ISBN</label>
+                                    <input asp-for="ISBN" class="form-control" placeholder="Enter ISBN..." />
+                                    <span asp-validation-for="ISBN" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="form-group mb-4">
+                                    <label asp-for="Publisher" class="form-label fw-bold"><i class="fas fa-building text-primary me-2"></i>Publisher</label>
+                                    <input asp-for="Publisher" class="form-control" placeholder="Enter publisher..." />
+                                    <span asp-validation-for="Publisher" class="text-danger"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Classification & Pricing Section -->
+                            <div class="col-md-6">
+                                <div class="form-group mb-4">
+                                    <label asp-for="Genre" class="form-label fw-bold"><i class="fas fa-tags text-primary me-2"></i>Genre</label>
+                                    <select asp-for="Genre" class="form-select" asp-items="Html.GetEnumSelectList<Bookbox.Constants.Genre>()">
+                                        <option value="">Select Genre</option>
+                                    </select>
+                                    <span asp-validation-for="Genre" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="form-group mb-4">
+                                    <label asp-for="Format" class="form-label fw-bold"><i class="fas fa-book-open text-primary me-2"></i>Format</label>
+                                    <select asp-for="Format" class="form-select" asp-items="Html.GetEnumSelectList<Bookbox.Constants.Format>()">
+                                        <option value="">Select Format</option>
+                                    </select>
+                                    <span asp-validation-for="Format" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="form-group mb-4">
+                                    <label asp-for="Price" class="form-label fw-bold"><i class="fas fa-tag text-primary me-2"></i>Price</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">NPR</span>
+                                        <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" placeholder="0.00" />
+                                    </div>
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="form-group mb-4">
+                                    <label asp-for="PublicationDate" class="form-label fw-bold"><i class="fas fa-calendar-alt text-primary me-2"></i>Publication Date</label>
+                                    <input asp-for="PublicationDate" type="date" class="form-control" />
+                                    <span asp-validation-for="PublicationDate" class="text-danger"></span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="Author" class="form-label">Author</label>
-                            <input asp-for="Author" class="form-control" />
-                            <span asp-validation-for="Author" class="text-danger"></span>
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="Genre" class="form-label">Genre</label>
-                            <select asp-for="Genre" class="form-select" asp-items="Html.GetEnumSelectList<Bookbox.Constants.Genre>()">
-                                <option value="">Select Genre</option>
-                            </select>
-                            <span asp-validation-for="Genre" class="text-danger"></span>
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="Price" class="form-label">Price</label>
-                            <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" />
-                            <span asp-validation-for="Price" class="text-danger"></span>
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="Format" class="form-label">Format</label>
-                            <select asp-for="Format" class="form-select" asp-items="Html.GetEnumSelectList<Bookbox.Constants.Format>()">
-                                <option value="">Select Format</option>
-                            </select>
-                            <span asp-validation-for="Format" class="text-danger"></span>
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="Publisher" class="form-label">Publisher</label>
-                            <input asp-for="Publisher" class="form-control" />
-                            <span asp-validation-for="Publisher" class="text-danger"></span>
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="ISBN" class="form-label">ISBN</label>
-                            <input asp-for="ISBN" class="form-control" />
-                            <span asp-validation-for="ISBN" class="text-danger"></span>
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="PublicationDate" class="form-label">Publication Date</label>
-                            <input asp-for="PublicationDate" type="date" class="form-control" />
-                            <span asp-validation-for="PublicationDate" class="text-danger"></span>
-                        </div>
-                        <div class="form-check mb-3">
-                            <input asp-for="IsComingSoon" class="form-check-input" type="checkbox" id="isComingSoon" />
-                            <label class="form-check-label" for="isComingSoon">
-                                Mark as Coming Soon
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="Description" class="form-label">Description</label>
-                            <textarea asp-for="Description" class="form-control" rows="6"></textarea>
+                        
+                        <!-- Description Section -->
+                        <div class="form-group mb-4">
+                            <label asp-for="Description" class="form-label fw-bold"><i class="fas fa-align-left text-primary me-2"></i>Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="6" placeholder="Enter book description..."></textarea>
                             <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="Stock" class="form-label">Stock</label>
-                            <input asp-for="Stock" class="form-control" type="number" min="0" />
-                            <span asp-validation-for="Stock" class="text-danger"></span>
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="Language" class="form-label">Language</label>
-                            <input asp-for="Language" class="form-control" />
-                            <span asp-validation-for="Language" class="text-danger"></span>
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="Awards" class="form-label">Awards</label>
-                            <input asp-for="Awards" class="form-control" />
-                            <span asp-validation-for="Awards" class="text-danger"></span>
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="PhysicalStock" class="form-label">Physical Stock</label>
-                            <input asp-for="PhysicalStock" class="form-control" type="number" min="0" />
-                            <span asp-validation-for="PhysicalStock" class="text-danger"></span>
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="ImageFile" class="form-label">Cover Image</label>
-                            <input asp-for="ImageFile" class="form-control" type="file" accept=".jpg,.jpeg,.png,.gif" />
-                            <span asp-validation-for="ImageFile" class="text-danger"></span>
-                            <div class="form-text">Maximum size: 5MB. Supported formats: JPG, JPEG, PNG, GIF.</div>
-                            
-                            @if (!string.IsNullOrEmpty(ViewData["CurrentImageUrl"]?.ToString()))
-                            {
-                                <div class="mt-3">
-                                    <p>Current Image:</p>
-                                    <div id="currentImageContainer" class="mt-2 text-center">
-                                        <img src="@ViewData["CurrentImageUrl"]" alt="Current cover" 
-                                             style="max-height: 200px; max-width: 100%;" class="img-thumbnail" />
-                                    </div>
-                                    <div class="form-text mt-1">Select a new image to replace the current one.</div>
+                        
+                        <!-- Additional Info Section -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-4">
+                                    <label asp-for="Language" class="form-label fw-bold"><i class="fas fa-language text-primary me-2"></i>Language</label>
+                                    <input asp-for="Language" class="form-control" placeholder="Enter language..." />
+                                    <span asp-validation-for="Language" class="text-danger"></span>
                                 </div>
-                            }
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-4">
+                                    <label asp-for="Awards" class="form-label fw-bold"><i class="fas fa-award text-primary me-2"></i>Awards</label>
+                                    <input asp-for="Awards" class="form-control" placeholder="Enter awards (optional)..." />
+                                    <span asp-validation-for="Awards" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column - Cover Image & Inventory -->
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-image me-2"></i>Cover & Inventory</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group mb-4">
+                                    <label asp-for="ImageFile" class="form-label fw-bold">Cover Image</label>
+                                    <div class="cover-upload-container text-center mb-3 p-3 border rounded bg-light">
+                                        <div id="coverPreview" class="mb-3">
+                                            @if (!string.IsNullOrEmpty(ViewData["CurrentImageUrl"]?.ToString()))
+                                            {
+                                                <img src="@ViewData["CurrentImageUrl"]" class="img-fluid" alt="Current cover" />
+                                            }
+                                            else
+                                            {
+                                                <i class="fas fa-book fa-5x text-secondary"></i>
+                                                <p class="mt-2 text-muted small">Preview will appear here</p>
+                                            }
+                                        </div>
+                                        <label for="ImageFile" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-upload me-1"></i> Change Image
+                                        </label>
+                                        <input asp-for="ImageFile" class="form-control d-none" type="file" accept=".jpg,.jpeg,.png,.gif" />
+                                    </div>
+                                    <div class="form-text text-center">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Maximum: 5MB. Formats: JPG, PNG, GIF
+                                    </div>
+                                    <span asp-validation-for="ImageFile" class="text-danger"></span>
+                                </div>
+                                
+                                <hr class="my-4">
+                                
+                                <div class="form-group mb-4">
+                                    <label asp-for="Stock" class="form-label fw-bold"><i class="fas fa-layer-group text-primary me-2"></i>Digital Stock</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-database"></i></span>
+                                        <input asp-for="Stock" class="form-control" type="number" min="0" placeholder="Enter digital stock..." />
+                                    </div>
+                                    <span asp-validation-for="Stock" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="form-group mb-4">
+                                    <label asp-for="PhysicalStock" class="form-label fw-bold"><i class="fas fa-boxes text-primary me-2"></i>Physical Stock</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-box"></i></span>
+                                        <input asp-for="PhysicalStock" class="form-control" type="number" min="0" placeholder="Enter physical stock..." />
+                                    </div>
+                                    <span asp-validation-for="PhysicalStock" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="form-check form-switch mt-4">
+                                    <input asp-for="IsComingSoon" class="form-check-input" type="checkbox" id="isComingSoon" />
+                                    <label class="form-check-label" for="isComingSoon">
+                                        <i class="fas fa-calendar-plus text-primary me-2"></i>Mark as Coming Soon
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="d-flex justify-content-between mt-4">
-                    <a asp-action="Index" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to List
+                <hr class="my-4">
+                
+                <div class="d-flex justify-content-end">
+                    <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-times me-1"></i> Cancel
                     </a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Save Changes
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-1"></i> Update Book
                     </button>
                 </div>
             </form>
@@ -131,26 +195,71 @@
     </div>
 </div>
 
+@section Styles {
+    <style>
+        /* Custom styles for book form */
+        .form-label.fw-bold {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .cover-upload-container {
+            min-height: 230px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .cover-upload-container:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .card-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+        }
+        
+        #coverPreview img {
+            max-height: 180px;
+            max-width: 100%;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+}
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
         $(document).ready(function () {
+            // Enhance label clicks for better UX
+            $(".cover-upload-container").click(function() {
+                $("#ImageFile").click();
+            });
+            
             // Preview image when selected
             $("#ImageFile").change(function () {
                 if (this.files && this.files[0]) {
                     var reader = new FileReader();
                     reader.onload = function (e) {
-                        // Create or update the preview
-                        if ($("#imagePreview").length === 0) {
-                            $("<div id='previewContainer' class='mt-3 text-center'><p>New Image Preview:</p><img id='imagePreview' src='" + 
-                              e.target.result + "' style='max-height: 200px; max-width: 100%;' class='img-thumbnail' /></div>")
-                                .insertAfter("#currentImageContainer");
-                        } else {
-                            $("#imagePreview").attr("src", e.target.result);
-                        }
+                        $("#coverPreview").html('<img src="' + e.target.result + '" class="img-fluid" />');
                     };
                     reader.readAsDataURL(this.files[0]);
                 }
+            });
+            
+            // Add animation for form sections
+            $(".form-group").each(function(index) {
+                $(this).css({
+                    'opacity': 0,
+                    'transform': 'translateY(20px)'
+                }).delay(index * 50).animate({
+                    'opacity': 1,
+                    'transform': 'translateY(0px)'
+                }, 500);
             });
         });
     </script>

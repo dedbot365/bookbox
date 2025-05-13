@@ -186,8 +186,8 @@ namespace Bookbox.Controllers
                     var book = await _bookService.UpdateBookAsync(id, bookDTO);
                     if (book != null)
                     {
-                        TempData["SuccessMessage"] = "Book updated successfully!";
-                        return RedirectToAction(nameof(Details), new { id = book.BookId });
+                        TempData["SuccessMessage"] = $"Book '{book.Title}' updated successfully!";
+                        return RedirectToAction(nameof(Index)); // Redirect to Index instead of Details
                     }
                     else
                     {
