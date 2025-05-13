@@ -1,0 +1,86 @@
+/* Styles for Staff Orders Management Page */
+
+/* Small avatar circle for customer display */
+.avatar-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Text color for purple elements */
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+/* For the badge to allow copy button */
+.badge {
+    display: inline-flex;
+    align-items: center;
+}
+
+.copy-btn:hover {
+    opacity: 0.8;
+}
+
+/* Adjusted border-left for cards */
+.border-left-purple {
+    border-left: 0.25rem solid #6f42c1 !important;
+}
+
+/* Sort icons styling */
+.sort-icons {
+    display: flex;
+    flex-direction: column;
+    line-height: 0.5;
+}
+
+.sort-icons a {
+    color: #aaa;
+    font-size: 0.7rem;
+    text-decoration: none;
+}
+
+.sort-icons a.active {
+    color: #6f42c1;
+}
+
+/* No results message */
+.no-results {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+/* Status-based styles */
+.order-row.pending:hover {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.order-row.completed:hover {
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.order-row.cancelled:hover {
+    background-color: rgba(108, 117, 125, 0.1);
+}
+
+/* Button styling */
+.btn-light-purple {
+    color: #6f42c1;
+    background-color: rgba(111, 66, 193, 0.1);
+    border-color: transparent;
+}
+
+.btn-light-purple:hover {
+    color: #fff;
+    background-color: #6f42c1;
+}
+
+/* Card styling */
+.card {
+    transition: all 0.2s ease;
+    border-radius: 0.5rem;
+}

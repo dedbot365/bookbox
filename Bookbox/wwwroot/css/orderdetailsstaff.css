@@ -1,0 +1,79 @@
+/* Custom styles for order details page */
+.card {
+    transition: all 0.2s ease;
+    border-radius: 0.75rem;
+}
+
+.card-header {
+    border-radius: 0.75rem 0.75rem 0 0 !important;
+}
+
+.avatar-circle {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+/* Input focus style */
+.form-control:focus {
+    border-color: #6a55c7;
+    box-shadow: 0 0 0 0.25rem rgba(106, 85, 199, 0.25);
+}
+
+/* Badge styles */
+.badge {
+    font-weight: 500;
+}
+
+/* Success modal styling */
+.success-icon-container {
+    width: 100px;
+    height: 100px;
+    background-color: rgba(40, 167, 69, 0.1);
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Customer info section styling */
+.bg-light.rounded-3 {
+    transition: all 0.2s ease;
+}
+
+.bg-light.rounded-3:hover {
+    background-color: rgba(111, 66, 193, 0.05) !important;
+}
+
+/* Form styling */
+.input-group-text {
+    border-right: none;
+}
+
+.input-group .form-control {
+    border-left: none;
+}
+
+/* Order items table */
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Modal animations */
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+}
+
+.modal.show .modal-dialog {
+    transform: none;
+}

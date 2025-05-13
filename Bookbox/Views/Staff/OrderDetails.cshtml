@@ -1,14 +1,20 @@
 @model Bookbox.Models.Order
 @{
     ViewData["Title"] = $"Order #{Model.OrderNumber}";
+    Layout = "_DashboardLayout";
 }
 
-<div class="container py-4">
+<div class="container-fluid py-4">
+    <!-- Header section with stats -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>
-            <i class="fas fa-file-invoice me-2"></i>
-            Order #@Model.OrderNumber
-        </h1>
+        <div>
+            <h1 class="h2 mb-1">
+                <i class="fas fa-file-invoice me-2 text-purple"></i>
+                Order #@Model.OrderNumber
+            </h1>
+            <p class="text-muted">Order details and management</p>
+        </div>
+        
         <a asp-action="Orders" class="btn btn-outline-primary">
             <i class="fas fa-arrow-left me-1"></i> Back to Orders
         </a>
@@ -16,7 +22,8 @@
 
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
             @TempData["Error"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -24,14 +31,14 @@
 
     <div class="row">
         <div class="col-md-8">
-            <div class="card shadow mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-book me-2"></i> Ordered Items</h5>
+            <div class="card shadow-sm rounded-3 border-0 mb-4">
+                <div class="card-header py-3 bg-gradient" style="background-color: #4D4490; color: white;">
+                    <h5 class="mb-0 fw-semibold"><i class="fas fa-book me-2"></i> Ordered Items</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table">
-                            <thead>
+                        <table class="table table-hover">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Book</th>
                                     <th>Quantity</th>
@@ -47,31 +54,35 @@
                                             <div class="d-flex align-items-center">
                                                 @if (!string.IsNullOrEmpty(item.Book?.ImageUrl))
                                                 {
-                                                    <img src="@item.Book.ImageUrl" class="me-2" style="width: 40px; height: 60px; object-fit: cover;" alt="Book cover">
+                                                    <img src="@item.Book.ImageUrl" class="me-2 rounded shadow-sm" 
+                                                         style="width: 40px; height: 60px; object-fit: cover;" alt="Book cover">
                                                 }
                                                 else
                                                 {
-                                                    <div class="bg-secondary me-2" style="width: 40px; height: 60px;"></div>
+                                                    <div class="bg-light rounded me-2 d-flex align-items-center justify-content-center" 
+                                                         style="width: 40px; height: 60px;">
+                                                        <i class="fas fa-book text-secondary"></i>
+                                                    </div>
                                                 }
                                                 <div>
-                                                    <div>@item.Book?.Title</div>
+                                                    <div class="fw-medium">@item.Book?.Title</div>
                                                     <small class="text-muted">@item.Book?.Author</small>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>@item.Quantity</td>
-                                        <td>
+                                        <td class="align-middle">@item.Quantity</td>
+                                        <td class="align-middle">
                                             @if (item.DiscountedPrice < item.Price)
                                             {
-                                                <div>$@item.DiscountedPrice.ToString("F2")</div>
-                                                <small class="text-decoration-line-through text-muted">$@item.Price.ToString("F2")</small>
+                                                <div>NPR @item.DiscountedPrice.ToString("N0")</div>
+                                                <small class="text-decoration-line-through text-muted">NPR @item.Price.ToString("N0")</small>
                                             }
                                             else
                                             {
-                                                <div>$@item.Price.ToString("F2")</div>
+                                                <div>NPR @item.Price.ToString("N0")</div>
                                             }
                                         </td>
-                                        <td class="text-end">$@((item.DiscountedPrice > 0 ? item.DiscountedPrice : item.Price) * item.Quantity)</td>
+                                        <td class="text-end align-middle fw-semibold">NPR @((item.DiscountedPrice > 0 ? item.DiscountedPrice : item.Price) * item.Quantity).ToString("N0")</td>
                                     </tr>
                                 }
                             </tbody>
@@ -80,12 +91,12 @@
                                 {
                                     <tr>
                                         <td colspan="3" class="text-end fw-bold">Discount:</td>
-                                        <td class="text-end text-danger">-$@Model.DiscountApplied.ToString("F2")</td>
+                                        <td class="text-end text-danger">-NPR @Model.DiscountApplied.ToString("N0")</td>
                                     </tr>
                                 }
                                 <tr>
                                     <td colspan="3" class="text-end fw-bold">Total:</td>
-                                    <td class="text-end fw-bold">$@Model.TotalAmount.ToString("F2")</td>
+                                    <td class="text-end fw-bold">NPR @Model.TotalAmount.ToString("N0")</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -94,77 +105,116 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card shadow mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Order Information</h5>
+            <div class="card shadow-sm rounded-3 border-0 mb-4">
+                <div class="card-header py-3 bg-gradient" style="background-color: #4D4490; color: white;">
+                    <h5 class="mb-0 fw-semibold"><i class="fas fa-info-circle me-2"></i> Order Information</h5>
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Status:</span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span class="fw-medium">Status:</span>
                             @if (Model.Status == Bookbox.Constants.OrderStatus.Pending)
                             {
-                                <span class="badge bg-warning text-dark">Pending</span>
+                                <span class="badge rounded-pill bg-warning text-dark px-3 py-2">
+                                    <i class="fas fa-clock me-1"></i> Pending
+                                </span>
                             }
                             else if (Model.Status == Bookbox.Constants.OrderStatus.Completed)
                             {
-                                <span class="badge bg-success">Completed</span>
+                                <span class="badge rounded-pill bg-success px-3 py-2">
+                                    <i class="fas fa-check-circle me-1"></i> Completed
+                                </span>
                             }
                             else
                             {
-                                <span class="badge bg-secondary">Cancelled</span>
+                                <span class="badge rounded-pill bg-secondary px-3 py-2">
+                                    <i class="fas fa-times-circle me-1"></i> Cancelled
+                                </span>
                             }
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Order Date:</span>
-                            <span>@Model.OrderDate.ToString("MMM dd, yyyy HH:mm")</span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span class="fw-medium">Order Date:</span>
+                            <span class="text-muted">@Model.OrderDate.ToString("MMM dd, yyyy HH:mm")</span>
                         </li>
                         @if (Model.CompletedDate.HasValue)
                         {
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Completed Date:</span>
-                                <span>@Model.CompletedDate.Value.ToString("MMM dd, yyyy HH:mm")</span>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <span class="fw-medium">Completed Date:</span>
+                                <span class="text-muted">@Model.CompletedDate.Value.ToString("MMM dd, yyyy HH:mm")</span>
                             </li>
                         }
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Payment Method:</span>
-                            <span>@Model.PaymentMethod.ToString()</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Redeem Code:</span>
-                            <span class="badge bg-primary">@Model.ClaimCode</span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span class="fw-medium">Payment Method:</span>
+                            <span class="badge rounded-pill bg-light text-dark border px-3 py-2">@Model.PaymentMethod.ToString()</span>
                         </li>
                     </ul>
                 </div>
             </div>
             
-            <div class="card shadow mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-user me-2"></i> Customer Information</h5>
+            <div class="card shadow-sm rounded-3 border-0 mb-4">
+                <div class="card-header py-3 bg-gradient" style="background-color: #4D4490; color: white;">
+                    <h5 class="mb-0 fw-semibold"><i class="fas fa-user me-2"></i> Customer Information</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Name:</strong> @Model.User?.FirstName @Model.User?.LastName</p>
-                    <p><strong>Username:</strong> @Model.User?.Username</p>
-                    <p><strong>Email:</strong> @Model.User?.Email</p>
-                    <p><strong>Contact:</strong> @(string.IsNullOrEmpty(Model.User?.ContactNo) ? "Not provided" : Model.User.ContactNo)</p>
+                    <div class="d-flex align-items-center mb-3">
+                        @if (!string.IsNullOrEmpty(Model.User?.ImageUrlText))
+                        {
+                            <img src="@Model.User.ImageUrlText" alt="@Model.User.Username" 
+                                class="rounded-circle me-3 shadow-sm" 
+                                style="width: 60px; height: 60px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="avatar-circle bg-light me-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-user fa-2x text-secondary"></i>
+                            </div>
+                        }
+                        <div>
+                            <h6 class="mb-0 fw-bold">@Model.User?.FirstName @Model.User?.LastName</h6>
+                            <p class="mb-0 text-muted">@@@Model.User?.Username</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-light rounded-3 p-3 mb-2">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-envelope text-purple me-2"></i>
+                            <span class="fw-medium">Email:</span>
+                        </div>
+                        <p class="mb-0 ms-4">@Model.User?.Email</p>
+                    </div>
+                    
+                    <div class="bg-light rounded-3 p-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-phone text-purple me-2"></i>
+                            <span class="fw-medium">Contact:</span>
+                        </div>
+                        <p class="mb-0 ms-4">@(string.IsNullOrEmpty(Model.User?.ContactNo) ? "Not provided" : Model.User.ContactNo)</p>
+                    </div>
                 </div>
             </div>
             
             @if (Model.Status == Bookbox.Constants.OrderStatus.Pending)
             {
-                <div class="card shadow" id="redeem">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i> Redeem Order</h5>
+                <div class="card shadow-sm rounded-3 border-0" id="redeem">
+                    <div class="card-header py-3 bg-success text-white">
+                        <h5 class="mb-0 fw-semibold"><i class="fas fa-check-circle me-2"></i> Redeem Order</h5>
                     </div>
                     <div class="card-body">
-                        <p>Enter the claim code to redeem this order:</p>
-                        <form asp-action="RedeemOrder" method="post">
+                        <p class="text-muted mb-3">Enter the claim code to verify and complete this order:</p>
+                        <form id="redeemOrderForm" asp-action="RedeemOrder" method="post">
                             <input type="hidden" name="id" value="@Model.OrderId" />
-                            <div class="mb-3">
-                                <input type="text" class="form-control" name="claimCode" placeholder="Enter claim code" required />
+                            <div class="mb-3 position-relative">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="fas fa-key text-secondary"></i>
+                                    </span>
+                                    <input type="text" class="form-control" name="claimCode" 
+                                           placeholder="Enter claim code" required 
+                                           style="border-left: none;" />
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-success w-100">
-                                <i class="fas fa-check me-1"></i> Redeem Order
+                            <button type="submit" class="btn btn-success w-100 py-2">
+                                <i class="fas fa-check me-1"></i> Verify & Complete Order
                             </button>
                         </form>
                     </div>
@@ -173,3 +223,44 @@
         </div>
     </div>
 </div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="orderSuccessModal" tabindex="-1" aria-labelledby="orderSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-success text-white border-0">
+                <h5 class="modal-title" id="orderSuccessModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>Order Completed
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <div class="success-icon-container mb-4">
+                    <i class="fas fa-check-circle fa-4x text-success"></i>
+                </div>
+                <h4 class="mb-3">Order Redeemed Successfully!</h4>
+                <p class="text-muted mb-4">
+                    Order #@Model.OrderNumber has been marked as completed.
+                    <br>The customer will be notified via email.
+                </p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" id="continueButton" class="btn btn-primary px-4 py-2">
+                    <i class="fas fa-arrow-right me-2"></i>Continue to Orders
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/orderdetailsstaff.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script>
+        // Set the redirect URL for the JS file to use
+        var redirectUrl = '@Url.Action("Orders", "Staff")';
+    </script>
+    <script src="~/js/orderdetailsstaffjs.js" asp-append-version="true"></script>
+}
