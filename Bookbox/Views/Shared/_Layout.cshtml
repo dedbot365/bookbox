@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="~/Bookbox.styles.css" asp-append-version="true" />
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/cart-modal.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
     <style>
         /* Custom styles for navbar search */
@@ -302,6 +303,51 @@
             });
             </text>
         }
+    </script>
+
+    <!-- Cart Added Modal -->
+    <partial name="_CartAddedModal" />
+
+    <!-- Cart Modal Script -->
+    <script>
+        // Initialize cart modal functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookAddedToCart = '@TempData["BookAddedToCart"]';
+            const bookAddedTitle = '@TempData["BookAddedTitle"]';
+            
+            if (bookAddedToCart === 'True') {
+                // Set the book title
+                if (bookAddedTitle) {
+                    document.getElementById('cartModalBookTitle').textContent = bookAddedTitle;
+                }
+                
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('cartAddedModal'));
+                modal.show();
+                
+                // Set up timer
+                let timeLeft = 10;
+                const timerBar = document.getElementById('cartModalTimer');
+                const timerText = document.getElementById('cartModalTimerText');
+                
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    const percentage = (timeLeft / 10) * 100;
+                    timerBar.style.width = percentage + '%';
+                    timerText.textContent = timeLeft + 's';
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        modal.hide();
+                    }
+                }, 1000);
+                
+                // Clear timer if modal is closed manually
+                document.getElementById('cartAddedModal').addEventListener('hidden.bs.modal', function() {
+                    clearInterval(timer);
+                });
+            }
+        });
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)

@@ -112,7 +112,9 @@ namespace Bookbox.Controllers
             
             if (result)
             {
-                TempData["SuccessMessage"] = "Item added to cart successfully!";
+                // Set TempData values for the modal instead of a success message
+                TempData["BookAddedToCart"] = "True";
+                TempData["BookAddedTitle"] = book.Title;
             }
             else
             {
