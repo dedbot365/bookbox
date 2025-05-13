@@ -28,6 +28,10 @@
     // else use the default _Layout.cshtml
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/book-common.css" asp-append-version="true" />
+}
+
 <!-- Add a data attribute to the main container for JavaScript to detect coming soon status -->
 <div id="bookDetails" data-is-coming-soon="@Model.IsComingSoon.ToString().ToLower()" class="container-fluid mt-5">
 
@@ -276,7 +280,7 @@
                             </a>
                         }
                         <button type="button" class="btn btn-danger delete-book" 
-                                data-id="@Model.BookId" data-title="@Model.Title">
+                                data-id="@Model.BookId" data-title="@Model.Title" data-delete-url="@Url.Action("Delete", "Book")">
                             <i class="fas fa-trash me-1"></i> Delete
                         </button>
                     </div>
@@ -445,6 +449,7 @@
 
 @section Scripts {
     <script src="~/js/bookDetails.js" asp-append-version="true"></script>
+    <script src="~/js/book-details.js" asp-append-version="true"></script>
     <script>
         // Add any page-specific data that needs to be set from Razor
         $(document).ready(function() {

@@ -188,71 +188,10 @@
 </div>
 
 @section Styles {
-    <style>
-        /* Custom styles for book form */
-        .form-label.fw-bold {
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .cover-upload-container {
-            min-height: 230px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .cover-upload-container:hover {
-            background-color: #f1f1f1;
-        }
-        
-        .card-header {
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 1rem;
-        }
-        
-        #coverPreview img {
-            max-height: 180px;
-            max-width: 100%;
-            border-radius: 4px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/book-form.css" asp-append-version="true" />
 }
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        $(document).ready(function () {
-            // Enhance label clicks for better UX
-            $(".cover-upload-container").click(function() {
-                $("#ImageFile").click();
-            });
-            
-            // Preview image when selected
-            $("#ImageFile").change(function () {
-                if (this.files && this.files[0]) {
-                    var reader = new FileReader();
-                    reader.onload = function (e) {
-                        $("#coverPreview").html('<img src="' + e.target.result + '" class="img-fluid" />');
-                    };
-                    reader.readAsDataURL(this.files[0]);
-                }
-            });
-            
-            // Add animation for form sections
-            $(".form-group").each(function(index) {
-                $(this).css({
-                    'opacity': 0,
-                    'transform': 'translateY(20px)'
-                }).delay(index * 50).animate({
-                    'opacity': 1,
-                    'transform': 'translateY(0px)'
-                }, 500);
-            });
-        });
-    </script>
+    <script src="~/js/book-form.js" asp-append-version="true"></script>
 }
