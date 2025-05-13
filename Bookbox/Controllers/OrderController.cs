@@ -118,31 +118,43 @@ namespace Bookbox.Controllers
                     return RedirectToAction("Login", "Account");
                 }
                 
-                // Check if order can be cancelled
+                // Check if order can be canceled - Fixed method name from CanCancelOrderAsync to CanOrderBeCancelledAsync
                 var canCancel = await _orderService.CanOrderBeCancelledAsync(id, userId);
                 if (!canCancel)
                 {
-                    TempData["ErrorMessage"] = "This order cannot be cancelled. Orders can only be cancelled within 24 hours of placement and must be in Pending status.";
+                    TempData["ErrorMessage"] = "This order cannot be cancelled.";
                     return RedirectToAction("Details", new { id });
                 }
+                
+                // Get order number before cancellation for the modal - Removed userId parameter
+                var order = await _orderService.GetOrderByIdAsync(id);
+                var orderNumber = order?.OrderNumber ?? 0;
                 
                 // Cancel the order
                 var cancelled = await _orderService.CancelOrderAsync(id, userId);
                 if (cancelled)
                 {
-                    TempData["SuccessMessage"] = "Your order has been cancelled successfully.";
+                    // For AJAX requests, return JSON response
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    {
+                        return Json(new { success = true, orderNumber = orderNumber });
+                    }
+                    
+                    // For form submissions, use TempData and redirect
+                    TempData["CanceledOrderNumber"] = orderNumber.ToString();
+                    return RedirectToAction("Index");
                 }
                 else
                 {
-                    TempData["ErrorMessage"] = "An error occurred while cancelling your order.";
+                    TempData["ErrorMessage"] = "Failed to cancel order. Please try again.";
+                    return RedirectToAction("Details", new { id });
                 }
-                
-                return RedirectToAction("Details", new { id });
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "An error occurred while cancelling your order.";
-                return RedirectToAction("Details", new { id });
+                // Log the exception
+                TempData["ErrorMessage"] = "An error occurred while processing your request.";
+                return RedirectToAction("Index");
             }
         }
         

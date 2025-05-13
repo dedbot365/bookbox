@@ -3,36 +3,47 @@
     ViewData["Title"] = "Order Details";
 }
 
-<div class="container">
+<div class="container py-4">
+    <!-- Header section with title -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Order #@Model.OrderNumber</h1>
-        <a asp-action="Index" class="btn btn-outline-secondary">Back to Orders</a>
+        <div>
+            <h1 class="h2 mb-1">
+                <i class="fas fa-file-invoice me-2 text-primary"></i>
+                Order #@Model.OrderNumber
+            </h1>
+            <p class="text-muted">Placed on @Model.OrderDate.ToString("MMMM dd, yyyy")</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="fas fa-arrow-left me-2"></i>Back to Orders
+        </a>
     </div>
     
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success">
-            @TempData["SuccessMessage"]
+        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
     
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger">
-            @TempData["ErrorMessage"]
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
     
     <div class="row">
         <div class="col-md-8">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Order Items</h5>
+            <div class="card shadow-sm rounded-3 border-0 mb-4">
+                <div class="card-header py-3 bg-gradient" style="background-color: #4D4490; color: white;">
+                    <h5 class="mb-0 fw-semibold"><i class="fas fa-book me-2"></i> Order Items</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table">
-                            <thead>
+                        <table class="table table-hover">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Book</th>
                                     <th>Price</th>
@@ -43,25 +54,46 @@
                             <tbody>
                                 @foreach (var item in Model.Items)
                                 {
-                                    <tr>
+                                    <tr class="book-item-row">
                                         <td>
-                                            <div class="d-flex">
+                                            <div class="d-flex align-items-center">
                                                 @if (!string.IsNullOrEmpty(item.CoverImageUrl))
                                                 {
-                                                    <img src="@item.CoverImageUrl" alt="@item.BookTitle" style="width: 50px; height: 75px; margin-right: 10px;"/>
+                                                    <img src="@item.CoverImageUrl" alt="@item.BookTitle" 
+                                                         class="book-thumbnail rounded shadow-sm me-3"/>
+                                                }
+                                                else
+                                                {
+                                                    <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" 
+                                                         style="width: 40px; height: 60px;">
+                                                        <i class="fas fa-book text-secondary"></i>
+                                                    </div>
                                                 }
                                                 <div>
-                                                    <p class="mb-0 fw-bold">@item.BookTitle</p>
+                                                    <div class="fw-medium">@item.BookTitle</div>
                                                     <small class="text-muted">by @item.BookAuthor</small>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>NPR @item.Price.ToString("F2")</td>
-                                        <td>@item.Quantity</td>
-                                        <td class="text-end">NPR @item.Subtotal.ToString("F2")</td>
+                                        <td class="align-middle">NPR @item.Price.ToString("N2")</td>
+                                        <td class="align-middle">@item.Quantity</td>
+                                        <td class="text-end align-middle fw-semibold">NPR @item.Subtotal.ToString("N2")</td>
                                     </tr>
                                 }
                             </tbody>
+                            <tfoot class="table-group-divider">
+                                @if (Model.DiscountApplied > 0)
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold">Discount:</td>
+                                        <td class="text-end text-danger">-NPR @Model.DiscountApplied.ToString("N2")</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold">Total:</td>
+                                    <td class="text-end fw-bold">NPR @Model.TotalAmount.ToString("N2")</td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -69,82 +101,59 @@
         </div>
         
         <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Order Summary</h5>
+            <div class="card shadow-sm rounded-3 border-0 mb-4">
+                <div class="card-header py-3 bg-gradient" style="background-color: #4D4490; color: white;">
+                    <h5 class="mb-0 fw-semibold"><i class="fas fa-info-circle me-2"></i> Order Information</h5>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between">
-                            <span>Subtotal:</span>
-                            <span>NPR @Model.Subtotal.ToString("F2")</span>
-                        </div>
-                        
-                        @if (Model.DiscountApplied > 0)
-                        {
-                            <div class="d-flex justify-content-between text-success">
-                                <span>Discount:</span>
-                                <span>-NPR @Model.DiscountApplied.ToString("F2")</span>
-                            </div>
-                        }
-                        
-                        <hr/>
-                        
-                        <div class="d-flex justify-content-between fw-bold">
-                            <span>Total:</span>
-                            <span>NPR @Model.TotalAmount.ToString("F2")</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Order Information</h5>
-                </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Order ID:</span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-3">
+                            <span class="fw-medium">Order ID:</span>
                             <span class="text-muted">@Model.OrderId</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Date:</span>
-                            <span class="text-muted">@Model.OrderDate.ToString("yyyy-MM-dd HH:mm")</span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-3">
+                            <span class="fw-medium">Date:</span>
+                            <span class="text-muted">@Model.OrderDate.ToString("MMM dd, yyyy HH:mm")</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Status:</span>
-                            <span>
-                                @switch (Model.Status)
-                                {
-                                    case Bookbox.Constants.OrderStatus.Pending:
-                                        <span class="badge bg-warning">Pending</span>
-                                        break;
-                                    case Bookbox.Constants.OrderStatus.Completed:
-                                        <span class="badge bg-success">Completed</span>
-                                        break;
-                                    case Bookbox.Constants.OrderStatus.Cancelled:
-                                        <span class="badge bg-danger">Cancelled</span>
-                                        break;
-                                    default:
-                                        <span class="badge bg-secondary">@Model.StatusName</span>
-                                        break;
-                                }
-                            </span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-3">
+                            <span class="fw-medium">Status:</span>
+                            @switch (Model.Status)
+                            {
+                                case Bookbox.Constants.OrderStatus.Pending:
+                                    <span class="badge rounded-pill bg-warning text-dark px-3 py-2">
+                                        <i class="fas fa-clock me-1"></i> Pending
+                                    </span>
+                                    break;
+                                case Bookbox.Constants.OrderStatus.Completed:
+                                    <span class="badge rounded-pill bg-success px-3 py-2">
+                                        <i class="fas fa-check-circle me-1"></i> Completed
+                                    </span>
+                                    break;
+                                case Bookbox.Constants.OrderStatus.Cancelled:
+                                    <span class="badge rounded-pill bg-danger px-3 py-2">
+                                        <i class="fas fa-times-circle me-1"></i> Cancelled
+                                    </span>
+                                    break;
+                                default:
+                                    <span class="badge rounded-pill bg-secondary px-3 py-2">
+                                        <i class="fas fa-info-circle me-1"></i> @Model.StatusName
+                                    </span>
+                                    break;
+                            }
                         </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Claim Code:</span>
-                            <code>@Model.ClaimCode</code>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-3">
+                            <span class="fw-medium">Claim Code:</span>
+                            <code class="bg-light px-2 py-1 rounded">@Model.ClaimCode</code>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Payment Method:</span>
-                            <span class="text-muted">@Model.PaymentMethod</span>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-3">
+                            <span class="fw-medium">Payment Method:</span>
+                            <span class="badge rounded-pill bg-light text-dark border px-3 py-2">@Model.PaymentMethod</span>
                         </li>
                         @if (!string.IsNullOrEmpty(Model.Notes))
                         {
-                            <li class="list-group-item">
-                                <strong>Notes:</strong>
-                                <p class="mb-0 text-muted">@Model.Notes</p>
+                            <li class="list-group-item px-3 py-3">
+                                <span class="fw-medium d-block mb-2">Notes:</span>
+                                <p class="mb-0 bg-light p-3 rounded">@Model.Notes</p>
                             </li>
                         }
                     </ul>
@@ -153,33 +162,57 @@
             
             @if (Model.CanBeCancelled)
             {
-                <div class="card mb-4 border-warning">
-                    <div class="card-body">
-                        <h5 class="card-title">Cancellation Eligibility</h5>
-                        <p class="card-text">This order can be cancelled for the next @Model.TimeRemainingForCancellation.ToString(@"hh\:mm\:ss").</p>
-                        <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#cancelModal">
-                            Cancel Order
+                <div class="card shadow-sm rounded-3 border-0 mb-4 border-left-warning">
+                    <div class="card-header py-3 bg-warning text-dark">
+                        <h5 class="mb-0 fw-semibold"><i class="fas fa-exclamation-triangle me-2"></i> Cancellation Eligible</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="card-text mb-4">You can cancel this order for the next:<br/>
+                            <div class="text-center my-3">
+                                <span class="badge bg-warning text-dark rounded-pill px-3 py-2">
+                                    <i class="fas fa-hourglass-half me-2"></i>
+                                    @Model.TimeRemainingForCancellation.ToString(@"hh\:mm\:ss")
+                                </span>
+                            </div>
+                        </p>
+                        <button type="button" class="btn btn-danger w-100 py-2" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            <i class="fas fa-ban me-2"></i> Cancel Order
                         </button>
                     </div>
                 </div>
                 
                 <!-- Cancel Modal -->
                 <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="cancelModalLabel">Confirm Cancellation</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content rounded-3 border-0 shadow">
+                            <div class="modal-header border-0 bg-danger text-white">
+                                <h5 class="modal-title" id="cancelModalLabel">
+                                    <i class="fas fa-exclamation-triangle me-2"></i> Confirm Cancellation
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body">
-                                <p>Are you sure you want to cancel this order?</p>
-                                <p class="text-danger">This action cannot be undone.</p>
+                            <div class="modal-body p-4">
+                                <div class="text-center mb-4">
+                                    <div class="warning-icon-container mb-3">
+                                        <i class="fas fa-exclamation-circle fa-4x text-danger"></i>
+                                    </div>
+                                    <h4>Are you sure?</h4>
+                                    <p class="text-muted mb-0">You are about to cancel your order #@Model.OrderNumber</p>
+                                </div>
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    This action cannot be undone. Your payment will be refunded according to our refund policy.
+                                </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <div class="modal-footer border-0">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i>No, Keep Order
+                                </button>
                                 <form asp-action="Cancel" asp-route-id="@Model.OrderId" method="post">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-danger">Cancel Order</button>
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-check me-2"></i>Yes, Cancel Order
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -189,3 +222,98 @@
         </div>
     </div>
 </div>
+
+@section Styles {
+    <style>
+        /* Book thumbnail styling */
+        .book-thumbnail {
+            width: 40px;
+            height: 60px;
+            object-fit: cover;
+            transition: all 0.2s ease;
+        }
+        
+        /* Row hover effect */
+        .book-item-row {
+            transition: all 0.2s ease;
+        }
+        
+        .book-item-row:hover {
+            background-color: rgba(77, 68, 144, 0.05);
+        }
+        
+        .book-item-row:hover .book-thumbnail {
+            transform: scale(1.05);
+        }
+        
+        /* Table styling */
+        .table {
+            font-size: 0.95rem;
+        }
+        
+        /* Badge styling */
+        .badge {
+            font-weight: 500;
+        }
+        
+        /* Icon container for warnings */
+        .icon-container {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Light background for warning */
+        .bg-warning-light {
+            background-color: rgba(255, 193, 7, 0.2);
+        }
+        
+        /* Warning icon container in modal */
+        .warning-icon-container {
+            height: 90px;
+            width: 90px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Modal styling */
+        .modal-content {
+            border: 0;
+            border-radius: 0.75rem !important;
+        }
+        
+        .modal-dialog-centered {
+            display: flex;
+            align-items: center;
+            min-height: calc(100% - 3.5rem);
+        }
+        
+        /* Card with colored left border */
+        .border-left-warning {
+            border-left: 0.25rem solid #f6c23e !important;
+        }
+        
+        /* Primary color customization */
+        .text-primary {
+            color: #4D4490 !important;
+        }
+        
+        .bg-gradient {
+            background-image: linear-gradient(180deg, #4D4490 0%, #5d52b0 100%);
+        }
+        
+        /* Card styling */
+        .card {
+            transition: all 0.2s ease;
+            border-radius: 0.75rem;
+        }
+        
+        .card-header {
+            border-radius: 0.75rem 0.75rem 0 0 !important;
+        }
+    </style>
+}

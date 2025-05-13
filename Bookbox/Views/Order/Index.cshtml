@@ -267,45 +267,15 @@
     }
 </div>
 
-@section Styles {
-    <style>
-        /* Sort icons styling */
-        .sort-icons {
-            display: flex;
-            flex-direction: column;
-            line-height: 0.5;
-        }
-        
-        .sort-icons a {
-            color: #aaa;
-            font-size: 0.7rem;
-            text-decoration: none;
-        }
-        
-        .sort-icons a.active {
-            color: #0d6efd;
-        }
-        
-        /* Code wrapper for claim code */
-        .code-wrapper {
-            display: flex;
-            align-items: center;
-        }
-        
-        .code-wrapper code {
-            background-color: #f8f9fa;
-            padding: 0.2rem 0.4rem;
-            border-radius: 0.25rem;
-        }
-        
-        /* Hover effect for rows */
-        .table tr:hover {
-            box-shadow: 0 0.15rem 0.3rem rgba(0, 0, 0, 0.1);
-        }
-    </style>
+@if (TempData["CanceledOrderNumber"] != null)
+{
+    <input type="hidden" id="canceledOrderNumber" value="@TempData["CanceledOrderNumber"]" />
 }
 
 @section Scripts {
+    <script src="~/js/order-cancel-handler.js" asp-append-version="true"></script>
+    
+    <!-- Other scripts you might have -->
     <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
     <script>
         // Initialize clipboard for copy functionality
