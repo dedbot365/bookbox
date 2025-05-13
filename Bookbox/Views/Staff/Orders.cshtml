@@ -1,33 +1,232 @@
 @model IEnumerable<Bookbox.Models.Order>
 @{
     ViewData["Title"] = "Order Management";
-     Layout = "_DashboardLayout";
+    Layout = "_DashboardLayout";
+    
+    int pendingCount = Model.Count(o => o.Status == Bookbox.Constants.OrderStatus.Pending);
+    int completedCount = Model.Count(o => o.Status == Bookbox.Constants.OrderStatus.Completed);
+    int cancelledCount = Model.Count(o => o.Status == Bookbox.Constants.OrderStatus.Cancelled);
+    decimal totalRevenue = Model.Where(o => o.Status == Bookbox.Constants.OrderStatus.Completed)
+                               .Sum(o => o.TotalAmount);
+    
+    string currentSort = ViewData["CurrentSort"]?.ToString() ?? "date_desc";
+    string statusFilter = ViewData["StatusFilter"]?.ToString() ?? "";
+    string searchTerm = ViewData["SearchTerm"]?.ToString() ?? "";
 }
 
-<div class="container py-4">
-    <h1 class="mb-4">
-        <i class="fas fa-shopping-bag me-2"></i>
-        Order Management
-    </h1>
+<div class="container-fluid py-4">
+    <!-- Header section with stats -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-1">
+                <i class="fas fa-shopping-bag me-2 text-purple"></i>
+                Order Management
+            </h1>
+            <p class="text-muted">Manage and track customer orders</p>
+        </div>
+        
+        <a href="@Url.Action("Dashboard", "Staff")" class="btn btn-outline-primary">
+            <i class="fas fa-chart-line me-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Quick stats cards -->
+    <div class="row mb-4">
+        <!-- Total Orders -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Count()</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Orders -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@pendingCount</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completed Orders -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Completed Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@completedCount</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Total Revenue -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-purple shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-purple text-uppercase mb-1">Total Revenue</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @totalRevenue.ToString("N0")</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
             @TempData["Success"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="card shadow">
+    <!-- Main orders table card -->
+    <div class="card shadow rounded-3 border-0 mb-4">
+        <div class="card-header py-3 bg-white">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-4">
+                    <h5 class="mb-0 font-weight-bold text-primary">
+                        <i class="fas fa-list me-2"></i> Order List
+                    </h5>
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="col-md-4">
+                    <form asp-action="Orders" method="get" class="d-flex">
+                        <input type="hidden" name="sortBy" value="@currentSort" />
+                        <input type="hidden" name="statusFilter" value="@statusFilter" />
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search by order #" 
+                                   name="searchTerm" value="@searchTerm">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            @if (!string.IsNullOrEmpty(searchTerm))
+                            {
+                                <a asp-action="Orders" asp-route-sortBy="@currentSort" 
+                                   asp-route-statusFilter="@statusFilter" 
+                                   class="btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            }
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Filter buttons -->
+                <div class="col-md-4 text-end">
+                    <div class="btn-group" role="group" aria-label="Filter Orders">
+                        <a asp-action="Orders" asp-route-searchTerm="@searchTerm" asp-route-sortBy="@currentSort"
+                           asp-route-statusFilter="" class="btn btn-outline-primary @(statusFilter == "" ? "active" : "")">All</a>
+                        <a asp-action="Orders" asp-route-searchTerm="@searchTerm" asp-route-sortBy="@currentSort"
+                           asp-route-statusFilter="Pending" class="btn btn-outline-warning @(statusFilter == "Pending" ? "active" : "")">Pending</a>
+                        <a asp-action="Orders" asp-route-searchTerm="@searchTerm" asp-route-sortBy="@currentSort"
+                           asp-route-statusFilter="Completed" class="btn btn-outline-success @(statusFilter == "Completed" ? "active" : "")">Completed</a>
+                        <a asp-action="Orders" asp-route-searchTerm="@searchTerm" asp-route-sortBy="@currentSort"
+                           asp-route-statusFilter="Cancelled" class="btn btn-outline-secondary @(statusFilter == "Cancelled" ? "active" : "")">Cancelled</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover" id="ordersTable">
-                    <thead class="table-dark">
+                    <thead>
                         <tr>
-                            <th>Order #</th>
-                            <th>Customer</th>
-                            <th>Date</th>
-                            <th>Total</th>
+                            <th>
+                                <div class="d-flex align-items-center">
+                                    Order #
+                                    <div class="sort-icons ms-2">
+                                        <a asp-action="Orders" asp-route-searchTerm="@searchTerm" 
+                                           asp-route-statusFilter="@statusFilter" asp-route-sortBy="order_asc" 
+                                           class="@(currentSort == "order_asc" ? "active" : "")">
+                                            <i class="fas fa-sort-up"></i>
+                                        </a>
+                                        <a asp-action="Orders" asp-route-searchTerm="@searchTerm" 
+                                           asp-route-statusFilter="@statusFilter" asp-route-sortBy="order_desc" 
+                                           class="@(currentSort == "order_desc" ? "active" : "")">
+                                            <i class="fas fa-sort-down"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="d-flex align-items-center">
+                                    Customer
+                                    <div class="sort-icons ms-2">
+                                        <a asp-action="Orders" asp-route-searchTerm="@searchTerm" 
+                                           asp-route-statusFilter="@statusFilter" asp-route-sortBy="customer_asc" 
+                                           class="@(currentSort == "customer_asc" ? "active" : "")">
+                                            <i class="fas fa-sort-up"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="d-flex align-items-center">
+                                    Date
+                                    <div class="sort-icons ms-2">
+                                        <a asp-action="Orders" asp-route-searchTerm="@searchTerm" 
+                                           asp-route-statusFilter="@statusFilter" asp-route-sortBy="date_asc" 
+                                           class="@(currentSort == "date_asc" ? "active" : "")">
+                                            <i class="fas fa-sort-up"></i>
+                                        </a>
+                                        <a asp-action="Orders" asp-route-searchTerm="@searchTerm" 
+                                           asp-route-statusFilter="@statusFilter" asp-route-sortBy="date_desc" 
+                                           class="@(currentSort == "date_desc" ? "active" : "")">
+                                            <i class="fas fa-sort-down"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="d-flex align-items-center">
+                                    Total
+                                    <div class="sort-icons ms-2">
+                                        <a asp-action="Orders" asp-route-searchTerm="@searchTerm" 
+                                           asp-route-statusFilter="@statusFilter" asp-route-sortBy="total_asc" 
+                                           class="@(currentSort == "total_asc" ? "active" : "")">
+                                            <i class="fas fa-sort-up"></i>
+                                        </a>
+                                        <a asp-action="Orders" asp-route-searchTerm="@searchTerm" 
+                                           asp-route-statusFilter="@statusFilter" asp-route-sortBy="total_desc" 
+                                           class="@(currentSort == "total_desc" ? "active" : "")">
+                                            <i class="fas fa-sort-down"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </th>
                             <th>Redeem Code</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -36,41 +235,67 @@
                     <tbody>
                         @foreach (var order in Model)
                         {
-                            <tr class="@(order.Status == Bookbox.Constants.OrderStatus.Pending ? "table-warning" : order.Status == Bookbox.Constants.OrderStatus.Completed ? "table-success" : "table-secondary")">
-                                <td>@order.OrderNumber</td>
+                            string statusClass = order.Status == Bookbox.Constants.OrderStatus.Pending ? "pending" : 
+                                               order.Status == Bookbox.Constants.OrderStatus.Completed ? "completed" : "cancelled";
+                            
+                            <tr class="order-row @statusClass @(order.Status == Bookbox.Constants.OrderStatus.Pending ? "table-warning" : 
+                                                               order.Status == Bookbox.Constants.OrderStatus.Completed ? "table-success" : "table-secondary")">
+                                <td class="fw-semibold">@order.OrderNumber</td>
                                 <td>
-                                    @order.User?.FirstName @order.User?.LastName
-                                    <small class="d-block text-muted">@order.User?.Username</small>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle bg-light me-2">
+                                            <i class="fas fa-user text-secondary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-medium">@order.User?.FirstName @order.User?.LastName</div>
+                                            <small class="text-muted">@order.User?.Username</small>
+                                        </div>
+                                    </div>
                                 </td>
-                                <td>@order.OrderDate.ToString("MMM dd, yyyy HH:mm")</td>
-                                <td>$@order.TotalAmount.ToString("F2")</td>
+                                <td>@order.OrderDate.ToString("MMM dd, yyyy")<br /><small class="text-muted">@order.OrderDate.ToString("HH:mm")</small></td>
+                                <td class="fw-medium">NPR @order.TotalAmount.ToString("N0")</td>
                                 <td>
-                                    <span class="badge bg-primary">@order.ClaimCode</span>
+                                    <span class="badge bg-primary position-relative">
+                                        @order.ClaimCode
+                                        <button class="btn btn-sm text-white copy-btn p-0 ms-2" data-clipboard-text="@order.ClaimCode" title="Copy code">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </span>
                                 </td>
                                 <td>
                                     @if (order.Status == Bookbox.Constants.OrderStatus.Pending)
                                     {
-                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-clock me-1"></i> Pending
+                                        </span>
                                     }
                                     else if (order.Status == Bookbox.Constants.OrderStatus.Completed)
                                     {
-                                        <span class="badge bg-success">Completed</span>
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i> Completed
+                                        </span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary">Cancelled</span>
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-times-circle me-1"></i> Cancelled
+                                        </span>
                                     }
                                 </td>
                                 <td>
-                                    <a asp-action="OrderDetails" asp-route-id="@order.OrderId" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-eye"></i> Details
-                                    </a>
-                                    @if (order.Status == Bookbox.Constants.OrderStatus.Pending)
-                                    {
-                                        <a asp-action="OrderDetails" asp-route-id="@order.OrderId" asp-fragment="redeem" class="btn btn-sm btn-success ms-1">
-                                            <i class="fas fa-check"></i> Redeem
+                                    <div class="btn-group announcement-actions">
+                                        <a asp-action="OrderDetails" asp-route-id="@order.OrderId" 
+                                           class="btn btn-light-purple btn-sm" title="View Details">
+                                            <i class="fas fa-eye"></i>
                                         </a>
-                                    }
+                                        @if (order.Status == Bookbox.Constants.OrderStatus.Pending)
+                                        {
+                                            <a asp-action="OrderDetails" asp-route-id="@order.OrderId" asp-fragment="redeem" 
+                                               class="btn btn-success btn-sm" title="Redeem Order">
+                                                <i class="fas fa-check"></i>
+                                            </a>
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -81,15 +306,87 @@
     </div>
 </div>
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/announcement.css" asp-append-version="true" />
+    <style>
+        /* Small avatar circle for customer display */
+        .avatar-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Text color for purple elements */
+        .text-purple {
+            color: #6f42c1 !important;
+        }
+        
+        /* For the badge to allow copy button */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .copy-btn:hover {
+            opacity: 0.8;
+        }
+        
+        /* Adjusted border-left for cards */
+        .border-left-purple {
+            border-left: 0.25rem solid #6f42c1 !important;
+        }
+        
+        /* Sort icons styling */
+        .sort-icons {
+            display: flex;
+            flex-direction: column;
+            line-height: 0.5;
+        }
+        
+        .sort-icons a {
+            color: #aaa;
+            font-size: 0.7rem;
+            text-decoration: none;
+        }
+        
+        .sort-icons a.active {
+            color: #6f42c1;
+        }
+        
+        /* No results message */
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+    </style>
+}
+
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#ordersTable').DataTable({
-                order: [[2, 'desc']],
-                language: {
-                    search: "Search orders:"
-                }
+            // Initialize clipboard for copy functionality
+            new ClipboardJS('.copy-btn').on('success', function(e) {
+                // Show tooltip or notification
+                $(e.trigger).tooltip({
+                    title: 'Copied!',
+                    placement: 'top',
+                    trigger: 'manual'
+                }).tooltip('show');
+                
+                setTimeout(function() {
+                    $(e.trigger).tooltip('hide');
+                }, 1000);
+                
+                e.clearSelection();
             });
+            
+            // Add tooltips to action buttons
+            $('[title]').tooltip();
         });
     </script>
 }

@@ -105,13 +105,47 @@ namespace Bookbox.Controllers
             return View();
         }
         
-        public async Task<IActionResult> Orders()
+        public async Task<IActionResult> Orders(string searchTerm = "", string sortBy = "date_desc", string statusFilter = "")
         {
-            var orders = await _context.Orders
+            // Start with all orders query
+            var ordersQuery = _context.Orders
                 .Include(o => o.User)
-                .OrderByDescending(o => o.OrderDate)
-                .ToListAsync();
-                
+                .AsQueryable();
+            
+            // Apply search filter if provided
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                // Convert OrderNumber to string before using Contains
+                ordersQuery = ordersQuery.Where(o => o.OrderNumber.ToString().Contains(searchTerm));
+                ViewData["SearchTerm"] = searchTerm;
+            }
+            
+            // Apply status filter if provided
+            if (!string.IsNullOrWhiteSpace(statusFilter))
+            {
+                if (Enum.TryParse<OrderStatus>(statusFilter, true, out var status))
+                {
+                    ordersQuery = ordersQuery.Where(o => o.Status == status);
+                }
+                ViewData["StatusFilter"] = statusFilter;
+            }
+            
+            // Apply sorting
+            ordersQuery = sortBy switch
+            {
+                "date_asc" => ordersQuery.OrderBy(o => o.OrderDate),
+                "date_desc" => ordersQuery.OrderByDescending(o => o.OrderDate),
+                "total_asc" => ordersQuery.OrderBy(o => o.TotalAmount),
+                "total_desc" => ordersQuery.OrderByDescending(o => o.TotalAmount),
+                "customer_asc" => ordersQuery.OrderBy(o => o.User.FirstName).ThenBy(o => o.User.LastName),
+                "order_asc" => ordersQuery.OrderBy(o => o.OrderNumber),
+                "order_desc" => ordersQuery.OrderByDescending(o => o.OrderNumber),
+                _ => ordersQuery.OrderByDescending(o => o.OrderDate) // default sorting
+            };
+            
+            ViewData["CurrentSort"] = sortBy;
+            
+            var orders = await ordersQuery.ToListAsync();
             return View(orders);
         }
         
