@@ -14,21 +14,58 @@ document.addEventListener('DOMContentLoaded', function() {
         if (text) {
             link.setAttribute('data-title', text);
         }
+        
+        // Store the original href to use it later
+        const originalHref = link.getAttribute('href');
+        link.setAttribute('data-href', originalHref);
+        
+        // Add click handler for handling collapsed sidebar navigation
+        link.addEventListener('click', function(e) {
+            // Check if sidebar is collapsed (on desktop)
+            if (window.innerWidth >= 768 && sidebar.classList.contains('collapsed')) {
+                // Prevent the default navigation
+                e.preventDefault();
+                
+                // Expand the sidebar first
+                sidebar.classList.remove('collapsed');
+                if (mainContent) mainContent.classList.remove('sidebar-collapsed');
+                updateCollapseButtonIcon(false);
+                localStorage.setItem('sidebarState', 'expanded');
+                
+                // Get the original href
+                const targetHref = this.getAttribute('data-href');
+                
+                // After a short delay, navigate to the target page
+                setTimeout(function() {
+                    window.location.href = targetHref;
+                }, 300); // 300ms gives enough time for the animation to complete
+            } 
+            // For mobile view, close sidebar after clicking
+            else if (window.innerWidth < 768 && sidebar.classList.contains('show')) {
+                // Don't prevent default navigation, just close the sidebar
+                setTimeout(function() {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                    sessionStorage.removeItem('sidebarMobileOpen');
+                }, 150);
+            }
+            // Otherwise, just let the default navigation happen (normal expanded state)
+        });
     });
     
     // Function to check and set sidebar state based on screen size
     function checkScreenSize() {
         if (window.innerWidth < 768) {
-            // Mobile view - hide sidebar by default
-            sidebar.classList.remove('show');
-            sidebarOverlay.classList.remove('show');
-        } else {
-            // Desktop view - show sidebar
-            if (mainContent) {
-                mainContent.classList.remove('sidebar-collapsed');
+            // Mobile view - check session storage for previous state
+            if (sessionStorage.getItem('sidebarMobileOpen') === 'true') {
+                sidebar.classList.add('show');
+                sidebarOverlay.classList.add('show');
+            } else {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
             }
-            
-            // Check localStorage for persistent preference
+        } else {
+            // Desktop view
             const sidebarState = localStorage.getItem('sidebarState');
             if (sidebarState === 'collapsed') {
                 sidebar.classList.add('collapsed');
@@ -44,8 +81,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Toggle sidebar on mobile
     function toggleSidebarMobile() {
+        const willBeShown = !sidebar.classList.contains('show');
         sidebar.classList.toggle('show');
         sidebarOverlay.classList.toggle('show');
+        
+        // Store state in session storage
+        if (willBeShown) {
+            sessionStorage.setItem('sidebarMobileOpen', 'true');
+        } else {
+            sessionStorage.removeItem('sidebarMobileOpen');
+        }
     }
     
     // Toggle sidebar on desktop
@@ -65,7 +110,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Update the collapse button icon based on sidebar state
     function updateCollapseButtonIcon(isCollapsed) {
+        if (!sidebarCollapseInside) return;
         const collapseIcon = sidebarCollapseInside.querySelector('.collapse-icon');
+        if (!collapseIcon) return;
         
         if (isCollapsed) {
             collapseIcon.classList.remove('fa-angle-double-left');
@@ -78,13 +125,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Event listeners
     if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
+        sidebarToggle.addEventListener('click', function(e) {
+            e.preventDefault();
             toggleSidebarMobile();
         });
     }
     
     if (sidebarCollapseBtn) {
-        sidebarCollapseBtn.addEventListener('click', function() {
+        sidebarCollapseBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             if (window.innerWidth < 768) {
                 toggleSidebarMobile();
             } else {
@@ -94,13 +143,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (sidebarCollapseInside) {
-        sidebarCollapseInside.addEventListener('click', function() {
+        sidebarCollapseInside.addEventListener('click', function(e) {
+            e.preventDefault();
             toggleSidebarDesktop();
         });
     }
     
     if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', function() {
+        sidebarOverlay.addEventListener('click', function(e) {
+            e.preventDefault();
             toggleSidebarMobile();
         });
     }

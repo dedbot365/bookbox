@@ -40,11 +40,26 @@
     align-items: center;
     background-color: rgba(0,0,0,0.1);
     border-bottom: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+    min-height: 60px; /* Ensure consistent height */
+}
+
+/* The sidebar title will show/hide based on collapse state */
+.sidebar-title {
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-title {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
 }
 
 /* Mini logo for collapsed state */
 .sidebar-mini {
-    display: none;
+    display: none; /* Hidden by default */
+    color: white;
+    font-size: 1.5rem; /* Make mini icon a bit bigger for better visibility */
 }
 
 .sidebar.collapsed .sidebar-title {
@@ -52,7 +67,18 @@
 }
 
 .sidebar.collapsed .sidebar-mini {
-    display: block;
+    display: block; /* Only show when sidebar is collapsed */
+}
+
+/* When sidebar is collapsed, show logo only */
+.sidebar.collapsed .sidebar-header img {
+    margin-right: 0 !important; /* Override Bootstrap me-2 */
+}
+
+/* Adjust spacing for collapsed header */
+.sidebar.collapsed .sidebar-header {
+    justify-content: center;
+    padding: 1rem 0;
 }
 
 /* Sidebar user section */
