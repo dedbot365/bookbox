@@ -12,7 +12,7 @@ namespace Bookbox.Services
 {
     public class BookFilterService : IBookFilterService
     {
-        // Maximum edit distance for fuzzy matching (adjust based on desired strictness)
+        // Maximum edit distance for fuzzy matching 
         private const int FuzzyMatchThreshold = 2;
 
         private readonly ApplicationDbContext _context;
