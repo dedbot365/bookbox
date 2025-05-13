@@ -6,48 +6,101 @@
 <!-- Include Chart.js library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<!-- Add reference to the staff dashboard CSS file -->
+<link rel="stylesheet" href="~/css/staffDashboard.css" />
+
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
         <h1 class="h2">Staff Dashboard</h1>
-        <p class="lead mb-0">Manage inventory, process orders, and view store statistics</p>
     </div>
 
-   <!-- Key Stats Cards -->
+    <!-- Revenue Section - Financial Performance -->
     <div class="row mb-4">
-        <div class="col-md-3 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Total Revenue</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @((ViewBag.TotalRevenue ?? 0).ToString("N0"))</div>
+        <div class="col-md-12">
+            <div class="card shadow-sm border-left-purple mb-4">
+                <div class="card-body p-3">
+                    <h5 class="card-title border-bottom pb-2">Revenue Overview</h5>
+                    <div class="row">
+                        <!-- Total Revenue -->
+                        <div class="col-md-3">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                Total Revenue</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @((ViewBag.TotalRevenue ?? 0).ToString("N0"))</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-money-bill-alt fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-money-bill-alt fa-2x text-gray-300"></i>
+                        
+                        <!-- Daily Revenue -->
+                        <div class="col-md-3">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                Daily Revenue</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @((ViewBag.DailyRevenue ?? 0).ToString("N0"))</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Weekly Revenue -->
+                        <div class="col-md-3">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                Weekly Revenue</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @((ViewBag.WeeklyRevenue ?? 0).ToString("N0"))</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-calendar-week fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Monthly Revenue -->
+                        <div class="col-md-3">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Monthly Revenue</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @((ViewBag.MonthlyRevenue ?? 0).ToString("N0"))</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-3 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Monthly Revenue</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @((ViewBag.MonthlyRevenue ?? 0).ToString("N0"))</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    </div>
+    
+    <!-- Orders Status Cards - All in one row -->
+    <div class="row mb-4">
+        <!-- Total Orders -->
         <div class="col-md-3 mb-4">
             <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
@@ -65,27 +118,7 @@
             </div>
         </div>
 
-        <div class="col-md-3 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Books</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(ViewBag.TotalBooks ?? 0)</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-book fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Orders Status Cards -->
-    <div class="row mb-4">
+        <!-- Completed Orders -->
         <div class="col-md-3 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
@@ -103,6 +136,7 @@
             </div>
         </div>
 
+        <!-- Pending Orders -->
         <div class="col-md-3 mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
@@ -120,6 +154,7 @@
             </div>
         </div>
 
+        <!-- Cancelled Orders -->
         <div class="col-md-3 mb-4">
             <div class="card border-left-danger shadow h-100 py-2">
                 <div class="card-body">
@@ -131,6 +166,26 @@
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Books - Now after order stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Books</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(ViewBag.TotalBooks ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-book fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -201,6 +256,33 @@
                 </div>
             </div>
         </div>
+    </div>    <!-- Revenue Chart Row -->
+    <div class="row mb-4">
+        <!-- Revenue Line Chart -->
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-purple" id="revenue-overview-title">Revenue Trends (Monthly)</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="revenueDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="revenueDropdown">
+                            <p class="dropdown-header">View By:</p>
+                            <a class="dropdown-item revenue-timeframe-option" href="#" data-timeframe="daily">Daily</a>
+                            <a class="dropdown-item revenue-timeframe-option" href="#" data-timeframe="weekly">Weekly</a>
+                            <a class="dropdown-item revenue-timeframe-option" href="#" data-timeframe="monthly">Monthly</a>
+                            <a class="dropdown-item revenue-timeframe-option" href="#" data-timeframe="yearly">Yearly</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area" style="height: 350px;">
+                        <canvas id="revenueLineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Charts Row -->
@@ -208,8 +290,20 @@
         <!-- Orders Line Chart -->
         <div class="col-lg-8 mb-4">
             <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Orders Overview</h6>
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary" id="orders-overview-title">Orders Overview (Monthly)</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="ordersDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="ordersDropdown">
+                            <p class="dropdown-header">View By:</p>
+                            <a class="dropdown-item timeframe-option" href="#" data-timeframe="daily">Daily</a>
+                            <a class="dropdown-item timeframe-option" href="#" data-timeframe="weekly">Weekly</a>
+                            <a class="dropdown-item timeframe-option" href="#" data-timeframe="monthly">Monthly</a>
+                            <a class="dropdown-item timeframe-option" href="#" data-timeframe="yearly">Yearly</a>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="chart-area">
@@ -228,6 +322,8 @@
                 <div class="card-body">
                     <div class="chart-pie">
                         <canvas id="genrePieChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small" id="genre-legend">
                     </div>
                 </div>
             </div>
@@ -281,85 +377,28 @@
     </div>
 </div>
 
-<style>
-.border-left-primary {
-    border-left: 0.25rem solid #4e73df !important;
-}
-.border-left-success {
-    border-left: 0.25rem solid #1cc88a !important;
-}
-.border-left-info {
-    border-left: 0.25rem solid #36b9cc !important;
-}
-.border-left-warning {
-    border-left: 0.25rem solid #f6c23e !important;
-}
-.border-left-danger {
-    border-left: 0.25rem solid #e74a3b !important;
-}
-</style>
-
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Orders Line Chart
-            const ordersCtx = document.getElementById('ordersLineChart').getContext('2d');
-            const ordersLineChart = new Chart(ordersCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    datasets: [{
-                        label: 'Orders',
-                        lineTension: 0.3,
-                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
-                        borderColor: 'rgba(78, 115, 223, 1)',
-                        pointRadius: 3,
-                        pointBackgroundColor: 'rgba(78, 115, 223, 1)',
-                        pointBorderColor: 'rgba(78, 115, 223, 1)',
-                        pointHoverRadius: 3,
-                        pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
-                        pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
-                        pointHitRadius: 10,
-                        pointBorderWidth: 2,
-                        data: @Html.Raw(Json.Serialize(ViewBag.MonthlyOrderCounts ?? new int[12])),
-                    }],
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    layout: {
-                        padding: {
-                            left: 10,
-                            right: 25,
-                            top: 25,
-                            bottom: 0
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                display: false,
-                                drawBorder: false
-                            }
-                        },
-                        y: {
-                            ticks: {
-                                maxTicksLimit: 5,
-                                padding: 10
-                            },
-                            grid: {
-                                color: 'rgb(234, 236, 244)',
-                                drawBorder: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
+        // Create a global object to store all the data needed by the charts
+        var dashboardData = {
+            orderData: {
+                daily: @Html.Raw(Json.Serialize(ViewBag.DailyOrderCounts ?? new int[7])),
+                weekly: @Html.Raw(Json.Serialize(ViewBag.WeeklyOrderCounts ?? new int[4])),
+                monthly: @Html.Raw(Json.Serialize(ViewBag.MonthlyOrderCounts ?? new int[12])),
+                yearly: @Html.Raw(Json.Serialize(ViewBag.YearlyOrderCounts ?? new int[5]))
+            },
+            revenueData: {
+                daily: @Html.Raw(Json.Serialize(ViewBag.DailyRevenueData ?? new decimal[7])),
+                weekly: @Html.Raw(Json.Serialize(ViewBag.WeeklyRevenueData ?? new decimal[4])),
+                monthly: @Html.Raw(Json.Serialize(ViewBag.MonthlyRevenueData ?? new decimal[12])),
+                yearly: @Html.Raw(Json.Serialize(ViewBag.YearlyRevenueData ?? new decimal[5]))
+            },
+            genreData: @Html.Raw(Json.Serialize(ViewBag.BooksByGenre ?? new List<object>())),
+            formatData: @Html.Raw(Json.Serialize(ViewBag.BooksByFormat ?? new List<object>())),
+            topSellingData: @Html.Raw(Json.Serialize(ViewBag.TopSellingBooks ?? new List<object>()))
+        };
 
+        document.addEventListener('DOMContentLoaded', function() {
             // Genre Pie Chart
             const genreCtx = document.getElementById('genrePieChart').getContext('2d');
             const genreData = @Html.Raw(Json.Serialize(ViewBag.BooksByGenre ?? new List<object>()));
@@ -404,6 +443,16 @@
                     cutout: '60%',
                 }
             });
+
+            // Update the small legend below the chart
+            const legendContainer = document.getElementById('genre-legend');
+            if (legendContainer && genreLabels.length > 8) {
+                let legendHtml = '';
+                for (let i = 0; i < genreLabels.length; i++) {
+                    legendHtml += `<span class="mr-2"><i class="fas fa-circle" style="color: ${backgroundColors[i % backgroundColors.length]}"></i> ${genreLabels[i]}</span>`;
+                }
+                legendContainer.innerHTML = legendHtml;
+            }
 
             // Order Status Doughnut Chart
             const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
@@ -536,4 +585,6 @@
             });
         });
     </script>
+    <!-- Include the external JavaScript file -->
+    <script src="~/js/staffDashboard.js"></script>
 }
