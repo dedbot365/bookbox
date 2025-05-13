@@ -1,247 +1,293 @@
 @model IEnumerable<Bookbox.DTOs.PurchasedBookDTO>
 @{
     ViewData["Title"] = "My Purchased Books";
+    Layout = "_DashboardLayout";
+    
+    // Get pagination data
+    int currentPage = ViewData["CurrentPage"] != null ? Convert.ToInt32(ViewData["CurrentPage"]) : 1;
+    int totalPages = ViewData["TotalPages"] != null ? Convert.ToInt32(ViewData["TotalPages"]) : 1;
+    int totalItems = ViewData["TotalItems"] != null ? Convert.ToInt32(ViewData["TotalItems"]) : 0;
+    string sortBy = ViewData["SortBy"]?.ToString() ?? "newest";
 }
 
-<div class="container">
-    <h1 class="my-4">Your Purchased Books</h1>
-
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show">
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-0 fw-bold text-primary">Your Library</h1>
+            <p class="text-muted mb-0 mt-1">
+                Showing @totalItems book@(totalItems != 1 ? "s" : "") in your library
+            </p>
         </div>
-    }
+        
+        <!-- Sort Dropdown -->
+        <div class="d-flex align-items-center">
+            <label for="sortBooks" class="me-2 mb-0">Sort by:</label>
+            <select id="sortBooks" class="form-select form-select-sm" style="width: auto;" onchange="updateSort(this.value)">
+                <option value="newest" selected="@(sortBy == "newest")">Recent Purchases</option>
+                <option value="oldest" selected="@(sortBy == "oldest")">Oldest Purchases</option>
+            </select>
+        </div>
+    </div>
 
-    @if (TempData["Error"] != null)
+    @if (TempData["Success"] != null || TempData["Error"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show">
-            @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="notification-container mb-4 fade-in-up">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm">
+                    <i class="fas fa-check-circle me-3 fs-4"></i>
+                    <div>
+                        <strong>Success!</strong> @TempData["Success"]
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm">
+                    <i class="fas fa-exclamation-circle me-3 fs-4"></i>
+                    <div>
+                        <strong>Error:</strong> @TempData["Error"]
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
         </div>
     }
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info">
-            You don't have any completed purchases yet. Books will appear here once your orders are completed.
+        <div class="empty-library-container text-center py-5">
+            <div class="empty-library-icon mb-4">
+                <i class="fas fa-book-open fa-5x text-muted"></i>
+            </div>
+            <h4 class="mb-3 fw-bold">Your library is empty</h4>
+            <p class="text-muted mb-4">You don't have any completed purchases yet. Books will appear here once your orders are completed.</p>
+            <a href="@Url.Action("Index", "Shop")" class="btn btn-primary">
+                <i class="fas fa-shopping-bag me-2"></i> Browse Books
+            </a>
         </div>
     }
     else
     {
-        <div class="row">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 g-4">
             @foreach (var book in Model)
             {
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="row g-0">
-                            <div class="col-md-4">
-                                <img src="@(string.IsNullOrEmpty(book.ImageUrl) ? "/images/no-book-cover.jpg" : book.ImageUrl)" 
-                                     class="img-fluid rounded-start" alt="@book.Title">
+                <div class="col">
+                    <div class="book-library-card card h-100 shadow-sm border-0 rounded-3 book-card-hover">
+                        <div class="card-body p-0">
+                            <div class="d-flex">
+                                <!-- Book Cover -->
+                                <div class="book-cover-container" style="min-width: 120px; max-width: 120px;">
+                                    <img src="@(string.IsNullOrEmpty(book.ImageUrl) ? "/images/no-book-cover.jpg" : book.ImageUrl)" 
+                                         class="img-fluid rounded-start h-100 w-100 object-fit-cover" style="max-height: 100%; object-fit: cover;" alt="@book.Title">
+                                </div>
+                                <!-- Book Details -->
+                                <div class="p-3 flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h5 class="card-title fw-bold mb-1 text-truncate">@book.Title</h5>
+                                        <span class="badge rounded-pill bg-info shadow-sm">
+                                            <i class="fas fa-tag me-1"></i> #@book.OrderNumber
+                                        </span>
+                                    </div>
+                                    <p class="card-text text-muted mb-2">by @book.Author</p>
+                                    <p class="card-text mb-0">
+                                        <small class="text-muted">
+                                            <i class="far fa-calendar-alt me-1"></i> 
+                                            Purchased on @book.PurchaseDate.ToString("MMM d, yyyy")
+                                        </small>
+                                    </p>
+                                </div>
                             </div>
-                            <div class="col-md-8">
-                                <div class="card-body">
-                                    <h5 class="card-title">@book.Title</h5>
-                                    <p class="card-text">By @book.Author</p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <p class="card-text mb-0"><small class="text-muted">Purchased on @book.PurchaseDate.ToShortDateString()</small></p>
-                                        <span class="badge bg-info">Order #@book.OrderNumber</span>
+                            
+                            <hr class="my-0">
+                            
+                            <!-- Review Section -->
+                            <div class="p-3">
+                                @if (book.IsReviewed)
+                                {
+                                    <div class="review-container">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="fw-bold mb-0">
+                                                <i class="fas fa-star text-warning me-1"></i> Your Review
+                                            </h6>
+                                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" 
+                                                    data-bs-toggle="modal" data-bs-target="#editReviewModal-@book.BookId-@book.OrderItemId">
+                                                <i class="fas fa-edit me-1"></i> Edit
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="rating-display mb-2">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="@(i <= book.Review.Rating ? "fas" : "far") fa-star text-warning"></i>
+                                            }
+                                        </div>
+                                        
+                                        @if (!string.IsNullOrEmpty(book.Review.Comment))
+                                        {
+                                            <p class="card-text review-comment mb-0">@book.Review.Comment</p>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-muted fst-italic mb-0">No comment provided</p>
+                                        }
                                     </div>
                                     
-                                    @if (book.IsReviewed)
-                                    {
-                                        <div class="mt-3">
-                                            <h6>Your Review</h6>
-                                            <div class="mb-2">
-                                                @for (int i = 1; i <= 5; i++)
-                                                {
-                                                    <i class="@(i <= book.Review.Rating ? "fas" : "far") fa-star text-warning"></i>
-                                                }
+                                    <!-- Edit Review Modal -->
+                                    <div class="modal fade" id="editReviewModal-@book.BookId-@book.OrderItemId" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow">
+                                                <div class="modal-header bg-primary text-white">
+                                                    <h5 class="modal-title">
+                                                        <i class="fas fa-edit me-2"></i>Edit Your Review
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body p-4">
+                                                    <div class="text-center mb-3">
+                                                        <h6 class="book-title fw-bold">@book.Title</h6>
+                                                        <p class="text-muted mb-0">by @book.Author</p>
+                                                    </div>
+                                                    
+                                                    <form asp-action="SubmitReview" method="post">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="BookId" value="@book.BookId" />
+                                                        <input type="hidden" name="OrderId" value="@book.OrderId" />
+                                                        <input type="hidden" name="OrderItemId" value="@book.OrderItemId" />
+                                                        <input type="hidden" name="ReviewId" value="@book.Review.ReviewId" />
+                                                        
+                                                        <div class="mb-4">
+                                                            <label class="form-label fw-bold">Your Rating</label>
+                                                            <div class="rating-stars text-center">
+                                                                @for (int i = 5; i >= 1; i--)
+                                                                {
+                                                                    <input type="radio" id="edit-star-@book.BookId-@book.OrderItemId-@i" 
+                                                                           name="Rating" value="@i" 
+                                                                           @(book.Review.Rating == i ? "checked" : "") />
+                                                                    <label for="edit-star-@book.BookId-@book.OrderItemId-@i">
+                                                                        <i class="@(book.Review.Rating >= i ? "fas" : "far") fa-star"></i>
+                                                                    </label>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="mb-4">
+                                                            <label class="form-label fw-bold">Your Comments <span class="text-muted">(Optional)</span></label>
+                                                            <textarea class="form-control" name="Comment" rows="4" 
+                                                                      placeholder="Share your thoughts about this book...">@book.Review.Comment</textarea>
+                                                        </div>
+                                                        
+                                                        <div class="d-flex justify-content-end">
+                                                            <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">
+                                                                Cancel
+                                                            </button>
+                                                            <button type="submit" class="btn btn-primary">
+                                                                <i class="fas fa-save me-1"></i> Update Review
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
                                             </div>
-                                            @if (!string.IsNullOrEmpty(book.Review.Comment))
-                                            {
-                                                <p class="card-text">@book.Review.Comment</p>
-                                            }
-                                            else
-                                            {
-                                                <p class="text-muted font-italic">No comment provided</p>
-                                            }
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="add-review-container">
+                                        <h6 class="fw-bold mb-3">
+                                            <i class="far fa-star text-warning me-1"></i> Add Your Review
+                                        </h6>
+                                        
+                                        <form asp-action="SubmitReview" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="BookId" value="@book.BookId" />
+                                            <input type="hidden" name="OrderId" value="@book.OrderId" />
+                                            <input type="hidden" name="OrderItemId" value="@book.OrderItemId" />
                                             
-                                            <button type="button" class="btn btn-sm btn-outline-primary" 
-                                                    data-bs-toggle="modal" data-bs-target="#editReviewModal-@book.BookId-@book.OrderItemId">
-                                                <i class="fas fa-edit"></i> Edit Review
+                                            <div class="mb-3">
+                                                <label class="form-label mb-1 small text-muted">Rating</label>
+                                                <div class="rating-stars">
+                                                    @for (int i = 5; i >= 1; i--)
+                                                    {
+                                                        <input type="radio" id="star-@book.BookId-@book.OrderItemId-@i" name="Rating" value="@i" required />
+                                                        <label for="star-@book.BookId-@book.OrderItemId-@i">
+                                                            <i class="far fa-star"></i>
+                                                        </label>
+                                                    }
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label mb-1 small text-muted">Comment <span class="text-muted fst-italic">(Optional)</span></label>
+                                                <textarea class="form-control form-control-sm" name="Comment" rows="2" 
+                                                          placeholder="Share your thoughts about this book..."></textarea>
+                                            </div>
+                                            
+                                            <button type="submit" class="btn btn-primary btn-sm w-100">
+                                                <i class="fas fa-paper-plane me-1"></i> Submit Review
                                             </button>
-                                            
-                                            <!-- Edit Review Modal -->
-                                            <div class="modal fade" id="editReviewModal-@book.BookId-@book.OrderItemId" tabindex="-1" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Edit Your Review</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <form asp-action="SubmitReview" method="post">
-                                                                @Html.AntiForgeryToken()
-                                                                <input type="hidden" name="BookId" value="@book.BookId" />
-                                                                <input type="hidden" name="OrderId" value="@book.OrderId" />
-                                                                <input type="hidden" name="OrderItemId" value="@book.OrderItemId" />
-                                                                <input type="hidden" name="ReviewId" value="@book.Review.ReviewId" />
-                                                                
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">Rating</label>
-                                                                    <div class="rating-stars">
-                                                                        @for (int i = 5; i >= 1; i--)
-                                                                        {
-                                                                            <input type="radio" id="edit-star-@book.BookId-@book.OrderItemId-@i" 
-                                                                                   name="Rating" value="@i" 
-                                                                                   @(book.Review.Rating == i ? "checked" : "") />
-                                                                            <label for="edit-star-@book.BookId-@book.OrderItemId-@i">
-                                                                                <i class="@(book.Review.Rating >= i ? "fas" : "far") fa-star"></i>
-                                                                            </label>
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                                
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">Comment (Optional)</label>
-                                                                    <textarea class="form-control" name="Comment" rows="3">@book.Review.Comment</textarea>
-                                                                </div>
-                                                                
-                                                                <div class="text-end">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                    <button type="submit" class="btn btn-primary">Update Review</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="mt-3">
-                                            <h6>Add Your Review</h6>
-                                            <form asp-action="SubmitReview" method="post">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="BookId" value="@book.BookId" />
-                                                <input type="hidden" name="OrderId" value="@book.OrderId" />
-                                                <input type="hidden" name="OrderItemId" value="@book.OrderItemId" />
-                                                <!-- Removed ReviewId field - new reviews don't have IDs yet -->
-                                                
-                                                <div class="mb-3">
-                                                    <label class="form-label">Rating</label>
-                                                    <div class="rating-stars">
-                                                        @for (int i = 5; i >= 1; i--)
-                                                        {
-                                                            <input type="radio" id="star-@book.BookId-@book.OrderItemId-@i" name="Rating" value="@i" required />
-                                                            <label for="star-@book.BookId-@book.OrderItemId-@i">
-                                                                <i class="far fa-star"></i>
-                                                            </label>
-                                                        }
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="mb-3">
-                                                    <label class="form-label">Comment (Optional)</label>
-                                                    <textarea class="form-control" name="Comment" rows="3"></textarea>
-                                                </div>
-                                                
-                                                <button type="submit" class="btn btn-primary">Submit Review</button>
-                                            </form>
-                                        </div>
-                                    }
-                                </div>
+                                        </form>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
                 </div>
             }
         </div>
+        
+        <!-- Pagination -->
+        @if (totalPages > 1)
+        {
+            <nav class="mt-4" aria-label="Library pagination">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", "PurchasedBooks", new { page = currentPage - 1, sortBy = sortBy })">
+                            <i class="fas fa-chevron-left me-1"></i> Previous
+                        </a>
+                    </li>
+                    
+                    @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", "PurchasedBooks", new { page = i, sortBy = sortBy })">
+                                @i
+                            </a>
+                        </li>
+                    }
+                    
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", "PurchasedBooks", new { page = currentPage + 1, sortBy = sortBy })">
+                            Next <i class="fas fa-chevron-right ms-1"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
     }
 </div>
 
 @section Scripts {
+    <script src="~/js/purchased-books.js" asp-append-version="true"></script>
     <script>
-        $(document).ready(function() {
-            // Star rating functionality
-            $('.rating-stars input').change(function() {
-                var $this = $(this);
-                var $stars = $this.closest('.rating-stars').find('label i');
-                var selectedRating = $this.val();
-                
-                $stars.removeClass('fas').addClass('far');
-                
-                $this.closest('.rating-stars').find('input').each(function() {
-                    if ($(this).val() <= selectedRating) {
-                        $(this).next('label').find('i').removeClass('far').addClass('fas');
-                    }
-                });
-            });
+        function updateSort(sortValue) {
+            // Get current URL
+            var url = new URL(window.location.href);
             
-            // Highlight stars on hover
-            $('.rating-stars label').hover(
-                function() {
-                    var $this = $(this);
-                    var $stars = $this.closest('.rating-stars').find('label i');
-                    var hoverRating = $this.prev('input').val();
-                    
-                    $stars.removeClass('fas hover-star').addClass('far');
-                    
-                    $this.closest('.rating-stars').find('input').each(function() {
-                        if ($(this).val() <= hoverRating) {
-                            $(this).next('label').find('i').removeClass('far').addClass('fas hover-star');
-                        }
-                    });
-                },
-                function() {
-                    var $this = $(this);
-                    var $container = $this.closest('.rating-stars');
-                    var $stars = $container.find('label i');
-                    var selectedRating = $container.find('input:checked').val();
-                    
-                    $stars.removeClass('fas hover-star').addClass('far');
-                    
-                    if (selectedRating) {
-                        $container.find('input').each(function() {
-                            if ($(this).val() <= selectedRating) {
-                                $(this).next('label').find('i').removeClass('far').addClass('fas');
-                            }
-                        });
-                    }
-                }
-            );
-        });
+            // Update or add sort parameter
+            url.searchParams.set('sortBy', sortValue);
+            
+            // Reset to page 1 when sorting changes
+            url.searchParams.set('page', '1');
+            
+            // Redirect to new URL
+            window.location.href = url.toString();
+        }
     </script>
 }
 
 @section Styles {
-    <style>
-        .rating-stars {
-            display: flex;
-            flex-direction: row-reverse;
-            justify-content: flex-start;
-        }
-        
-        .rating-stars input {
-            display: none;
-        }
-        
-        .rating-stars label {
-            cursor: pointer;
-            margin-right: 5px;
-        }
-        
-        .rating-stars label i {
-            font-size: 1.5rem;
-            color: #ddd;
-        }
-        
-        .rating-stars label i.fas,
-        .rating-stars label i.hover-star {
-            color: #ffc107;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/purchased-books.css" asp-append-version="true" />
 }
