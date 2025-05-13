@@ -103,13 +103,25 @@ namespace Bookbox.Controllers
             }
 
             var result = await _bookmarkService.AddBookmarkAsync(id, userId);
+            
             if (!result.Success)
             {
                 TempData["ErrorMessage"] = result.Message;
             }
             else
             {
-                TempData["SuccessMessage"] = result.Message;
+                // Get book title for the modal
+                var book = await _bookService.GetBookByIdAsync(id);
+                if (book != null)
+                {
+                    // Set TempData values for the modal instead of a success message
+                    TempData["BookAddedToWishlist"] = "True";
+                    TempData["WishlistBookTitle"] = book.Title;
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = result.Message;
+                }
             }
             
             // Redirect back to the original page or to default location
@@ -133,6 +145,10 @@ namespace Bookbox.Controllers
                 return Unauthorized();
             }
 
+            // Get book title before removal for the modal
+            var book = await _bookService.GetBookByIdAsync(id);
+            string bookTitle = book?.Title ?? "Book";
+
             var result = await _bookmarkService.RemoveBookmarkAsync(id, userId);
             if (!result.Success)
             {
@@ -140,7 +156,9 @@ namespace Bookbox.Controllers
             }
             else
             {
-                TempData["SuccessMessage"] = result.Message;
+                // Set TempData values for the modal
+                TempData["BookRemovedFromWishlist"] = "True";
+                TempData["WishlistRemovedBookTitle"] = bookTitle;
             }
             
             // Redirect back to the original page or to default location

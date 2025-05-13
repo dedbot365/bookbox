@@ -1,0 +1,202 @@
+/* Purchased Books Page Styling */
+
+/* General styling */
+.text-primary {
+    color: #4D4490 !important;
+}
+
+.bg-primary {
+    background-color: #4D4490 !important;
+}
+
+.btn-primary {
+    background-color: #4D4490;
+    border-color: #4D4490;
+}
+
+.btn-primary:hover {
+    background-color: #413a7a;
+    border-color: #413a7a;
+}
+
+.btn-outline-primary {
+    color: #4D4490;
+    border-color: #4D4490;
+}
+
+.btn-outline-primary:hover {
+    background-color: #4D4490;
+    border-color: #4D4490;
+    color: #fff;
+}
+
+/* Library card styling */
+.book-library-card {
+    transition: all 0.3s ease;
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+.book-card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.book-cover-container {
+    border-radius: 8px 0 0 8px;
+    overflow: hidden;
+    height: 100%;
+}
+
+/* Rating stars styling */
+.rating-stars {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+}
+
+.rating-stars input {
+    display: none;
+}
+
+.rating-stars label {
+    cursor: pointer;
+    margin-right: 5px;
+    transition: all 0.2s ease;
+}
+
+.rating-stars label:hover {
+    transform: scale(1.2);
+}
+
+.rating-stars label i {
+    font-size: 1.5rem;
+    color: #ddd;
+    transition: color 0.2s ease;
+}
+
+.rating-stars label i.fas,
+.rating-stars label i.hover-star {
+    color: #ffc107;
+}
+
+/* Rating display styling */
+.rating-display i {
+    color: #ddd;
+    margin-right: 2px;
+}
+
+.rating-display i.fas {
+    color: #ffc107;
+}
+
+/* Review comment styling */
+.review-comment {
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    font-style: italic;
+    position: relative;
+}
+
+.review-comment:before {
+    content: '"';
+    font-size: 1.5rem;
+    color: #4D4490;
+    opacity: 0.2;
+    position: absolute;
+    top: 0.25rem;
+    left: 0.5rem;
+}
+
+/* Empty library styling */
+.empty-library-container {
+    background-color: #f8f9fa;
+    border-radius: 1rem;
+    padding: 3rem;
+}
+
+.empty-library-icon {
+    color: #ddd;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.7; }
+}
+
+/* Notification styling */
+.notification-container {
+    animation: fadeInDown 0.5s ease forwards;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modal styling enhancements */
+.modal-content {
+    border-radius: 0.75rem !important;
+    overflow: hidden;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+}
+
+/* Modal fixes for glitching issues */
+
+/* Ensure modals are rendered at root level */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    outline: 0;
+    z-index: 1050 !important;
+}
+
+/* Fix modal backdrop */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1040 !important;
+}
+
+/* Ensure modal content is properly positioned */
+.modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 0.5rem;
+    pointer-events: none;
+    transform: translate(0, 0) !important;
+}
+
+/* Center the modal vertically for better appearance */
+.modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1rem);
+}
+
+/* Fix animation issues */
+.modal.fade .modal-dialog {
+    transition: transform 0.2s ease-out !important;
+    transform: translate(0, -50px) !important;
+}
+
+.modal.show .modal-dialog {
+    transform: translate(0, 0) !important;
+}
+
+/* Fix mobile rendering */
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+}

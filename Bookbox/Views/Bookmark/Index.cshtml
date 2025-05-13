@@ -4,6 +4,7 @@
 
 @{
     ViewData["Title"] = "My Wishlist";
+    Layout = "_DashboardLayout";
     int currentPage = ViewData["CurrentPage"] != null ? Convert.ToInt32(ViewData["CurrentPage"]) : 1;
     int totalPages = ViewData["TotalPages"] != null ? Convert.ToInt32(ViewData["TotalPages"]) : 1;
     int totalItems = ViewData["TotalItems"] != null ? Convert.ToInt32(ViewData["TotalItems"]) : 0;
@@ -86,78 +87,24 @@
                     @foreach (var book in Model)
                     {
                         <div class="col">
-                            <div class="card h-100 book-card">
-                                <div class="card-img-container position-relative">
-                                    <a href="@Url.Action("Details", "Book", new { id = book.BookId })">
-                                        @if (!string.IsNullOrEmpty(book.ImageUrl))
-                                        {
-                                            <img src="@book.ImageUrl" class="card-img-top" alt="@book.Title">
-                                        }
-                                        else
-                                        {
-                                            <div class="placeholder-image">
-                                                <i class="fas fa-book fa-4x text-secondary"></i>
-                                            </div>
-                                        }
-                                    </a>
-                                    @{
-                                        var bookDiscount = await DiscountService.GetActiveDiscountForBookAsync(book.BookId);
-                                        if (bookDiscount != null)
-                                        {
-                                            <div class="position-absolute top-0 end-0">
-                                                <span class="badge bg-danger">SALE</span>
-                                            </div>
-                                        }
-                                    }
-                                </div>
-                                <div class="card-body">
-                                    <a href="@Url.Action("Details", "Book", new { id = book.BookId })" class="text-decoration-none text-dark">
-                                        <h5 class="card-title book-title">@book.Title</h5>
-                                        <p class="card-text book-author">by @book.Author</p>
-                                        <p class="card-text mb-0">
-                                            <span class="badge bg-secondary">@book.Genre</span>
-                                            <span class="badge bg-info">@book.Format</span>
-                                        </p>
-                                        <div class="d-flex justify-content-between align-items-center mt-2">
-                                            @{
-                                                var discountedPrice = bookDiscount != null ? 
-                                                    DiscountService.CalculateDiscountedPrice(book.Price, bookDiscount.DiscountPercentage) : book.Price;
-                                            }
-                                            @if (bookDiscount != null)
-                                            {
-                                                <div>
-                                                    <span class="text-muted"><s>NPR @book.Price.ToString("0.00")</s></span>
-                                                    <span class="book-price text-danger">NPR @discountedPrice.ToString("0.00")</span>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <span class="book-price">NPR @book.Price.ToString("0.00")</span>
-                                            }
-                                            <span class="badge @(book.Stock > 0 ? "bg-success" : "bg-danger")">
-                                                @(book.Stock > 0 ? "In Stock" : "Out of Stock")
-                                            </span>
-                                        </div>
-                                    </a>
-                                    @if (bookmarkDates != null && bookmarkDates.ContainsKey(book.BookId))
-                                    {
-                                        <div class="mt-1 small text-muted">
-                                            Added on: @TimeZoneInfo.ConvertTimeFromUtc(bookmarkDates[book.BookId], 
-                                                TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu")).ToString("MMM dd, yyyy")
-                                        </div>
-                                    }
-                                </div>
-                                <div class="card-footer bg-white border-top-0">
-                                    <div class="d-grid gap-2">
-                                        <form asp-action="Remove" asp-controller="Bookmark" asp-route-id="@book.BookId" 
-                                              asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString" method="post">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-danger w-100">
-                                                <i class="fas fa-heart-broken me-1"></i> Remove from Wishlist
-                                            </button>
-                                        </form>
+                            @{
+                                // Set up ViewData for the book card partial
+                                ViewData["HorizontalLayout"] = false;
+                                ViewData["ShowAdminControls"] = false;
+                            }
+                            
+                            <div class="position-relative">
+                                <partial name="_BookCard" model="book" view-data="ViewData" />
+                                
+                                <!-- Show the "Added on" date below the card -->
+                                @if (bookmarkDates != null && bookmarkDates.ContainsKey(book.BookId))
+                                {
+                                    <div class="mt-2 mb-0 small text-muted text-center">
+                                        <i class="fas fa-calendar-alt me-1"></i> Added on: 
+                                        @TimeZoneInfo.ConvertTimeFromUtc(bookmarkDates[book.BookId], 
+                                            TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu")).ToString("MMM dd, yyyy")
                                     </div>
-                                </div>
+                                }
                             </div>
                         </div>
                     }

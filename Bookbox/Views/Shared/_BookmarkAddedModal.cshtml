@@ -1,0 +1,35 @@
+<div class="modal fade" id="bookmarkAddedModal" tabindex="-1" aria-labelledby="bookmarkAddedModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow border-0">
+            <div class="modal-header" style="background-color: #4D4472; color: white;">
+                <h5 class="modal-title" id="bookmarkAddedModalLabel">
+                    <i class="fas fa-heart me-2"></i>Added to Wishlist
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <div class="success-icon-container mb-3" style="background-color: rgba(77, 68, 114, 0.1);">
+                        <i class="fas fa-heart fa-3x" style="color: #4D4472;"></i>
+                    </div>
+                    <h4 id="bookmarkModalBookTitle"></h4>
+                    <p class="text-muted" id="bookmarkModalMessage">has been added to your wishlist.</p>
+                </div>
+                <div class="d-flex align-items-center justify-content-center mb-3">
+                    <div class="progress w-75">
+                        <div id="bookmarkModalTimer" class="progress-bar" role="progressbar" style="width: 100%; background-color: #4D4472;"></div>
+                    </div>
+                    <span id="bookmarkModalTimerText" class="ms-2">10s</span>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    Continue Shopping
+                </button>
+                <a href="@Url.Action("Index", "Bookmark")" class="btn text-white" style="background-color: #4D4472;">
+                    <i class="fas fa-heart me-1"></i> Go to Wishlist
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

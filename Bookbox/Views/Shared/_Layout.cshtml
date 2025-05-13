@@ -16,6 +16,8 @@
     <link rel="stylesheet" href="~/Bookbox.styles.css" asp-append-version="true" />
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/cart-modal.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/modal-popups.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
     <style>
         /* Custom styles for navbar search */
@@ -302,6 +304,53 @@
             });
             </text>
         }
+    </script>
+
+    <!-- Cart Added Modal -->
+    <partial name="_CartAddedModal" />
+    
+    <!-- Bookmark Added Modal -->
+    <partial name="_BookmarkAddedModal" />
+
+    <!-- Bookmark Removed Modal -->
+    <partial name="_BookmarkRemovedModal" />
+
+    <!-- Include the modal handlers script -->
+    <script src="~/js/modal-handlers.js" asp-append-version="true"></script>
+
+    <!-- Call modal initialization with TempData values -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cart Modal
+            initModalWithTimer(
+                '@TempData["BookAddedToCart"]',
+                '@TempData["BookAddedTitle"]',
+                'cartModalBookTitle',
+                'cartAddedModal',
+                'cartModalTimer',
+                'cartModalTimerText'
+            );
+            
+            // Bookmark Added Modal
+            initModalWithTimer(
+                '@TempData["BookAddedToWishlist"]',
+                '@TempData["WishlistBookTitle"]',
+                'bookmarkModalBookTitle',
+                'bookmarkAddedModal',
+                'bookmarkModalTimer',
+                'bookmarkModalTimerText'
+            );
+            
+            // Bookmark Removed Modal
+            initModalWithTimer(
+                '@TempData["BookRemovedFromWishlist"]',
+                '@TempData["WishlistRemovedBookTitle"]',
+                'bookmarkRemovedBookTitle',
+                'bookmarkRemovedModal',
+                'bookmarkRemovedTimer',
+                'bookmarkRemovedTimerText'
+            );
+        });
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
