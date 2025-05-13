@@ -1,5 +1,6 @@
 using Bookbox.Constants;
 using Bookbox.Models;
+using Bookbox.Data;
 using Bookbox.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -13,6 +14,15 @@ namespace Bookbox.Services
     {
         // Maximum edit distance for fuzzy matching (adjust based on desired strictness)
         private const int FuzzyMatchThreshold = 2;
+
+        private readonly ApplicationDbContext _context;
+        private readonly IReviewService _reviewService;
+
+        public BookFilterService(ApplicationDbContext context, IReviewService reviewService)
+        {
+            _context = context;
+            _reviewService = reviewService;
+        }
 
         public IQueryable<Book> ApplyFilters(
             IQueryable<Book> books, 
@@ -202,6 +212,32 @@ namespace Bookbox.Services
                 case "coming-soon":
                     books = books.Where(b => b.IsComingSoon);
                     viewData["CategoryName"] = "Coming Soon";
+                    break;
+                case "best-rated":
+                    var allBooks = books.ToList();
+                    var booksWithRatings = new List<(Book Book, double Rating, int Count)>();
+                    
+                    // Calculate ratings for all books
+                    foreach (var book in allBooks)
+                    {
+                        double avgRating = _reviewService.GetAverageRatingForBookAsync(book.BookId).Result;
+                        int reviewCount = _reviewService.GetReviewCountForBookAsync(book.BookId).Result;
+                        
+                        if (reviewCount > 0) // Only include books that have been reviewed
+                        {
+                            booksWithRatings.Add((book, avgRating, reviewCount));
+                        }
+                    }
+                    
+                    // Sort and select top 10
+                    var topRatedBooks = booksWithRatings
+                        .OrderByDescending(b => b.Rating)
+                        .ThenByDescending(b => b.Count)
+                        .Take(10)
+                        .Select(b => b.Book);
+                    
+                    books = topRatedBooks.AsQueryable();
+                    viewData["CategoryName"] = "Best Rated Books";
                     break;
                 default:
                     viewData["CategoryName"] = "All Books";

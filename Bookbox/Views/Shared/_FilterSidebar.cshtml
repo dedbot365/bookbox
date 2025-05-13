@@ -119,12 +119,14 @@
     <div class="card-header bg-primary text-white">
         <h5 class="mb-0">Categories</h5>
     </div>
-    <div class="list-group list-group-flush">
-        <a href="@Url.Action("Index", controller)" class="list-group-item list-group-item-action @(string.IsNullOrEmpty(category) ? "active" : "")">
+    <div class="list-group list-group-flush">        <a href="@Url.Action("Index", controller)" class="list-group-item list-group-item-action @(string.IsNullOrEmpty(category) ? "active" : "")">
             All Books
         </a>
         <a href="@Url.Action("Index", controller, new { category = "bestsellers" })" class="list-group-item list-group-item-action @(category == "bestsellers" ? "active" : "")">
             Bestsellers
+        </a>
+        <a href="@Url.Action("Index", controller, new { category = "best-rated" })" class="list-group-item list-group-item-action @(category == "best-rated" ? "active" : "")">
+            Best Rated Books
         </a>
         <a href="@Url.Action("Index", controller, new { category = "award-winners" })" class="list-group-item list-group-item-action @(category == "award-winners" ? "active" : "")">
             Award Winners
