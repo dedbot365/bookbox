@@ -1,0 +1,29 @@
+/* Modal Popup Styling */
+.success-icon-container {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-progress {
+    transition: width 1s linear;
+}
+
+.modal-content {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+/* Cart specific */
+.cart-success-container {
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+/* Wishlist specific */
+.wishlist-success-container {
+    background-color: rgba(77, 68, 114, 0.1);
+}
