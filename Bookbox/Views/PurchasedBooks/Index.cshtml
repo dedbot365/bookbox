@@ -134,64 +134,6 @@
                                             <p class="text-muted fst-italic mb-0">No comment provided</p>
                                         }
                                     </div>
-                                    
-                                    <!-- Edit Review Modal -->
-                                    <div class="modal fade" id="editReviewModal-@book.BookId-@book.OrderItemId" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content border-0 shadow">
-                                                <div class="modal-header bg-primary text-white">
-                                                    <h5 class="modal-title">
-                                                        <i class="fas fa-edit me-2"></i>Edit Your Review
-                                                    </h5>
-                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body p-4">
-                                                    <div class="text-center mb-3">
-                                                        <h6 class="book-title fw-bold">@book.Title</h6>
-                                                        <p class="text-muted mb-0">by @book.Author</p>
-                                                    </div>
-                                                    
-                                                    <form asp-action="SubmitReview" method="post">
-                                                        @Html.AntiForgeryToken()
-                                                        <input type="hidden" name="BookId" value="@book.BookId" />
-                                                        <input type="hidden" name="OrderId" value="@book.OrderId" />
-                                                        <input type="hidden" name="OrderItemId" value="@book.OrderItemId" />
-                                                        <input type="hidden" name="ReviewId" value="@book.Review.ReviewId" />
-                                                        
-                                                        <div class="mb-4">
-                                                            <label class="form-label fw-bold">Your Rating</label>
-                                                            <div class="rating-stars text-center">
-                                                                @for (int i = 5; i >= 1; i--)
-                                                                {
-                                                                    <input type="radio" id="edit-star-@book.BookId-@book.OrderItemId-@i" 
-                                                                           name="Rating" value="@i" 
-                                                                           @(book.Review.Rating == i ? "checked" : "") />
-                                                                    <label for="edit-star-@book.BookId-@book.OrderItemId-@i">
-                                                                        <i class="@(book.Review.Rating >= i ? "fas" : "far") fa-star"></i>
-                                                                    </label>
-                                                                }
-                                                            </div>
-                                                        </div>
-                                                        
-                                                        <div class="mb-4">
-                                                            <label class="form-label fw-bold">Your Comments <span class="text-muted">(Optional)</span></label>
-                                                            <textarea class="form-control" name="Comment" rows="4" 
-                                                                      placeholder="Share your thoughts about this book...">@book.Review.Comment</textarea>
-                                                        </div>
-                                                        
-                                                        <div class="d-flex justify-content-end">
-                                                            <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">
-                                                                Cancel
-                                                            </button>
-                                                            <button type="submit" class="btn btn-primary">
-                                                                <i class="fas fa-save me-1"></i> Update Review
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 }
                                 else
                                 {
@@ -269,25 +211,161 @@
     }
 </div>
 
+<!-- MODALS SECTION: All modals moved outside container to document body level -->
+@foreach (var book in Model)
+{
+    if (book.IsReviewed)
+    {
+        <!-- Edit Review Modal -->
+        <div class="modal fade review-modal" id="editReviewModal-@book.BookId-@book.OrderItemId" tabindex="-1" 
+             aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">
+                            <i class="fas fa-edit me-2"></i>Edit Your Review
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <!-- Modal content remains the same -->
+                        <div class="text-center mb-3">
+                            <h6 class="book-title fw-bold">@book.Title</h6>
+                            <p class="text-muted mb-0">by @book.Author</p>
+                        </div>
+                        
+                        <form asp-action="SubmitReview" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="BookId" value="@book.BookId" />
+                            <input type="hidden" name="OrderId" value="@book.OrderId" />
+                            <input type="hidden" name="OrderItemId" value="@book.OrderItemId" />
+                            <input type="hidden" name="ReviewId" value="@book.Review.ReviewId" />
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Your Rating</label>
+                                <div class="rating-stars text-center">
+                                    @for (int i = 5; i >= 1; i--)
+                                    {
+                                        <input type="radio" id="edit-star-@book.BookId-@book.OrderItemId-@i" 
+                                               name="Rating" value="@i" 
+                                               @(book.Review.Rating == i ? "checked" : "") />
+                                        <label for="edit-star-@book.BookId-@book.OrderItemId-@i">
+                                            <i class="@(book.Review.Rating >= i ? "fas" : "far") fa-star"></i>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Your Comments <span class="text-muted">(Optional)</span></label>
+                                <textarea class="form-control" name="Comment" rows="4" 
+                                          placeholder="Share your thoughts about this book...">@book.Review.Comment</textarea>
+                            </div>
+                            
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i> Update Review
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
 @section Scripts {
     <script src="~/js/purchased-books.js" asp-append-version="true"></script>
     <script>
-        function updateSort(sortValue) {
-            // Get current URL
-            var url = new URL(window.location.href);
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fix modal event handling
+            const modalTriggers = document.querySelectorAll('[data-bs-toggle="modal"]');
+            modalTriggers.forEach(trigger => {
+                trigger.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetModal = this.getAttribute('data-bs-target');
+                    
+                    // Ensure any open modals are closed first
+                    document.querySelectorAll('.modal.show').forEach(modal => {
+                        const bsModal = bootstrap.Modal.getInstance(modal);
+                        if (bsModal) {
+                            bsModal.hide();
+                        }
+                    });
+                    
+                    // Open the target modal with a slight delay to prevent glitching
+                    setTimeout(() => {
+                        const modal = new bootstrap.Modal(document.querySelector(targetModal));
+                        modal.show();
+                    }, 100);
+                });
+            });
             
-            // Update or add sort parameter
-            url.searchParams.set('sortBy', sortValue);
+            // Handle sort changes
+            function updateSort(sortValue) {
+                // Get current URL
+                var url = new URL(window.location.href);
+                
+                // Update or add sort parameter
+                url.searchParams.set('sortBy', sortValue);
+                
+                // Reset to page 1 when sorting changes
+                url.searchParams.set('page', '1');
+                
+                // Redirect to new URL
+                window.location.href = url.toString();
+            }
             
-            // Reset to page 1 when sorting changes
-            url.searchParams.set('page', '1');
-            
-            // Redirect to new URL
-            window.location.href = url.toString();
-        }
+            // Attach sort handler
+            document.getElementById('sortBooks').addEventListener('change', function() {
+                updateSort(this.value);
+            });
+        });
     </script>
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/purchased-books.css" asp-append-version="true" />
+    <style>
+        /* Additional inline styles to fix modal issues */
+        body.modal-open .modal {
+            display: flex !important;
+            align-items: center;
+            z-index: 1050 !important;
+        }
+        
+        .modal-backdrop {
+            z-index: 1040 !important;
+        }
+
+        .modal-open {
+            overflow: hidden;
+            padding-right: 0 !important;
+        }
+
+        /* Create portal effect for modals */
+        .review-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+        }
+
+        .review-modal.show {
+            pointer-events: auto;
+        }
+        
+        /* Prevent content shifting */
+        .review-modal .modal-dialog {
+            margin: 1.75rem auto;
+            max-width: 500px;
+            transition: transform 0.15s ease-out;
+        }
+    </style>
 }

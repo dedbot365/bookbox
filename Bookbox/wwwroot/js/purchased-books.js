@@ -3,7 +3,67 @@
  * Handles rating functionality and other interactions
  */
 
-$(document).ready(function() {
+/**
+ * Modal management for purchased books 
+ * Fixes glitching issues by ensuring proper modal rendering
+ */
+
+// Wait for document to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure modals are appended to body
+    document.querySelectorAll('.review-modal').forEach(modal => {
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+    });
+    
+    // Handle modal triggers
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(trigger => {
+        trigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetSelector = this.getAttribute('data-bs-target');
+            const targetModal = document.querySelector(targetSelector);
+            
+            // Close any existing modals first
+            const openModals = document.querySelectorAll('.modal.show');
+            openModals.forEach(openModal => {
+                const instance = bootstrap.Modal.getInstance(openModal);
+                if (instance) instance.hide();
+            });
+            
+            // Create fresh modal instance
+            const modalInstance = new bootstrap.Modal(targetModal, {
+                backdrop: 'static',
+                keyboard: false,
+                focus: true
+            });
+            
+            // Show with slight delay to prevent rendering conflicts
+            setTimeout(() => {
+                modalInstance.show();
+            }, 50);
+        });
+    });
+    
+    // Cleanup when modal is hidden
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('hidden.bs.modal', function() {
+            // Remove inline styles added by Bootstrap
+            document.body.style.paddingRight = '';
+            document.body.style.overflow = '';
+            
+            // Remove modal-specific classes
+            document.body.classList.remove('modal-open');
+            
+            // Remove backdrop if it exists
+            const backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(backdrop => {
+                backdrop.remove();
+            });
+        });
+    });
+    
     // Star rating functionality
     $('.rating-stars input').change(function() {
         var $this = $(this);
