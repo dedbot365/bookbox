@@ -1,0 +1,98 @@
+/* Staff Dashboard Styles */
+
+/* Custom styling for dashboard cards */
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+.border-left-purple {
+    border-left: 0.25rem solid #6f42c1 !important;
+}
+
+/* Chart containers */
+.chart-area {
+    position: relative;
+    height: 300px;
+    margin: auto;
+}
+
+.chart-pie, .chart-bar {
+    position: relative;
+    height: 250px;
+    margin: auto;
+}
+
+/* Ensure the genre chart's stacking order is correct */
+.chart-pie {
+    position: relative;
+    z-index: 10;
+}
+
+/* Dropdown styling */
+.dropdown-menu-right {
+    right: 0;
+    left: auto;
+}
+
+/* Fix for dropdown menus appearing behind charts */
+.dropdown-menu-right.shadow.animated--fade-in {
+    z-index: 9999 !important;
+    position: absolute;
+}
+
+.dropdown.no-arrow {
+    position: relative;
+}
+
+/* Card hover effects */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Make chart headers maintain proper stacking context */
+.card-header {
+    position: relative;
+    z-index: 20;
+}
+
+/* Revenue section styling */
+.revenue-stat {
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.revenue-stat:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    transform: translateY(-3px);
+}
+
+.revenue-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* Text color for purple elements */
+.text-purple {
+    color: #6f42c1 !important;
+}

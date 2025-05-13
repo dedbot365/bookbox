@@ -19,92 +19,73 @@ namespace Bookbox.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IOrderEmailService _orderEmailService;
         private readonly IOrderService _orderService;
+        private readonly IChartService _chartService; // Add IChartService
 
-        public StaffController(ApplicationDbContext context, IOrderEmailService orderEmailService, IOrderService orderService)
+        public StaffController(
+            ApplicationDbContext context, 
+            IOrderEmailService orderEmailService, 
+            IOrderService orderService,
+            IChartService chartService) // Add IChartService parameter
         {
             _context = context;
             _orderEmailService = orderEmailService;
             _orderService = orderService;
+            _chartService = chartService; // Store chart service
         }
         
         public async Task<IActionResult> Dashboard()
         {
-            // Get books data
-            var books = await _context.Books.ToListAsync();
-            ViewBag.TotalBooks = books.Count;
+            // Get chart data from service (similar to AdminController)
+            var bookStats = await _chartService.GetBookStatisticsAsync();
+            var orderStats = await _chartService.GetOrderStatisticsAsync();
+            var timeBasedStats = await _chartService.GetTimeBasedOrderStatisticsAsync();
             
-            // Get books by genre
-            var booksByGenre = books
-                .GroupBy(b => b.Genre)
-                .Select(g => new { genre = g.Key.ToString(), count = g.Count() })
-                .OrderByDescending(x => x.count)
-                .ToList();
-            ViewBag.BooksByGenre = booksByGenre;
+            // Get revenue data (this was missing)
+            var monthlyRevenue = await _chartService.GetMonthlyRevenueAsync();
+            var totalRevenue = await _chartService.GetTotalRevenueAsync();
+            var weeklyRevenue = await _chartService.GetWeeklyRevenueAsync();
+            var dailyRevenue = await _chartService.GetDailyRevenueAsync();
             
-            // Get books by format
-            var booksByFormat = books
-                .GroupBy(b => b.Format)
-                .Select(g => new { format = g.Key.ToString(), count = g.Count() })
-                .OrderByDescending(x => x.count)
-                .ToList();
-            ViewBag.BooksByFormat = booksByFormat;
+            // Get time-based revenue data (this was missing)
+            var timeBasedRevenueStats = await _chartService.GetTimeBasedRevenueStatisticsAsync();
             
-            // Get top selling books
-            var topSellingBooks = books
-                .OrderByDescending(b => b.SalesCount)
-                .Take(5)
-                .Select(b => new { title = b.Title, salesCount = b.SalesCount })
-                .ToList();
-            ViewBag.TopSellingBooks = topSellingBooks;
-            
-            // Get order statistics
-            var totalOrders = await _context.Orders.CountAsync();
-            ViewBag.TotalOrders = totalOrders;
-            
+            // Get order status counts
             var pendingOrders = await _context.Orders
                 .CountAsync(o => o.Status == OrderStatus.Pending);
-            ViewBag.PendingOrders = pendingOrders;
-            
             var completedOrders = await _context.Orders
                 .CountAsync(o => o.Status == OrderStatus.Completed);
-            ViewBag.CompletedOrders = completedOrders;
-            
             var cancelledOrders = await _context.Orders
                 .CountAsync(o => o.Status == OrderStatus.Cancelled);
+            
+            // Pass data to view (including the previously missing revenue data)
+            ViewBag.TotalBooks = bookStats["TotalBooks"];
+            ViewBag.TotalOrders = orderStats["TotalOrders"];
+            ViewBag.PendingOrders = pendingOrders;
+            ViewBag.CompletedOrders = completedOrders;
             ViewBag.CancelledOrders = cancelledOrders;
+            ViewBag.BooksByGenre = bookStats["BooksByGenre"];
+            ViewBag.BooksByFormat = bookStats["BooksByFormat"];
+            ViewBag.TopSellingBooks = bookStats["TopSellingBooks"];
             
-            // Calculate monthly revenue
-            var currentMonth = DateTime.UtcNow.Month;
-            var currentYear = DateTime.UtcNow.Year;
-            var monthlyRevenue = await _context.Orders
-                .Where(o => o.Status == OrderStatus.Completed && 
-                       o.OrderDate.Month == currentMonth && 
-                       o.OrderDate.Year == currentYear)
-                .SumAsync(o => o.TotalAmount);
+            // Add time-based order data (some of these were missing)
+            ViewBag.MonthlyOrderCounts = timeBasedStats["MonthlyOrderCounts"];
+            ViewBag.DailyOrderCounts = timeBasedStats["DailyOrderCounts"];
+            ViewBag.WeeklyOrderCounts = timeBasedStats["WeeklyOrderCounts"];
+            ViewBag.YearlyOrderCounts = timeBasedStats["YearlyOrderCounts"];
+            
+            // Add revenue data for cards (these were missing or incorrect)
             ViewBag.MonthlyRevenue = monthlyRevenue;
-            
-            // Calculate total revenue (all completed orders)
-            var totalRevenue = await _context.Orders
-                .Where(o => o.Status == OrderStatus.Completed)
-                .SumAsync(o => o.TotalAmount);
             ViewBag.TotalRevenue = totalRevenue;
+            ViewBag.WeeklyRevenue = weeklyRevenue;
+            ViewBag.DailyRevenue = dailyRevenue;
             
-            // Get monthly order counts for the line chart
-            var completedOrdersByMonth = await _context.Orders
-                .Where(o => o.Status == OrderStatus.Completed && o.OrderDate.Year == currentYear)
-                .GroupBy(o => o.OrderDate.Month)
-                .Select(g => new { Month = g.Key, Count = g.Count() })
-                .OrderBy(x => x.Month)
-                .ToListAsync();
+            // Add time-based revenue data for charts (these were missing)
+            ViewBag.DailyRevenueData = timeBasedRevenueStats["DailyRevenueData"];
+            ViewBag.WeeklyRevenueData = timeBasedRevenueStats["WeeklyRevenueData"];
+            ViewBag.MonthlyRevenueData = timeBasedRevenueStats["MonthlyRevenueData"];
+            ViewBag.YearlyRevenueData = timeBasedRevenueStats["YearlyRevenueData"];
             
-            var monthlyOrderCounts = new int[12];
-            foreach (var item in completedOrdersByMonth)
-            {
-                monthlyOrderCounts[item.Month - 1] = item.Count;
-            }
-            ViewBag.MonthlyOrderCounts = monthlyOrderCounts;
-            
-            // Get recent orders
+            // Get recent orders for the table
             var recentOrders = await _context.Orders
                 .Include(o => o.User)
                 .OrderByDescending(o => o.OrderDate)
