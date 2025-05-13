@@ -1,0 +1,407 @@
+/* Announcement styles - Modern UI */
+
+/* === Filter Sidebar Styles === */
+.announcement-filters .card {
+    border: none;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.announcement-filters .card-header {
+    background: linear-gradient(45deg, #4D4490, #6a55c7);
+    border-bottom: none;
+    padding: 1.2rem 1.5rem;
+}
+
+.announcement-filters .card-header h5 {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.announcement-filters .card-body {
+    padding: 1.5rem;
+}
+
+.announcement-filters .form-label.fw-bold {
+    color: #4D4490;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+}
+
+.announcement-filters .form-label.small {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.announcement-filters .form-control,
+.announcement-filters .form-select {
+    border-radius: 0.5rem;
+    border-color: #e0e0e0;
+    padding: 0.6rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.announcement-filters .form-control:focus,
+.announcement-filters .form-select:focus {
+    box-shadow: 0 0 0 0.25rem rgba(77, 68, 144, 0.15);
+    border-color: #6a55c7;
+}
+
+.announcement-filters hr {
+    margin: 1.5rem 0;
+    opacity: 0.1;
+}
+
+.announcement-filters .btn {
+    padding: 0.6rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.announcement-filters .btn-primary {
+    background: linear-gradient(45deg, #4D4490, #6a55c7);
+    border: none;
+}
+
+.announcement-filters .btn-primary:hover {
+    background: linear-gradient(45deg, #3d3672, #5946ad);
+    transform: translateY(-2px);
+}
+
+.announcement-filters .btn-outline-secondary {
+    border-color: #d1d1d1;
+    color: #6c757d;
+}
+
+.announcement-filters .btn-outline-secondary:hover {
+    background-color: #f8f9fa;
+    color: #4D4490;
+    border-color: #4D4490;
+}
+
+.announcement-filters .btn i {
+    margin-right: 0.5rem;
+}
+
+/* === Announcement Display Styles === */
+.announcement-carousel {
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #4D4490, #6a55c7);
+    margin-bottom: 2rem;
+}
+
+.announcement-content {
+    padding: 2rem;
+    color: white;
+    min-height: 150px;
+}
+
+.announcement-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.announcement-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1.25rem;
+    flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.carousel-item:hover .announcement-icon {
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.announcement-title-container {
+    overflow: hidden;
+}
+
+.announcement-title {
+    font-weight: 700;
+    margin: 0;
+    font-size: 1.4rem;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.5px;
+}
+
+.announcement-date {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    display: block;
+    margin-top: 0.25rem;
+}
+
+.announcement-body {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-height: 150px;
+    overflow-y: auto;
+    padding-right: 10px;
+    /* Custom scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.announcement-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.announcement-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.announcement-body::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+/* Improved carousel controls */
+.announcement-carousel .carousel-control-prev,
+.announcement-carousel .carousel-control-next {
+    opacity: 0;
+    width: 10%;
+    transition: opacity 0.3s ease;
+}
+
+.announcement-carousel:hover .carousel-control-prev,
+.announcement-carousel:hover .carousel-control-next {
+    opacity: 0.7;
+}
+
+.announcement-carousel .carousel-control-prev:hover,
+.announcement-carousel .carousel-control-next:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.announcement-carousel .carousel-indicators {
+    margin-bottom: 0.75rem;
+}
+
+.announcement-carousel .carousel-indicators button {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    margin: 0 4px;
+    transition: all 0.2s ease;
+    opacity: 0.5;
+}
+
+.announcement-carousel .carousel-indicators button.active {
+    opacity: 1;
+    background-color: white;
+    transform: scale(1.2);
+}
+
+/* === Announcement Management Table Styles === */
+.announcement-table {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 0.15rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.announcement-table thead th {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+    font-weight: 600;
+    color: #7e6bc5; /* Changed from #4e73df to light purple */
+    padding: 1rem;
+    font-size: 0.9rem;
+}
+
+.announcement-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.announcement-table tbody tr:hover {
+    background-color: rgba(77, 68, 144, 0.05);
+}
+
+.announcement-table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+/* Actions buttons */
+.announcement-actions .btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    margin-right: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.announcement-actions .btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Light purple button for the View action - higher specificity to avoid overrides */
+.announcement-actions .btn-light-purple {
+    background-color: #7e6bc5 !important;
+    border-color: #7e6bc5 !important;
+    color: white !important;
+}
+
+.announcement-actions .btn-light-purple:hover {
+    background-color: #6a59b0 !important;
+    border-color: #6a59b0 !important;
+    color: white !important;
+}
+
+.announcement-actions .btn-light-purple:focus {
+    box-shadow: 0 0 0 0.25rem rgba(126, 107, 197, 0.25);
+}
+
+/* Status badges */
+.badge {
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Announcement title styling in table */
+.announcement-title-cell {
+    font-weight: 500;
+    color: #333;
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Pagination styling */
+.announcement-pagination .page-item .page-link {
+    border-radius: 0.5rem;
+    margin: 0 3px;
+    color: #7e6bc5; /* Updated to match the new color */
+    transition: all 0.2s ease;
+}
+
+.announcement-pagination .page-item.active .page-link {
+    background-color: #4D4490;
+    border-color: #4D4490;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.announcement-pagination .page-item .page-link:hover {
+    background-color: #e9ecef;
+    transform: translateY(-1px);
+}
+
+/* Empty state styling */
+.announcement-empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.announcement-empty-state i {
+    color: #d1d1d1;
+    margin-bottom: 1.5rem;
+}
+
+.announcement-empty-state h4 {
+    font-weight: 600;
+    color: #4D4490;
+    margin-bottom: 1rem;
+}
+
+.announcement-empty-state p {
+    color: #6c757d;
+    max-width: 400px;
+    margin: 0 auto 1.5rem;
+}
+
+/* Update text-primary color reference if used */
+.text-primary {
+    color: #7e6bc5 !important; 
+}
+
+/* If there are bg-primary backgrounds used, update them too */
+.bg-primary {
+    background-color: #7e6bc5 !important;
+}
+
+/* For any border-primary elements */
+.border-primary {
+    border-color: #7e6bc5 !important;
+}
+
+/* For any btn-primary elements that might reference the blue */
+.btn-primary {
+    background-color: #4D4490;
+    border-color: #4D4490;
+}
+
+.btn-primary:hover {
+    background-color: #413a7a;
+    border-color: #413a7a;
+}
+
+/* For any btn-outline-primary elements */
+.btn-outline-primary {
+    color: #4D4490;
+    border-color: #4D4490;
+}
+
+.btn-outline-primary:hover {
+    background-color: #4D4490;
+    border-color: #4D4490;
+}
+
+.announcement-actions .btn-info {
+    background-color: #7e6bc5;
+    border-color: #7e6bc5;
+}
+
+.announcement-actions .btn-info:hover {
+    background-color: #6a59b0;
+    border-color: #6a59b0;
+}
+
+/* Override Bootstrap btn-info to be purple */
+.btn-info {
+    background-color: #7e6bc5 !important;
+    border-color: #7e6bc5 !important;
+}
+
+.btn-info:hover {
+    background-color: #6a59b0 !important;
+    border-color: #6a59b0 !important;
+}
+
+/* Make icon white in info buttons */
+.btn-info i.fas,
+.announcement-actions .btn-info i.fas {
+    color: white;
+}

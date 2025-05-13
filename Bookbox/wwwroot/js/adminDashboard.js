@@ -90,8 +90,8 @@ document.addEventListener('DOMContentLoaded', function() {
         ordersLineChart.data.labels = timeframeLabels[timeframe];
         ordersLineChart.data.datasets[0].data = orderData[timeframe];
         
-        // Update chart title to reflect the current view
-        const cardHeader = document.querySelector('.card-header h6');
+        // Update chart title to reflect the current view - use specific ID
+        const cardHeader = document.getElementById('orders-overview-title');
         if (cardHeader) {
             const viewNames = {
                 'daily': 'Daily (Last 7 Days)',
@@ -122,6 +122,127 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize with daily view
     document.querySelector('.timeframe-option[data-timeframe="daily"]').classList.add('active');
     updateOrderChart('daily');
+
+    // ==================== REVENUE CHART WITH TIME PERIOD SWITCHING ====================
+    const revenueCtx = document.getElementById('revenueLineChart').getContext('2d');
+    
+    // Get revenue data from the data attributes
+    const revenueData = dashboardData.revenueData || {
+        daily: Array(7).fill(0),
+        weekly: Array(4).fill(0),
+        monthly: Array(12).fill(0),
+        yearly: Array(5).fill(0)
+    };
+
+    // Create the revenue chart (initially with daily data)
+    const revenueLineChart = new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: timeframeLabels.daily,
+            datasets: [{
+                label: 'Revenue (NPR)',
+                lineTension: 0.3,
+                backgroundColor: 'rgba(111, 66, 193, 0.05)',
+                borderColor: 'rgba(111, 66, 193, 1)',
+                pointRadius: 3,
+                pointBackgroundColor: 'rgba(111, 66, 193, 1)',
+                pointBorderColor: 'rgba(111, 66, 193, 1)',
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor: 'rgba(111, 66, 193, 1)',
+                pointHoverBorderColor: 'rgba(111, 66, 193, 1)',
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                data: revenueData.daily,
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 25,
+                    top: 25,
+                    bottom: 0
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    }
+                },
+                y: {
+                    ticks: {
+                        maxTicksLimit: 5,
+                        padding: 10,
+                        callback: function(value) {
+                            return 'NPR ' + value.toLocaleString();
+                        }
+                    },
+                    grid: {
+                        color: 'rgb(234, 236, 244)',
+                        drawBorder: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'NPR ' + context.raw.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Function to update revenue chart based on selected timeframe
+    function updateRevenueChart(timeframe) {
+        if (!revenueData[timeframe]) {
+            console.error("No revenue data found for timeframe:", timeframe);
+            return;
+        }
+        
+        revenueLineChart.data.labels = timeframeLabels[timeframe];
+        revenueLineChart.data.datasets[0].data = revenueData[timeframe];
+        
+        // Update chart title
+        const cardHeader = document.getElementById('revenue-overview-title');
+        if (cardHeader) {
+            const viewNames = {
+                'daily': 'Daily Revenue (Last 7 Days)',
+                'weekly': 'Weekly Revenue (Last 4 Weeks)',
+                'monthly': 'Monthly Revenue (This Year)',
+                'yearly': 'Yearly Revenue (Last 5 Years)'
+            };
+            cardHeader.textContent = viewNames[timeframe] || 'Revenue Trends';
+        }
+        
+        revenueLineChart.update();
+    }
+    
+    // Add click handlers to revenue timeframe options
+    document.querySelectorAll('.revenue-timeframe-option').forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Update the active class
+            document.querySelectorAll('.revenue-timeframe-option').forEach(opt => 
+                opt.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update the chart with the selected timeframe
+            updateRevenueChart(this.getAttribute('data-timeframe'));
+        });
+    });
+    
+    // Initialize with daily view
+    document.querySelector('.revenue-timeframe-option[data-timeframe="daily"]').classList.add('active');
+    updateRevenueChart('daily');
 
     // ==================== GENRE PIE CHART ====================
     const genreCtx = document.getElementById('genrePieChart').getContext('2d');

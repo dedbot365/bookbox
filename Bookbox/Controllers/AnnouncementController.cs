@@ -156,8 +156,14 @@ namespace Bookbox.Controllers
                         return View(announcementDTO);
                     }
 
-                    await _announcementService.CreateAnnouncementAsync(announcementDTO, userId);
-                    TempData["SuccessMessage"] = "Announcement created successfully!";
+                    // Existing code for creating announcement
+                    var announcement = await _announcementService.CreateAnnouncementAsync(announcementDTO, userId);
+                    
+                    // Store operation info in TempData instead of just a message
+                    TempData["OperationType"] = "create";
+                    TempData["OperationMessage"] = "Announcement created successfully!";
+                    TempData["OperationTitle"] = announcement.Title;
+                    
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception)
@@ -205,16 +211,15 @@ namespace Bookbox.Controllers
             {
                 try
                 {
+                    // Existing code for editing announcement
                     var announcement = await _announcementService.UpdateAnnouncementAsync(announcementDTO);
-                    if (announcement != null)
-                    {
-                        TempData["SuccessMessage"] = "Announcement updated successfully!";
-                        return RedirectToAction(nameof(Index));
-                    }
-                    else
-                    {
-                        return NotFound();
-                    }
+                    
+                    // Store operation info in TempData
+                    TempData["OperationType"] = "edit";
+                    TempData["OperationMessage"] = "Announcement updated successfully!";
+                    TempData["OperationTitle"] = announcement.Title;
+                    
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (Exception)
                 {
@@ -241,10 +246,16 @@ namespace Bookbox.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
+            var announcement = await _announcementService.GetAnnouncementByIdAsync(id);
+            string title = announcement?.Title ?? "Unknown";
+            
             var result = await _announcementService.DeleteAnnouncementAsync(id);
             if (result)
             {
-                TempData["SuccessMessage"] = "Announcement deleted successfully!";
+                // Store operation info in TempData
+                TempData["OperationType"] = "delete";
+                TempData["OperationMessage"] = "Announcement deleted successfully!";
+                TempData["OperationTitle"] = title;
             }
             else
             {
