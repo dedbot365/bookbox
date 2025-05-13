@@ -53,8 +53,7 @@
     </div>
     
     <div class="sidebar-content">
-        <div class="sidebar-nav">
-            @if (isAdmin)
+        <div class="sidebar-nav">            @if (isAdmin)
             {
                 <!-- Admin Navigation -->
                 <div class="sidebar-heading">Administration</div>
@@ -69,9 +68,6 @@
                 </a>
                 <a href="@Url.Action("ManageUsers", "Admin")" class="sidebar-link @IsActive("Admin", "ManageUsers")">
                     <i class="fas fa-users"></i> <span>Manage Users</span>
-                </a>
-                <a href="@Url.Action("Orders", "Admin")" class="sidebar-link @IsActive("Admin", "Orders")">
-                    <i class="fas fa-shopping-cart"></i> <span>Orders</span>
                 </a>
             }
             @if (isStaff)
@@ -104,27 +100,25 @@
                 <a href="@Url.Action("Index", "PurchasedBooks")" class="sidebar-link @IsActive("PurchasedBooks", "*")">
                     <i class="fas fa-book-reader"></i> <span>Purchased Books</span>
                 </a>
-            }
-            
-            <!-- Common for all users -->
+            }            <!-- Common for all users -->
             <div class="sidebar-heading">Account</div>
-            <a href="@Url.Action("EditProfile", "Profile")" class="sidebar-link @IsActive("Profile", "EditProfile")">
-                <i class="fas fa-user-edit"></i> <span>Edit Profile</span>
-            </a>
-            <a href="@Url.Action("ChangePassword", "Profile")" class="sidebar-link @IsActive("Profile", "ChangePassword")">
-                <i class="fas fa-key"></i> <span>Change Password</span>
+            <a href="@Url.Action("Index", "Profile")" class="sidebar-link @IsActive("Profile", "*")">
+                <i class="fas fa-user"></i> <span>My Profile</span>
             </a>
             <a href="@Url.Action("Logout", "Auth")" class="sidebar-link">
                 <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
             </a>
             
-            <div class="sidebar-heading">Main Site</div>
-            <a href="@Url.Action("Index", "Home")" class="sidebar-link">
-                <i class="fas fa-home"></i> <span>Return to Homepage</span>
-            </a>
-            <a href="@Url.Action("Index", "Shop")" class="sidebar-link">
-                <i class="fas fa-store"></i> <span>Go to Bookshop</span>
-            </a>
+            @if (isMember && !isAdmin && !isStaff)
+            {
+                <div class="sidebar-heading">Main Site</div>
+                <a href="@Url.Action("Index", "Home")" class="sidebar-link">
+                    <i class="fas fa-home"></i> <span>Return to Homepage</span>
+                </a>
+                <a href="@Url.Action("Index", "Shop")" class="sidebar-link">
+                    <i class="fas fa-store"></i> <span>Go to Bookshop</span>
+                </a>
+            }
         </div>
     </div>
     

@@ -38,6 +38,36 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Daily Revenue -->
+                        <div class="col-md-3">
+                            <div class="revenue-stat p-2">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                            Daily Revenue</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @(ViewBag.DailyRevenue?.ToString("N0") ?? "0")</div>
+                                    </div>
+                                    <div class="revenue-icon bg-danger bg-opacity-10">
+                                        <i class="fas fa-calendar-day text-danger"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Weekly Revenue -->
+                        <div class="col-md-3">
+                            <div class="revenue-stat p-2">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            Weekly Revenue</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @(ViewBag.WeeklyRevenue?.ToString("N0") ?? "0")</div>
+                                    </div>
+                                    <div class="revenue-icon bg-info bg-opacity-10">
+                                        <i class="fas fa-calendar-week text-info"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <!-- Monthly Revenue -->
                         <div class="col-md-3">
@@ -55,37 +85,9 @@
                             </div>
                         </div>
                         
-                        <!-- Weekly Revenue -->
-                        <div class="col-md-3">
-                            <div class="revenue-stat p-2">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                            Weekly Revenue</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @(ViewBag.WeeklyRevenue?.ToString("N0") ?? "0")</div>
-                                    </div>
-                                    <div class="revenue-icon bg-info bg-opacity-10">
-                                        <i class="fas fa-calendar-week text-info"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         
-                        <!-- Daily Revenue -->
-                        <div class="col-md-3">
-                            <div class="revenue-stat p-2">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                            Daily Revenue</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @(ViewBag.DailyRevenue?.ToString("N0") ?? "0")</div>
-                                    </div>
-                                    <div class="revenue-icon bg-danger bg-opacity-10">
-                                        <i class="fas fa-calendar-day text-danger"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        
+                       
                     </div>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-﻿@{
+@{
     bool isAdmin = User.Identity?.IsAuthenticated == true && User.IsInRole("Admin");
     bool isStaff = User.Identity?.IsAuthenticated == true && User.IsInRole("Staff");
     bool isMember = User.Identity?.IsAuthenticated == true && User.IsInRole("Member");
@@ -112,33 +112,13 @@
                                     <li><a class="dropdown-item" href="@Url.Action("Index", "Shop")">All Books</a></li>
                                 </ul>
                             </li>
-                        }
-                        @if (isAdmin)
+                        }                @if (isAdmin)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Dashboard">Dashboard</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Book" asp-action="Index">Manage Books</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="ManageUsers">Manage Users</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Orders">Orders</a>
-                            </li>
+                            <!-- Admin navigation items have been removed -->
                         }
                         @if (isStaff)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Staff" asp-action="Dashboard">Dashboard</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Book" asp-action="Index">View Books</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Staff" asp-action="Orders">Order Management</a>
-                            </li>
+                            <!-- Staff navigation items have been removed -->
                         }
                     </ul>
                     

@@ -17,65 +17,75 @@
 
 <!-- Categories Section -->
 <div class="container mb-5">
-    <h2 class="fw-bold mb-4">Browse by Category</h2>
-    <div class="row g-4">
-        <div class="col-6 col-md-4 col-lg-2">
+    <h2 class="fw-bold mb-3">Browse by Category</h2>
+    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-7 g-3">
+        <div class="col">
             <a href="@Url.Action("Index", "Shop", new { category = "bestsellers" })" class="text-decoration-none">
-                <div class="category-card">
+                <div class="category-card py-2">
                     <div class="category-icon">
                         <i class="fas fa-star"></i>
                     </div>
-                    <h5>Bestsellers</h5>
+                    <h6 class="mt-2 mb-0">Bestsellers</h6>
                 </div>
             </a>
         </div>
-        <div class="col-6 col-md-4 col-lg-2">
+        <div class="col">
+            <a href="@Url.Action("Index", "Shop", new { category = "best-rated" })" class="text-decoration-none">
+                <div class="category-card py-2">
+                    <div class="category-icon">
+                        <i class="fas fa-award me-2"></i>
+                    </div>
+                    <h6 class="mt-2 mb-0">Best Rated</h6>
+                </div>
+            </a>
+        </div>
+        <div class="col">
             <a href="@Url.Action("Index", "Shop", new { category = "award-winners" })" class="text-decoration-none">
-                <div class="category-card">
+                <div class="category-card py-2">
                     <div class="category-icon">
                         <i class="fas fa-trophy"></i>
                     </div>
-                    <h5>Award Winners</h5>
+                    <h6 class="mt-2 mb-0">Award Winners</h6>
                 </div>
             </a>
         </div>
-        <div class="col-6 col-md-4 col-lg-2">
+        <div class="col">
             <a href="@Url.Action("Index", "Shop", new { category = "new-releases" })" class="text-decoration-none">
-                <div class="category-card">
+                <div class="category-card py-2">
                     <div class="category-icon">
                         <i class="fas fa-calendar-alt"></i>
                     </div>
-                    <h5>New Releases</h5>
+                    <h6 class="mt-2 mb-0">New Releases</h6>
                 </div>
             </a>
         </div>
-        <div class="col-6 col-md-4 col-lg-2">
+        <div class="col">
             <a href="@Url.Action("Index", "Shop", new { category = "new-arrivals" })" class="text-decoration-none">
-                <div class="category-card">
+                <div class="category-card py-2">
                     <div class="category-icon">
                         <i class="fas fa-box-open"></i>
                     </div>
-                    <h5>New Arrivals</h5>
+                    <h6 class="mt-2 mb-0">New Arrivals</h6>
                 </div>
             </a>
         </div>
-        <div class="col-6 col-md-4 col-lg-2">
+        <div class="col">
             <a href="@Url.Action("Index", "Shop", new { category = "coming-soon" })" class="text-decoration-none">
-                <div class="category-card">
+                <div class="category-card py-2">
                     <div class="category-icon">
                         <i class="fas fa-clock"></i>
                     </div>
-                    <h5>Coming Soon</h5>
+                    <h6 class="mt-2 mb-0">Coming Soon</h6>
                 </div>
             </a>
         </div>
-        <div class="col-6 col-md-4 col-lg-2">
+        <div class="col">
             <a href="@Url.Action("Index", "Shop")" class="text-decoration-none">
-                <div class="category-card">
+                <div class="category-card py-2">
                     <div class="category-icon">
                         <i class="fas fa-book"></i>
                     </div>
-                    <h5>All Books</h5>
+                    <h6 class="mt-2 mb-0">All Books</h6>
                 </div>
             </a>
         </div>

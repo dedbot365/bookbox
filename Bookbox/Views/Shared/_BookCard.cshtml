@@ -137,9 +137,9 @@
                                class="btn btn-sm @(bookDiscount != null ? "btn-warning" : "btn-success")">
                                 <i class="fas fa-tag"></i> @(bookDiscount != null ? "Edit Discount" : "Add Discount")
                             </a>
-                            <button type="button" class="btn btn-sm btn-danger delete-book" 
-                                    data-id="@Model.BookId" data-title="@Model.Title" title="Delete">
-                                <i class="fas fa-trash"></i> Delete
+                            <button type="button" class="btn btn-sm btn-outline-danger delete-book" 
+                                    data-id="@Model.BookId" data-title="@Model.Title" data-delete-url="@Url.Action("Delete", "Book")">
+                                <i class="fas fa-trash"></i>
                             </button>
                         }
                     </div>

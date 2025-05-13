@@ -117,8 +117,10 @@ namespace Bookbox.Controllers
                     }
                     
                     var book = await _bookService.AddBookAsync(bookDTO, userId);
-                    TempData["SuccessMessage"] = "Book added successfully!";
-                    return RedirectToAction(nameof(Details), new { id = book!.BookId });
+                    TempData["SuccessMessage"] = $"Book '{book.Title}' added successfully!";
+                    
+                    // Redirect to Index instead of Details
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -184,8 +186,8 @@ namespace Bookbox.Controllers
                     var book = await _bookService.UpdateBookAsync(id, bookDTO);
                     if (book != null)
                     {
-                        TempData["SuccessMessage"] = "Book updated successfully!";
-                        return RedirectToAction(nameof(Details), new { id = book.BookId });
+                        TempData["SuccessMessage"] = $"Book '{book.Title}' updated successfully!";
+                        return RedirectToAction(nameof(Index)); // Redirect to Index instead of Details
                     }
                     else
                     {
@@ -259,9 +261,7 @@ namespace Bookbox.Controllers
 
             ViewData["SearchTerm"] = searchTerm;
             return View("Index", results);
-        }
-
-        [HttpGet]
+        }        [HttpGet]
         public async Task<IActionResult> GetAllReviews(Guid id, int count = 10)
         {
             try
