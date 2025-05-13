@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="~/css/dashboard-sidebar.css" asp-append-version="true" />
     <!-- Add Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <!-- Add modal CSS files -->
+    <link rel="stylesheet" href="~/css/cart-modal.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/modal-popups.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
@@ -72,10 +75,56 @@
         </div>
     </div>
 
+    <!-- Cart Added Modal -->
+    <partial name="_CartAddedModal" />
+    
+    <!-- Bookmark Added Modal -->
+    <partial name="_BookmarkAddedModal" />
+
+    <!-- Bookmark Removed Modal -->
+    <partial name="_BookmarkRemovedModal" />
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/dashboard-sidebar.js" asp-append-version="true"></script>
+    <script src="~/js/modal-handlers.js" asp-append-version="true"></script>
+
+    <!-- Modal initialization script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cart Modal
+            initModalWithTimer(
+                '@TempData["BookAddedToCart"]',
+                '@TempData["BookAddedTitle"]',
+                'cartModalBookTitle',
+                'cartAddedModal',
+                'cartModalTimer',
+                'cartModalTimerText'
+            );
+            
+            // Bookmark Added Modal
+            initModalWithTimer(
+                '@TempData["BookAddedToWishlist"]',
+                '@TempData["WishlistBookTitle"]',
+                'bookmarkModalBookTitle',
+                'bookmarkAddedModal',
+                'bookmarkModalTimer',
+                'bookmarkModalTimerText'
+            );
+            
+            // Bookmark Removed Modal
+            initModalWithTimer(
+                '@TempData["BookRemovedFromWishlist"]',
+                '@TempData["WishlistRemovedBookTitle"]',
+                'bookmarkRemovedBookTitle',
+                'bookmarkRemovedModal',
+                'bookmarkRemovedTimer',
+                'bookmarkRemovedTimerText'
+            );
+        });
+    </script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

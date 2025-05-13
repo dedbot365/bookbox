@@ -1,0 +1,35 @@
+<div class="modal fade" id="bookmarkRemovedModal" tabindex="-1" aria-labelledby="bookmarkRemovedModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow border-0">
+            <div class="modal-header" style="background-color: #6c757d; color: white;">
+                <h5 class="modal-title" id="bookmarkRemovedModalLabel">
+                    <i class="fas fa-heart-broken me-2"></i>Removed from Wishlist
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <div class="success-icon-container mb-3" style="background-color: rgba(108, 117, 125, 0.1);">
+                        <i class="fas fa-heart-broken fa-3x text-secondary"></i>
+                    </div>
+                    <h4 id="bookmarkRemovedBookTitle"></h4>
+                    <p class="text-muted" id="bookmarkRemovedMessage">has been removed from your wishlist.</p>
+                </div>
+                <div class="d-flex align-items-center justify-content-center mb-3">
+                    <div class="progress w-75">
+                        <div id="bookmarkRemovedTimer" class="progress-bar bg-secondary" role="progressbar" style="width: 100%"></div>
+                    </div>
+                    <span id="bookmarkRemovedTimerText" class="ms-2">10s</span>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    Continue
+                </button>
+                <a href="@Url.Action("Index", "Shop")" class="btn btn-primary">
+                    <i class="fas fa-search me-1"></i> Browse More Books
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

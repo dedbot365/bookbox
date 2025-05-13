@@ -312,83 +312,44 @@
     <!-- Bookmark Added Modal -->
     <partial name="_BookmarkAddedModal" />
 
-    <!-- Cart Modal Script -->
+    <!-- Bookmark Removed Modal -->
+    <partial name="_BookmarkRemovedModal" />
+
+    <!-- Include the modal handlers script -->
+    <script src="~/js/modal-handlers.js" asp-append-version="true"></script>
+
+    <!-- Call modal initialization with TempData values -->
     <script>
-        // Initialize cart modal functionality
         document.addEventListener('DOMContentLoaded', function() {
             // Cart Modal
-            const bookAddedToCart = '@TempData["BookAddedToCart"]';
-            const bookAddedTitle = '@TempData["BookAddedTitle"]';
+            initModalWithTimer(
+                '@TempData["BookAddedToCart"]',
+                '@TempData["BookAddedTitle"]',
+                'cartModalBookTitle',
+                'cartAddedModal',
+                'cartModalTimer',
+                'cartModalTimerText'
+            );
             
-            if (bookAddedToCart === 'True') {
-                // Set the book title
-                if (bookAddedTitle) {
-                    document.getElementById('cartModalBookTitle').textContent = bookAddedTitle;
-                }
-                
-                // Show the modal
-                const modal = new bootstrap.Modal(document.getElementById('cartAddedModal'));
-                modal.show();
-                
-                // Set up timer
-                let timeLeft = 10;
-                const timerBar = document.getElementById('cartModalTimer');
-                const timerText = document.getElementById('cartModalTimerText');
-                
-                const timer = setInterval(() => {
-                    timeLeft--;
-                    const percentage = (timeLeft / 10) * 100;
-                    timerBar.style.width = percentage + '%';
-                    timerText.textContent = timeLeft + 's';
-                    
-                    if (timeLeft <= 0) {
-                        clearInterval(timer);
-                        modal.hide();
-                    }
-                }, 1000);
-                
-                // Clear timer if modal is closed manually
-                document.getElementById('cartAddedModal').addEventListener('hidden.bs.modal', function() {
-                    clearInterval(timer);
-                });
-            }
+            // Bookmark Added Modal
+            initModalWithTimer(
+                '@TempData["BookAddedToWishlist"]',
+                '@TempData["WishlistBookTitle"]',
+                'bookmarkModalBookTitle',
+                'bookmarkAddedModal',
+                'bookmarkModalTimer',
+                'bookmarkModalTimerText'
+            );
             
-            // Bookmark Modal
-            const bookAddedToWishlist = '@TempData["BookAddedToWishlist"]';
-            const wishlistBookTitle = '@TempData["WishlistBookTitle"]';
-            
-            if (bookAddedToWishlist === 'True') {
-                // Set the book title
-                if (wishlistBookTitle) {
-                    document.getElementById('bookmarkModalBookTitle').textContent = wishlistBookTitle;
-                }
-                
-                // Show the modal
-                const modal = new bootstrap.Modal(document.getElementById('bookmarkAddedModal'));
-                modal.show();
-                
-                // Set up timer
-                let timeLeft = 10;
-                const timerBar = document.getElementById('bookmarkModalTimer');
-                const timerText = document.getElementById('bookmarkModalTimerText');
-                
-                const timer = setInterval(() => {
-                    timeLeft--;
-                    const percentage = (timeLeft / 10) * 100;
-                    timerBar.style.width = percentage + '%';
-                    timerText.textContent = timeLeft + 's';
-                    
-                    if (timeLeft <= 0) {
-                        clearInterval(timer);
-                        modal.hide();
-                    }
-                }, 1000);
-                
-                // Clear timer if modal is closed manually
-                document.getElementById('bookmarkAddedModal').addEventListener('hidden.bs.modal', function() {
-                    clearInterval(timer);
-                });
-            }
+            // Bookmark Removed Modal
+            initModalWithTimer(
+                '@TempData["BookRemovedFromWishlist"]',
+                '@TempData["WishlistRemovedBookTitle"]',
+                'bookmarkRemovedBookTitle',
+                'bookmarkRemovedModal',
+                'bookmarkRemovedTimer',
+                'bookmarkRemovedTimerText'
+            );
         });
     </script>
 

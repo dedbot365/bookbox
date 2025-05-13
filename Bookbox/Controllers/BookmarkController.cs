@@ -145,6 +145,10 @@ namespace Bookbox.Controllers
                 return Unauthorized();
             }
 
+            // Get book title before removal for the modal
+            var book = await _bookService.GetBookByIdAsync(id);
+            string bookTitle = book?.Title ?? "Book";
+
             var result = await _bookmarkService.RemoveBookmarkAsync(id, userId);
             if (!result.Success)
             {
@@ -152,7 +156,9 @@ namespace Bookbox.Controllers
             }
             else
             {
-                TempData["SuccessMessage"] = result.Message;
+                // Set TempData values for the modal
+                TempData["BookRemovedFromWishlist"] = "True";
+                TempData["WishlistRemovedBookTitle"] = bookTitle;
             }
             
             // Redirect back to the original page or to default location
