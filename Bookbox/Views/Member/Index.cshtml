@@ -1,25 +1,745 @@
 @{
-    ViewData["Title"] = "Member Home";
+    ViewData["Title"] = "Member Dashboard";
     Layout = "_DashboardLayout";
 }
 
-<div class="container mt-5">
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h2>Member Home Page</h2>
+<!-- Include Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">My Dashboard</h1>
+        <p class="lead mb-0">Welcome back, @ViewBag.UserName!</p>
+    </div>
+
+    <!-- Expense Section - Financial Performance -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-left-purple mb-4">
+                <div class="card-body p-3">
+                    <h5 class="card-title border-bottom pb-2">Expense Overview</h5>
+                    <div class="row">
+                        <!-- Total Expense -->
+                        <div class="col-md-3">
+                            <div class="revenue-stat p-2">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Total Spent</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @((ViewBag.TotalExpense ?? 0).ToString("N0"))</div>
+                                    </div>
+                                    <div class="revenue-icon bg-primary bg-opacity-10">
+                                        <i class="bi bi-cash-stack text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Daily Expense -->
+                        <div class="col-md-3">
+                            <div class="revenue-stat p-2">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                            Today's Spent</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @((ViewBag.DailyExpense ?? 0).ToString("N0"))</div>
+                                    </div>
+                                    <div class="revenue-icon bg-danger bg-opacity-10">
+                                        <i class="fas fa-calendar-day text-danger"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Weekly Expense -->
+                        <div class="col-md-3">
+                            <div class="revenue-stat p-2">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            Weekly Spent</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @((ViewBag.WeeklyExpense ?? 0).ToString("N0"))</div>
+                                    </div>
+                                    <div class="revenue-icon bg-info bg-opacity-10">
+                                        <i class="fas fa-calendar-week text-info"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Monthly Expense -->
+                        <div class="col-md-3">
+                            <div class="revenue-stat p-2">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Monthly Spent</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">NPR @((ViewBag.MonthlyExpense ?? 0).ToString("N0"))</div>
+                                    </div>
+                                    <div class="revenue-icon bg-success bg-opacity-10">
+                                        <i class="fas fa-calendar text-success"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <h3>Welcome to BookBox!</h3>
-            <p>This page is only accessible to members. Here you can browse books, manage your account, and more.</p>
-            
-            <div class="mt-4">
-                <h4>Quick Actions</h4>
-                <div class="list-group">
-                    <a href="@Url.Action("Index", "Shop")" class="list-group-item list-group-item-action">Browse Books</a>
-                    <a href="@Url.Action("Index", "PurchasedBooks")" class="list-group-item list-group-item-action">View Reading History</a>
-                    <a href="@Url.Action("EditProfile", "Profile")" class="list-group-item list-group-item-action">Update Profile</a>
+    </div>
+
+    <!-- Order Status Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Completed Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(ViewBag.CompletedOrders ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Pending Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(ViewBag.PendingOrders ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Cancelled Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(ViewBag.CancelledOrders ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Reviews</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(ViewBag.TotalReviews ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-star fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">My Recent Orders</h6>
+                    <a asp-controller="Order" asp-action="Index" class="btn btn-sm btn-primary shadow-sm">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in (ViewBag.RecentOrders as IEnumerable<dynamic> ?? new List<dynamic>()))
+                                {
+                                    <tr>
+                                        <td>#ORD-@order.OrderNumber</td>
+                                        <td>NPR @order.Amount.ToString("N0")</td>
+                                        <td>
+                                            @if (order.Status == Bookbox.Constants.OrderStatus.Pending)
+                                            {
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            }
+                                            else if (order.Status == Bookbox.Constants.OrderStatus.Completed)
+                                            {
+                                                <span class="badge bg-success">Completed</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Cancelled</span>
+                                            }
+                                        </td>
+                                        <td>@order.Date.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            <a asp-controller="Order" asp-action="Details" asp-route-id="@order.OrderId" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                                @if ((ViewBag.RecentOrders as IEnumerable<dynamic>)?.Any() != true)
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center">No orders found</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- Orders Line Chart -->
+        <div class="col-lg-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary" id="orders-overview-title">Your Order History</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="orderDropdownMenuLink"
+                           data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                             aria-labelledby="orderDropdownMenuLink">
+                            <div class="dropdown-header">View Options:</div>
+                            <a class="dropdown-item order-timeframe-option" href="#" data-timeframe="daily">Daily</a>
+                            <a class="dropdown-item order-timeframe-option" href="#" data-timeframe="weekly">Weekly</a>
+                            <a class="dropdown-item order-timeframe-option active" href="#" data-timeframe="monthly">Monthly</a>
+                            <a class="dropdown-item order-timeframe-option" href="#" data-timeframe="yearly">Yearly</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area" style="height: 350px;">
+                        <canvas id="ordersLineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expense Line Chart -->
+        <div class="col-lg-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary" id="expense-overview-title">Your Expense Overview</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="expenseDropdownMenuLink"
+                           data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                             aria-labelledby="expenseDropdownMenuLink">
+                            <div class="dropdown-header">View Options:</div>
+                            <a class="dropdown-item expense-timeframe-option" href="#" data-timeframe="daily">Daily</a>
+                            <a class="dropdown-item expense-timeframe-option" href="#" data-timeframe="weekly">Weekly</a>
+                            <a class="dropdown-item expense-timeframe-option active" href="#" data-timeframe="monthly">Monthly</a>
+                            <a class="dropdown-item expense-timeframe-option" href="#" data-timeframe="yearly">Yearly</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area" style="height: 350px;">
+                        <canvas id="expenseLineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row mb-4">
+        <!-- Books by Genre Pie Chart -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Your Preferred Genres</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="genrePieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Status Distribution -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Your Order Status</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="orderStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Books by Format -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Your Preferred Formats</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="formatDonutChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+
+/* Revenue/expense stat styling */
+.revenue-stat {
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.revenue-stat:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    transform: translateY(-3px);
+}
+
+.revenue-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* Text color for purple elements */
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+/* And also add a new border style for purple elements */
+.border-left-purple {
+    border-left: 0.25rem solid #6f42c1 !important;
+}
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create a global object to store chart data
+            const dashboardData = {
+                orderData: {
+                    daily: @Html.Raw(Json.Serialize(ViewBag.DailyOrderCounts ?? new int[7])),
+                    weekly: @Html.Raw(Json.Serialize(ViewBag.WeeklyOrderCounts ?? new int[4])),
+                    monthly: @Html.Raw(Json.Serialize(ViewBag.MonthlyOrderCounts ?? new int[12])),
+                    yearly: @Html.Raw(Json.Serialize(ViewBag.YearlyOrderCounts ?? new int[5]))
+                },
+                expenseData: {
+                    daily: @Html.Raw(Json.Serialize(ViewBag.DailyExpenseData ?? new decimal[7])),
+                    weekly: @Html.Raw(Json.Serialize(ViewBag.WeeklyExpenseData ?? new decimal[4])),
+                    monthly: @Html.Raw(Json.Serialize(ViewBag.MonthlyExpenseData ?? new decimal[12])),
+                    yearly: @Html.Raw(Json.Serialize(ViewBag.YearlyExpenseData ?? new decimal[5]))
+                }
+            };
+
+            // Labels for different time periods
+            const timeframeLabels = {
+                daily: Array.from({length: 7}, (_, i) => {
+                    const d = new Date(); 
+                    d.setDate(d.getDate() - (6-i));
+                    return d.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+                }),
+                weekly: ['Week 1 (Most Recent)', 'Week 2', 'Week 3', 'Week 4 (Oldest)'],
+                monthly: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                yearly: Array.from({length: 5}, (_, i) => `${new Date().getFullYear() - 4 + i}`)
+            };
+
+            // Orders Line Chart
+            const ordersCtx = document.getElementById('ordersLineChart').getContext('2d');
+            const ordersLineChart = new Chart(ordersCtx, {
+                type: 'line',
+                data: {
+                    labels: timeframeLabels.monthly,
+                    datasets: [{
+                        label: 'Orders',
+                        lineTension: 0.3,
+                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        pointRadius: 3,
+                        pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                        pointBorderColor: 'rgba(78, 115, 223, 1)',
+                        pointHoverRadius: 3,
+                        pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                        pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                        pointHitRadius: 10,
+                        pointBorderWidth: 2,
+                        data: dashboardData.orderData.monthly,
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 25,
+                            top: 25,
+                            bottom: 0
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                maxTicksLimit: 5,
+                                padding: 10,
+                                callback: function(value) {
+                                    return value.toFixed(0);
+                                }
+                            },
+                            grid: {
+                                color: 'rgb(234, 236, 244)',
+                                drawBorder: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Function to update order chart based on selected timeframe
+            function updateOrderChart(timeframe) {
+                if (!dashboardData.orderData[timeframe]) {
+                    console.error("No order data found for timeframe:", timeframe);
+                    return;
+                }
+                
+                ordersLineChart.data.labels = timeframeLabels[timeframe];
+                ordersLineChart.data.datasets[0].data = dashboardData.orderData[timeframe];
+                
+                // Update chart title
+                const cardHeader = document.getElementById('orders-overview-title');
+                if (cardHeader) {
+                    const viewNames = {
+                        'daily': 'Your Daily Orders (Last 7 Days)',
+                        'weekly': 'Your Weekly Orders (Last 4 Weeks)',
+                        'monthly': 'Your Monthly Orders (This Year)',
+                        'yearly': 'Your Yearly Orders (Last 5 Years)'
+                    };
+                    cardHeader.textContent = viewNames[timeframe] || 'Your Order History';
+                }
+                
+                ordersLineChart.update();
+            }
+
+            // Expense Line Chart
+            const expenseCtx = document.getElementById('expenseLineChart').getContext('2d');
+            const expenseLineChart = new Chart(expenseCtx, {
+                type: 'line',
+                data: {
+                    labels: timeframeLabels.monthly,
+                    datasets: [{
+                        label: 'Expense (NPR)',
+                        lineTension: 0.3,
+                        backgroundColor: 'rgba(111, 66, 193, 0.05)',
+                        borderColor: 'rgba(111, 66, 193, 1)',
+                        pointRadius: 3,
+                        pointBackgroundColor: 'rgba(111, 66, 193, 1)',
+                        pointBorderColor: 'rgba(111, 66, 193, 1)',
+                        pointHoverRadius: 3,
+                        pointHoverBackgroundColor: 'rgba(111, 66, 193, 1)',
+                        pointHoverBorderColor: 'rgba(111, 66, 193, 1)',
+                        pointHitRadius: 10,
+                        pointBorderWidth: 2,
+                        data: dashboardData.expenseData.monthly,
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 25,
+                            top: 25,
+                            bottom: 0
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                maxTicksLimit: 5,
+                                padding: 10,
+                                callback: function(value) {
+                                    return 'NPR ' + value.toLocaleString();
+                                }
+                            },
+                            grid: {
+                                color: 'rgb(234, 236, 244)',
+                                drawBorder: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'NPR ' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Function to update expense chart based on selected timeframe
+            function updateExpenseChart(timeframe) {
+                if (!dashboardData.expenseData[timeframe]) {
+                    console.error("No expense data found for timeframe:", timeframe);
+                    return;
+                }
+                
+                expenseLineChart.data.labels = timeframeLabels[timeframe];
+                expenseLineChart.data.datasets[0].data = dashboardData.expenseData[timeframe];
+                
+                // Update chart title
+                const cardHeader = document.getElementById('expense-overview-title');
+                if (cardHeader) {
+                    const viewNames = {
+                        'daily': 'Your Daily Expenses (Last 7 Days)',
+                        'weekly': 'Your Weekly Expenses (Last 4 Weeks)',
+                        'monthly': 'Your Monthly Expenses (This Year)',
+                        'yearly': 'Your Yearly Expenses (Last 5 Years)'
+                    };
+                    cardHeader.textContent = viewNames[timeframe] || 'Your Expense Overview';
+                }
+                
+                expenseLineChart.update();
+            }
+
+            // Add click handlers to order timeframe options
+            document.querySelectorAll('.order-timeframe-option').forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Update the active class
+                    document.querySelectorAll('.order-timeframe-option').forEach(opt => 
+                        opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update the chart with the selected timeframe
+                    updateOrderChart(this.getAttribute('data-timeframe'));
+                });
+            });
+
+            // Add click handlers to expense timeframe options
+            document.querySelectorAll('.expense-timeframe-option').forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Update the active class
+                    document.querySelectorAll('.expense-timeframe-option').forEach(opt => 
+                        opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update the chart with the selected timeframe
+                    updateExpenseChart(this.getAttribute('data-timeframe'));
+                });
+            });
+
+            // Initialize with monthly view for both charts
+            updateOrderChart('monthly');
+            updateExpenseChart('monthly');
+
+            // Genre Pie Chart
+            const genreCtx = document.getElementById('genrePieChart').getContext('2d');
+            const genreData = @Html.Raw(Json.Serialize(ViewBag.BooksByGenre ?? new List<object>()));
+            const genreLabels = genreData.map(item => item.genre);
+            const genreCounts = genreData.map(item => item.count);
+            
+            const backgroundColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', 
+                                     '#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60616f'];
+            const hoverBackgroundColors = ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60616f',
+                                          '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'];
+            
+            const genrePieChart = new Chart(genreCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: genreLabels,
+                    datasets: [{
+                        data: genreCounts,
+                        backgroundColor: backgroundColors.slice(0, genreLabels.length),
+                        hoverBackgroundColor: hoverBackgroundColors.slice(0, genreLabels.length),
+                        hoverBorderColor: 'rgba(234, 236, 244, 1)',
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            display: genreLabels.length <= 8
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} books (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%',
+                }
+            });
+
+            // Order Status Doughnut Chart
+            const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+            const orderStatusData = @Html.Raw(Json.Serialize(ViewBag.OrderStatusData ?? new List<object>()));
+            const orderStatusLabels = orderStatusData.map(item => item.label);
+            const orderStatusCounts = orderStatusData.map(item => item.count);
+            const orderStatusColors = orderStatusData.map(item => item.color);
+
+            const orderStatusChart = new Chart(orderStatusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: orderStatusLabels,
+                    datasets: [{
+                        data: orderStatusCounts,
+                        backgroundColor: orderStatusColors,
+                        hoverBackgroundColor: ['#17a673', '#dda20a', '#be2617'],
+                        hoverBorderColor: 'rgba(234, 236, 244, 1)',
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            display: true
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%',
+                }
+            });
+
+            // Format Donut Chart
+            const formatCtx = document.getElementById('formatDonutChart').getContext('2d');
+            const formatData = @Html.Raw(Json.Serialize(ViewBag.BooksByFormat ?? new List<object>()));
+            const formatLabels = formatData.map(item => item.format);
+            const formatCounts = formatData.map(item => item.count);
+
+            const formatDonutChart = new Chart(formatCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: formatLabels,
+                    datasets: [{
+                        data: formatCounts,
+                        backgroundColor: backgroundColors.slice(0, formatLabels.length),
+                        hoverBackgroundColor: hoverBackgroundColors.slice(0, formatLabels.length),
+                        hoverBorderColor: 'rgba(234, 236, 244, 1)',
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            display: formatLabels.length <= 8
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} books (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%',
+                }
+            });
+        });
+    </script>
+}
