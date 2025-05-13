@@ -6,6 +6,7 @@
     int currentPage = ViewData["CurrentPage"] != null ? (int)ViewData["CurrentPage"] : 1;
     int totalPages = ViewData["TotalPages"] != null ? (int)ViewData["TotalPages"] : 1;
     int totalItems = ViewData["TotalItems"] != null ? (int)ViewData["TotalItems"] : 0;
+    Layout = "_DashboardLayout";
     
     // Create parameters for sidebar partial
     var sidebarParams = new Dictionary<string, object>

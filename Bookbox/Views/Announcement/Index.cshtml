@@ -9,6 +9,7 @@
     int currentPage = ViewData["CurrentPage"] != null ? (int)ViewData["CurrentPage"] : 1;
     int totalPages = ViewData["TotalPages"] != null ? (int)ViewData["TotalPages"] : 1;
     int totalItems = ViewData["TotalItems"] != null ? (int)ViewData["TotalItems"] : 0;
+    Layout = "_DashboardLayout";
 }
 
 <div class="container-fluid mt-4 mb-5">
