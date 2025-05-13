@@ -1,6 +1,9 @@
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Bookbox.Constants;
 using Bookbox.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +21,7 @@ namespace Bookbox.Controllers
         }
         
         // Show all orders for the current user
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchTerm = "", string sortBy = "date_desc", string statusFilter = "")
         {
             try
             {
@@ -31,6 +34,36 @@ namespace Bookbox.Controllers
                 
                 // Get user's orders
                 var orders = await _orderService.GetUserOrdersAsync(userId);
+                
+                // Apply filters if provided
+                if (!string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    orders = orders.Where(o => o.OrderNumber.ToString().Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+                    ViewData["SearchTerm"] = searchTerm;
+                }
+                
+                // Apply status filter if provided
+                if (!string.IsNullOrWhiteSpace(statusFilter))
+                {
+                    if (Enum.TryParse<OrderStatus>(statusFilter, true, out var status))
+                    {
+                        orders = orders.Where(o => o.Status == status).ToList();
+                    }
+                    ViewData["StatusFilter"] = statusFilter;
+                }
+                
+                // Apply sorting
+                orders = sortBy switch
+                {
+                    "date_asc" => orders.OrderBy(o => o.OrderDate).ToList(),
+                    "date_desc" => orders.OrderByDescending(o => o.OrderDate).ToList(),
+                    "total_asc" => orders.OrderBy(o => o.TotalAmount).ToList(),
+                    "total_desc" => orders.OrderByDescending(o => o.TotalAmount).ToList(),
+                    "order_asc" => orders.OrderBy(o => o.OrderNumber).ToList(),
+                    "order_desc" => orders.OrderByDescending(o => o.OrderNumber).ToList(),
+                    _ => orders.OrderByDescending(o => o.OrderDate).ToList() // default sorting
+                };
+                ViewData["CurrentSort"] = sortBy;
                 
                 return View(orders);
             }
