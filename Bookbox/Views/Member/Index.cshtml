@@ -221,13 +221,27 @@
     <!-- Charts Row -->
     <div class="row mb-4">
         <!-- Orders Line Chart -->
-        <div class="col-lg-6 mb-4">
+        <div class="col-lg-12 mb-4">
             <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Your Order History</h6>
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary" id="orders-overview-title">Your Order History</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="orderDropdownMenuLink"
+                           data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                             aria-labelledby="orderDropdownMenuLink">
+                            <div class="dropdown-header">View Options:</div>
+                            <a class="dropdown-item order-timeframe-option" href="#" data-timeframe="daily">Daily</a>
+                            <a class="dropdown-item order-timeframe-option" href="#" data-timeframe="weekly">Weekly</a>
+                            <a class="dropdown-item order-timeframe-option active" href="#" data-timeframe="monthly">Monthly</a>
+                            <a class="dropdown-item order-timeframe-option" href="#" data-timeframe="yearly">Yearly</a>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <div class="chart-area">
+                    <div class="chart-area" style="height: 350px;">
                         <canvas id="ordersLineChart"></canvas>
                     </div>
                 </div>
@@ -235,13 +249,27 @@
         </div>
 
         <!-- Expense Line Chart -->
-        <div class="col-lg-6 mb-4">
+        <div class="col-lg-12 mb-4">
             <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Your Expense Overview</h6>
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary" id="expense-overview-title">Your Expense Overview</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="expenseDropdownMenuLink"
+                           data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                             aria-labelledby="expenseDropdownMenuLink">
+                            <div class="dropdown-header">View Options:</div>
+                            <a class="dropdown-item expense-timeframe-option" href="#" data-timeframe="daily">Daily</a>
+                            <a class="dropdown-item expense-timeframe-option" href="#" data-timeframe="weekly">Weekly</a>
+                            <a class="dropdown-item expense-timeframe-option active" href="#" data-timeframe="monthly">Monthly</a>
+                            <a class="dropdown-item expense-timeframe-option" href="#" data-timeframe="yearly">Yearly</a>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <div class="chart-area">
+                    <div class="chart-area" style="height: 350px;">
                         <canvas id="expenseLineChart"></canvas>
                     </div>
                 </div>
@@ -316,12 +344,40 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Create a global object to store chart data
+            const dashboardData = {
+                orderData: {
+                    daily: @Html.Raw(Json.Serialize(ViewBag.DailyOrderCounts ?? new int[7])),
+                    weekly: @Html.Raw(Json.Serialize(ViewBag.WeeklyOrderCounts ?? new int[4])),
+                    monthly: @Html.Raw(Json.Serialize(ViewBag.MonthlyOrderCounts ?? new int[12])),
+                    yearly: @Html.Raw(Json.Serialize(ViewBag.YearlyOrderCounts ?? new int[5]))
+                },
+                expenseData: {
+                    daily: @Html.Raw(Json.Serialize(ViewBag.DailyExpenseData ?? new decimal[7])),
+                    weekly: @Html.Raw(Json.Serialize(ViewBag.WeeklyExpenseData ?? new decimal[4])),
+                    monthly: @Html.Raw(Json.Serialize(ViewBag.MonthlyExpenseData ?? new decimal[12])),
+                    yearly: @Html.Raw(Json.Serialize(ViewBag.YearlyExpenseData ?? new decimal[5]))
+                }
+            };
+
+            // Labels for different time periods
+            const timeframeLabels = {
+                daily: Array.from({length: 7}, (_, i) => {
+                    const d = new Date(); 
+                    d.setDate(d.getDate() - (6-i));
+                    return d.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+                }),
+                weekly: ['Week 1 (Most Recent)', 'Week 2', 'Week 3', 'Week 4 (Oldest)'],
+                monthly: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                yearly: Array.from({length: 5}, (_, i) => `${new Date().getFullYear() - 4 + i}`)
+            };
+
             // Orders Line Chart
             const ordersCtx = document.getElementById('ordersLineChart').getContext('2d');
             const ordersLineChart = new Chart(ordersCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    labels: timeframeLabels.monthly,
                     datasets: [{
                         label: 'Orders',
                         lineTension: 0.3,
@@ -335,7 +391,7 @@
                         pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
                         pointHitRadius: 10,
                         pointBorderWidth: 2,
-                        data: @Html.Raw(Json.Serialize(ViewBag.MonthlyOrderCounts ?? new int[12])),
+                        data: dashboardData.orderData.monthly,
                     }],
                 },
                 options: {
@@ -377,12 +433,37 @@
                 }
             });
 
+            // Function to update order chart based on selected timeframe
+            function updateOrderChart(timeframe) {
+                if (!dashboardData.orderData[timeframe]) {
+                    console.error("No order data found for timeframe:", timeframe);
+                    return;
+                }
+                
+                ordersLineChart.data.labels = timeframeLabels[timeframe];
+                ordersLineChart.data.datasets[0].data = dashboardData.orderData[timeframe];
+                
+                // Update chart title
+                const cardHeader = document.getElementById('orders-overview-title');
+                if (cardHeader) {
+                    const viewNames = {
+                        'daily': 'Your Daily Orders (Last 7 Days)',
+                        'weekly': 'Your Weekly Orders (Last 4 Weeks)',
+                        'monthly': 'Your Monthly Orders (This Year)',
+                        'yearly': 'Your Yearly Orders (Last 5 Years)'
+                    };
+                    cardHeader.textContent = viewNames[timeframe] || 'Your Order History';
+                }
+                
+                ordersLineChart.update();
+            }
+
             // Expense Line Chart
             const expenseCtx = document.getElementById('expenseLineChart').getContext('2d');
             const expenseLineChart = new Chart(expenseCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    labels: timeframeLabels.monthly,
                     datasets: [{
                         label: 'Expense (NPR)',
                         lineTension: 0.3,
@@ -396,7 +477,7 @@
                         pointHoverBorderColor: 'rgba(111, 66, 193, 1)',
                         pointHitRadius: 10,
                         pointBorderWidth: 2,
-                        data: @Html.Raw(Json.Serialize(ViewBag.MonthlyExpenseData ?? new decimal[12])),
+                        data: dashboardData.expenseData.monthly,
                     }],
                 },
                 options: {
@@ -444,6 +525,63 @@
                     }
                 }
             });
+
+            // Function to update expense chart based on selected timeframe
+            function updateExpenseChart(timeframe) {
+                if (!dashboardData.expenseData[timeframe]) {
+                    console.error("No expense data found for timeframe:", timeframe);
+                    return;
+                }
+                
+                expenseLineChart.data.labels = timeframeLabels[timeframe];
+                expenseLineChart.data.datasets[0].data = dashboardData.expenseData[timeframe];
+                
+                // Update chart title
+                const cardHeader = document.getElementById('expense-overview-title');
+                if (cardHeader) {
+                    const viewNames = {
+                        'daily': 'Your Daily Expenses (Last 7 Days)',
+                        'weekly': 'Your Weekly Expenses (Last 4 Weeks)',
+                        'monthly': 'Your Monthly Expenses (This Year)',
+                        'yearly': 'Your Yearly Expenses (Last 5 Years)'
+                    };
+                    cardHeader.textContent = viewNames[timeframe] || 'Your Expense Overview';
+                }
+                
+                expenseLineChart.update();
+            }
+
+            // Add click handlers to order timeframe options
+            document.querySelectorAll('.order-timeframe-option').forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Update the active class
+                    document.querySelectorAll('.order-timeframe-option').forEach(opt => 
+                        opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update the chart with the selected timeframe
+                    updateOrderChart(this.getAttribute('data-timeframe'));
+                });
+            });
+
+            // Add click handlers to expense timeframe options
+            document.querySelectorAll('.expense-timeframe-option').forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Update the active class
+                    document.querySelectorAll('.expense-timeframe-option').forEach(opt => 
+                        opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update the chart with the selected timeframe
+                    updateExpenseChart(this.getAttribute('data-timeframe'));
+                });
+            });
+
+            // Initialize with monthly view for both charts
+            updateOrderChart('monthly');
+            updateExpenseChart('monthly');
 
             // Genre Pie Chart
             const genreCtx = document.getElementById('genrePieChart').getContext('2d');

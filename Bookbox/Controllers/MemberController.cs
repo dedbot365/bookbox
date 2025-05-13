@@ -94,6 +94,57 @@ namespace Bookbox.Controllers
                 })
                 .ToListAsync();
             
+            // Daily order counts and expense data - last 7 days
+            var sevenDaysAgo = today.AddDays(-6);
+            var dailyOrderCounts = new int[7];
+            var dailyExpenseData = new decimal[7];
+
+            for (int i = 0; i < 7; i++)
+            {
+                var date = sevenDaysAgo.AddDays(i);
+                
+                // Get order count for this day
+                var orderCount = await _context.Orders
+                    .CountAsync(o => o.UserId == userId && 
+                              o.OrderDate.Date == date);
+                dailyOrderCounts[i] = orderCount;
+                
+                // Get expense for this day (completed orders only)
+                var expense = await _context.Orders
+                    .Where(o => o.UserId == userId && 
+                          o.Status == OrderStatus.Completed && 
+                          o.OrderDate.Date == date)
+                    .SumAsync(o => o.TotalAmount);
+                dailyExpenseData[i] = expense;
+            }
+
+            // Weekly data - last 4 weeks
+            var fourWeeksAgo = today.AddDays(-28);
+            var weeklyOrderCounts = new int[4];
+            var weeklyExpenseData = new decimal[4];
+
+            for (int i = 0; i < 4; i++)
+            {
+                var weekStartDate = fourWeeksAgo.AddDays(i * 7);
+                var weekEndDate = weekStartDate.AddDays(7);
+                
+                // Get order count for this week
+                var orderCount = await _context.Orders
+                    .CountAsync(o => o.UserId == userId && 
+                              o.OrderDate >= weekStartDate && 
+                              o.OrderDate < weekEndDate);
+                weeklyOrderCounts[3 - i] = orderCount; // Start with most recent week
+                
+                // Get expense for this week (completed orders only)
+                var expense = await _context.Orders
+                    .Where(o => o.UserId == userId && 
+                          o.Status == OrderStatus.Completed && 
+                          o.OrderDate >= weekStartDate && 
+                          o.OrderDate < weekEndDate)
+                    .SumAsync(o => o.TotalAmount);
+                weeklyExpenseData[3 - i] = expense; // Start with most recent week
+            }
+            
             // Monthly order data for charts
             var currentYear = DateTime.UtcNow.Year;
             var monthlyOrderCounts = new int[12];
@@ -125,6 +176,34 @@ namespace Bookbox.Controllers
             foreach (var item in completedOrdersByMonth)
             {
                 monthlyExpenseData[item.Month - 1] = item.Total;
+            }
+            
+            // Yearly data - last 5 years
+            var currentYearFull = DateTime.UtcNow.Year;
+            var yearlyOrderCounts = new int[5];
+            var yearlyExpenseData = new decimal[5];
+
+            for (int i = 0; i < 5; i++)
+            {
+                var year = currentYearFull - 4 + i;
+                var yearStart = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                var yearEnd = new DateTime(year + 1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                
+                // Get order count for this year
+                var orderCount = await _context.Orders
+                    .CountAsync(o => o.UserId == userId && 
+                              o.OrderDate >= yearStart && 
+                              o.OrderDate < yearEnd);
+                yearlyOrderCounts[i] = orderCount;
+                
+                // Get expense for this year (completed orders only)
+                var expense = await _context.Orders
+                    .Where(o => o.UserId == userId && 
+                          o.Status == OrderStatus.Completed && 
+                          o.OrderDate >= yearStart && 
+                          o.OrderDate < yearEnd)
+                    .SumAsync(o => o.TotalAmount);
+                yearlyExpenseData[i] = expense;
             }
             
             // Get books by genre for this member
@@ -163,8 +242,17 @@ namespace Bookbox.Controllers
             ViewBag.TotalExpense = totalExpense;
             
             ViewBag.RecentOrders = recentOrders;
+            
+            // Add all time-based chart data to ViewBag
+            ViewBag.DailyOrderCounts = dailyOrderCounts;
+            ViewBag.WeeklyOrderCounts = weeklyOrderCounts;
             ViewBag.MonthlyOrderCounts = monthlyOrderCounts;
+            ViewBag.YearlyOrderCounts = yearlyOrderCounts;
+            
+            ViewBag.DailyExpenseData = dailyExpenseData;
+            ViewBag.WeeklyExpenseData = weeklyExpenseData;
             ViewBag.MonthlyExpenseData = monthlyExpenseData;
+            ViewBag.YearlyExpenseData = yearlyExpenseData;
             
             ViewBag.BooksByGenre = booksByGenre;
             ViewBag.BooksByFormat = booksByFormat;
