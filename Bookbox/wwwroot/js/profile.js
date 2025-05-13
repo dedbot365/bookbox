@@ -53,6 +53,27 @@ $(document).ready(function() {
             $this.addClass("show");
         }, 200 * index);
     });
+
+    // Auto-hide success messages after 5 seconds
+    const successAlert = $('.alert-success');
+    if (successAlert.length > 0) {
+        setTimeout(function() {
+            successAlert.fadeOut('slow');
+        }, 5000);
+    }
+
+    // Check for success message and show modal
+    const successMessage = $('#successMessage').val();
+    if (successMessage && successMessage.length > 0) {
+        // Set the message in the modal
+        $('.modal-message').text(successMessage);
+        
+        // Create and show modal with a slight delay for better UX
+        setTimeout(() => {
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+        }, 500);
+    }
 });
 
 // Rest of the functions remain unchanged

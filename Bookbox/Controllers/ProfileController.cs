@@ -280,7 +280,7 @@ namespace Bookbox.Controllers
                 authProperties);
 
             TempData["SuccessMessage"] = "Profile updated successfully!";
-            return RedirectToAction("EditProfile");
+            return RedirectToAction("Index");  // Change this to redirect to Index instead of EditProfile
         }
 
         // GET: Profile/ChangePassword
@@ -325,7 +325,7 @@ namespace Bookbox.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Password changed successfully!";
-            return RedirectToAction("ChangePassword");
+            return RedirectToAction("Index");  // Change this to redirect to Index instead of ChangePassword
         }
     }
 }

@@ -113,11 +113,13 @@
     color: white;
     transition: all 0.2s ease;
     border: none;
+    text-decoration: none;
 }
 
 .profile-action-btn:hover {
     background: rgba(255, 255, 255, 0.35);
     color: white;
+    text-decoration: none;
 }
 
 .profile-action-btn i {
@@ -243,4 +245,55 @@
 
 .fade-in-up {
     animation: fadeInUp 0.5s ease forwards;
+}
+
+/* Success Modal Styles */
+#successModal .modal-content {
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+#successModal .modal-header {
+    background: linear-gradient(45deg, #4D4490, #6a55c7);
+    padding: 1.25rem;
+}
+
+#successModal .modal-footer {
+    padding: 1.25rem;
+}
+
+.success-icon-container {
+    height: 100px;
+    width: 100px;
+    background-color: rgba(77, 68, 144, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.success-icon-container i {
+    color: #4D4490;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+#successModal .btn-primary {
+    background: linear-gradient(45deg, #4D4490, #6a55c7);
+    border: none;
+    border-radius: 50px;
+    padding: 0.5rem 2rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+#successModal .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(77, 68, 144, 0.3);
 }
