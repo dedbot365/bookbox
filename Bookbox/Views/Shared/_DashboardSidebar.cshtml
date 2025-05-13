@@ -100,14 +100,10 @@
                 <a href="@Url.Action("Index", "PurchasedBooks")" class="sidebar-link @IsActive("PurchasedBooks", "*")">
                     <i class="fas fa-book-reader"></i> <span>Purchased Books</span>
                 </a>
-            }
-              <!-- Common for all users -->
+            }            <!-- Common for all users -->
             <div class="sidebar-heading">Account</div>
-            <a href="@Url.Action("EditProfile", "Profile")" class="sidebar-link @IsActive("Profile", "EditProfile")">
-                <i class="fas fa-user-edit"></i> <span>Edit Profile</span>
-            </a>
-            <a href="@Url.Action("ChangePassword", "Profile")" class="sidebar-link @IsActive("Profile", "ChangePassword")">
-                <i class="fas fa-key"></i> <span>Change Password</span>
+            <a href="@Url.Action("Index", "Profile")" class="sidebar-link @IsActive("Profile", "*")">
+                <i class="fas fa-user"></i> <span>My Profile</span>
             </a>
             <a href="@Url.Action("Logout", "Auth")" class="sidebar-link">
                 <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
