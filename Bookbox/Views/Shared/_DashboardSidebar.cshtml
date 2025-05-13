@@ -19,10 +19,14 @@
     <div class="sidebar-header">
         <div class="d-flex align-items-center">
             <img src="~/images/logo/logo.png" alt="BookBox Logo" height="30" class="me-2" />
-            <h5 class="mb-0 text-white">BookBox 
-                @if (isAdmin) { <span>Admin</span> }
-                @if (isStaff) { <span>Staff</span> }
-                @if (isMember) { <span>Member</span> }
+            <h5 class="mb-0 text-white">
+                <span class="sidebar-title">BookBox 
+                    @if (isAdmin) { <span>Admin</span> }
+                    @if (isStaff) { <span>Staff</span> }
+                    @if (isMember) { <span>Member</span> }
+                </span>
+                <!-- Small icon for collapsed state -->
+                <span class="sidebar-mini"><i class="fas fa-book"></i></span>
             </h5>
         </div>
         <button id="sidebarToggle" class="btn btn-link d-md-none text-white">
@@ -122,12 +126,20 @@
             </a>
         </div>
     </div>
+    
+    <!-- In-sidebar collapse button -->
+    <div class="sidebar-footer">
+        <button id="sidebarCollapseInside" class="btn btn-link text-white w-100 py-3">
+            <i class="fas fa-angle-double-left collapse-icon"></i>
+            <span>Collapse Sidebar</span>
+        </button>
+    </div>
 </div>
 
 <!-- Overlay for mobile -->
 <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
-<!-- Sidebar toggle button -->
-<button id="sidebarCollapseBtn" class="btn btn-primary sidebar-toggle-btn">
+<!-- Floating toggle button (always visible) -->
+<button id="sidebarCollapseBtn" class="btn btn-primary sidebar-toggle-btn d-md-block">
     <i class="fas fa-bars"></i>
 </button>

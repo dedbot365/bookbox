@@ -4,7 +4,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const mainContent = document.getElementById('mainContent');
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebarCollapseBtn = document.getElementById('sidebarCollapseBtn');
+    const sidebarCollapseInside = document.getElementById('sidebarCollapseInside');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
+    
+    // Add data-title attributes to all sidebar links for tooltips
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    sidebarLinks.forEach(link => {
+        const text = link.querySelector('span')?.textContent.trim() || '';
+        if (text) {
+            link.setAttribute('data-title', text);
+        }
+    });
     
     // Function to check and set sidebar state based on screen size
     function checkScreenSize() {
@@ -14,7 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
             sidebarOverlay.classList.remove('show');
         } else {
             // Desktop view - show sidebar
-            sidebar.classList.remove('collapsed');
             if (mainContent) {
                 mainContent.classList.remove('sidebar-collapsed');
             }
@@ -22,7 +31,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Check localStorage for persistent preference
             const sidebarState = localStorage.getItem('sidebarState');
             if (sidebarState === 'collapsed') {
-                toggleSidebarDesktop();
+                sidebar.classList.add('collapsed');
+                if (mainContent) mainContent.classList.add('sidebar-collapsed');
+                updateCollapseButtonIcon(true);
+            } else {
+                sidebar.classList.remove('collapsed');
+                if (mainContent) mainContent.classList.remove('sidebar-collapsed');
+                updateCollapseButtonIcon(false);
             }
         }
     }
@@ -35,14 +50,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Toggle sidebar on desktop
     function toggleSidebarDesktop() {
+        const willBeCollapsed = !sidebar.classList.contains('collapsed');
+        
         sidebar.classList.toggle('collapsed');
         if (mainContent) {
             mainContent.classList.toggle('sidebar-collapsed');
         }
         
+        updateCollapseButtonIcon(willBeCollapsed);
+        
         // Save preference to localStorage
-        const isCollapsed = sidebar.classList.contains('collapsed');
-        localStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+        localStorage.setItem('sidebarState', willBeCollapsed ? 'collapsed' : 'expanded');
+    }
+    
+    // Update the collapse button icon based on sidebar state
+    function updateCollapseButtonIcon(isCollapsed) {
+        const collapseIcon = sidebarCollapseInside.querySelector('.collapse-icon');
+        
+        if (isCollapsed) {
+            collapseIcon.classList.remove('fa-angle-double-left');
+            collapseIcon.classList.add('fa-angle-double-right');
+        } else {
+            collapseIcon.classList.remove('fa-angle-double-right');
+            collapseIcon.classList.add('fa-angle-double-left');
+        }
     }
     
     // Event listeners
@@ -59,6 +90,12 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 toggleSidebarDesktop();
             }
+        });
+    }
+    
+    if (sidebarCollapseInside) {
+        sidebarCollapseInside.addEventListener('click', function() {
+            toggleSidebarDesktop();
         });
     }
     
