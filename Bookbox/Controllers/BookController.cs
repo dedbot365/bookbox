@@ -259,9 +259,7 @@ namespace Bookbox.Controllers
 
             ViewData["SearchTerm"] = searchTerm;
             return View("Index", results);
-        }
-
-        [HttpGet]
+        }        [HttpGet]
         public async Task<IActionResult> GetAllReviews(Guid id, int count = 10)
         {
             try
