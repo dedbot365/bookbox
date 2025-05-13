@@ -219,7 +219,7 @@
         <!-- Edit Review Modal -->
         <div class="modal fade review-modal" id="editReviewModal-@book.BookId-@book.OrderItemId" tabindex="-1" 
              aria-hidden="true" data-bs-backdrop="static">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content border-0 shadow">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title">
@@ -228,10 +228,16 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
-                        <!-- Modal content remains the same -->
-                        <div class="text-center mb-3">
-                            <h6 class="book-title fw-bold">@book.Title</h6>
-                            <p class="text-muted mb-0">by @book.Author</p>
+                        <!-- Book information with image -->
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="book-cover me-3" style="min-width: 100px; max-width: 100px;">
+                                <img src="@(string.IsNullOrEmpty(book.ImageUrl) ? "/images/no-book-cover.jpg" : book.ImageUrl)" 
+                                     class="img-fluid rounded shadow-sm" alt="@book.Title">
+                            </div>
+                            <div>
+                                <h5 class="book-title fw-bold mb-1">@book.Title</h5>
+                                <p class="text-muted mb-0">by @book.Author</p>
+                            </div>
                         </div>
                         
                         <form asp-action="SubmitReview" method="post">
