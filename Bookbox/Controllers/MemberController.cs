@@ -103,10 +103,11 @@ namespace Bookbox.Controllers
             {
                 var date = sevenDaysAgo.AddDays(i);
                 
-                // Get order count for this day
+                // Get order count for this day - ONLY COMPLETED ORDERS
                 var orderCount = await _context.Orders
                     .CountAsync(o => o.UserId == userId && 
-                              o.OrderDate.Date == date);
+                              o.OrderDate.Date == date && 
+                              o.Status == OrderStatus.Completed);
                 dailyOrderCounts[i] = orderCount;
                 
                 // Get expense for this day (completed orders only)
@@ -128,11 +129,12 @@ namespace Bookbox.Controllers
                 var weekStartDate = fourWeeksAgo.AddDays(i * 7);
                 var weekEndDate = weekStartDate.AddDays(7);
                 
-                // Get order count for this week
+                // Get order count for this week - ONLY COMPLETED ORDERS
                 var orderCount = await _context.Orders
                     .CountAsync(o => o.UserId == userId && 
                               o.OrderDate >= weekStartDate && 
-                              o.OrderDate < weekEndDate);
+                              o.OrderDate < weekEndDate &&
+                              o.Status == OrderStatus.Completed);
                 weeklyOrderCounts[3 - i] = orderCount; // Start with most recent week
                 
                 // Get expense for this week (completed orders only)
@@ -145,14 +147,16 @@ namespace Bookbox.Controllers
                 weeklyExpenseData[3 - i] = expense; // Start with most recent week
             }
             
-            // Monthly order data for charts
+            // Monthly order data for charts - ONLY COMPLETED ORDERS
             var currentYear = DateTime.UtcNow.Year;
             var monthlyOrderCounts = new int[12];
             var monthlyExpenseData = new decimal[12];
             
-            // Get all orders for order count chart
+            // Get all orders for order count chart - ONLY COMPLETED ORDERS
             var allOrdersByMonth = await _context.Orders
-                .Where(o => o.UserId == userId && o.OrderDate.Year == currentYear)
+                .Where(o => o.UserId == userId && 
+                       o.OrderDate.Year == currentYear && 
+                       o.Status == OrderStatus.Completed)
                 .GroupBy(o => o.OrderDate.Month)
                 .Select(g => new { Month = g.Key, Count = g.Count() })
                 .ToListAsync();
@@ -189,11 +193,12 @@ namespace Bookbox.Controllers
                 var yearStart = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                 var yearEnd = new DateTime(year + 1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                 
-                // Get order count for this year
+                // Get order count for this year - ONLY COMPLETED ORDERS
                 var orderCount = await _context.Orders
                     .CountAsync(o => o.UserId == userId && 
                               o.OrderDate >= yearStart && 
-                              o.OrderDate < yearEnd);
+                              o.OrderDate < yearEnd &&
+                              o.Status == OrderStatus.Completed);
                 yearlyOrderCounts[i] = orderCount;
                 
                 // Get expense for this year (completed orders only)
