@@ -99,15 +99,31 @@ namespace Bookbox.Controllers
             var monthlyOrderCounts = new int[12];
             var monthlyExpenseData = new decimal[12];
             
-            var ordersByMonth = await _context.Orders
+            // Get all orders for order count chart
+            var allOrdersByMonth = await _context.Orders
                 .Where(o => o.UserId == userId && o.OrderDate.Year == currentYear)
                 .GroupBy(o => o.OrderDate.Month)
-                .Select(g => new { Month = g.Key, Count = g.Count(), Total = g.Sum(o => o.TotalAmount) })
+                .Select(g => new { Month = g.Key, Count = g.Count() })
                 .ToListAsync();
                 
-            foreach (var item in ordersByMonth)
+            // Get only completed orders for expense chart
+            var completedOrdersByMonth = await _context.Orders
+                .Where(o => o.UserId == userId && 
+                       o.OrderDate.Year == currentYear && 
+                       o.Status == OrderStatus.Completed)
+                .GroupBy(o => o.OrderDate.Month)
+                .Select(g => new { Month = g.Key, Total = g.Sum(o => o.TotalAmount) })
+                .ToListAsync();
+            
+            // Fill in the monthly orders data
+            foreach (var item in allOrdersByMonth)
             {
                 monthlyOrderCounts[item.Month - 1] = item.Count;
+            }
+            
+            // Fill in the monthly expense data (only from completed orders)
+            foreach (var item in completedOrdersByMonth)
+            {
                 monthlyExpenseData[item.Month - 1] = item.Total;
             }
             
