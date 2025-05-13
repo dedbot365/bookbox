@@ -6,6 +6,195 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Dropdown(dropdownToggleEl);
     });
     
+    // ==================== GENRE PIE CHART ====================
+    const genreCtx = document.getElementById('genrePieChart').getContext('2d');
+    const genreData = dashboardData.genreData || [];
+    const genreLabels = genreData.map(item => item.genre);
+    const genreCounts = genreData.map(item => item.count);
+    
+    const backgroundColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', 
+                            '#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60616f'];
+    const hoverBackgroundColors = ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60616f',
+                                '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'];
+    
+    const genrePieChart = new Chart(genreCtx, {
+        type: 'doughnut',
+        data: {
+            labels: genreLabels,
+            datasets: [{
+                data: genreCounts,
+                backgroundColor: backgroundColors.slice(0, genreLabels.length),
+                hoverBackgroundColor: hoverBackgroundColors.slice(0, genreLabels.length),
+                hoverBorderColor: 'rgba(234, 236, 244, 1)',
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    display: genreLabels.length <= 8
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw;
+                            const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            cutout: '60%',
+        }
+    });
+
+    // Update the small legend below the chart
+    const legendContainer = document.getElementById('genre-legend');
+    if (legendContainer && genreLabels.length > 8) {
+        let legendHtml = '';
+        for (let i = 0; i < genreLabels.length; i++) {
+            legendHtml += `<span class="mr-2"><i class="fas fa-circle" style="color: ${backgroundColors[i % backgroundColors.length]}"></i> ${genreLabels[i]}</span>`;
+        }
+        legendContainer.innerHTML = legendHtml;
+    }
+
+    // ==================== ORDER STATUS CHART ====================
+    const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+    const completedOrders = dashboardData.completedOrders || 0;
+    const pendingOrders = dashboardData.pendingOrders || 0;
+    const cancelledOrders = dashboardData.cancelledOrders || 0;
+    
+    const orderStatusData = [
+        { label: 'Completed', count: completedOrders, color: '#1cc88a' },
+        { label: 'Pending', count: pendingOrders, color: '#f6c23e' },
+        { label: 'Cancelled', count: cancelledOrders, color: '#e74a3b' }
+    ];
+    const orderStatusLabels = orderStatusData.map(item => item.label);
+    const orderStatusCounts = orderStatusData.map(item => item.count);
+    const orderStatusColors = orderStatusData.map(item => item.color);
+
+    const orderStatusChart = new Chart(orderStatusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: orderStatusLabels,
+            datasets: [{
+                data: orderStatusCounts,
+                backgroundColor: orderStatusColors,
+                hoverBackgroundColor: ['#17a673', '#dda20a', '#be2617'],
+                hoverBorderColor: 'rgba(234, 236, 244, 1)',
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    display: true
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw;
+                            const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            cutout: '60%',
+        }
+    });
+
+    // ==================== TOP SELLING BOOKS CHART ====================
+    const topBooksCtx = document.getElementById('topSellingBooksChart').getContext('2d');
+    const topSellingData = dashboardData.topSellingData || [];
+    const bookLabels = topSellingData.map(item => item.title);
+    const salesCounts = topSellingData.map(item => item.salesCount);
+
+    const topBooksChart = new Chart(topBooksCtx, {
+        type: 'bar',
+        data: {
+            labels: bookLabels,
+            datasets: [{
+                label: 'Sales',
+                backgroundColor: '#4e73df',
+                hoverBackgroundColor: '#2e59d9',
+                data: salesCounts,
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    }
+                },
+                y: {
+                    ticks: {
+                        maxTicksLimit: 5,
+                        padding: 10
+                    },
+                    grid: {
+                        color: 'rgb(234, 236, 244)',
+                        drawBorder: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // ==================== FORMAT DONUT CHART ====================
+    const formatCtx = document.getElementById('formatDonutChart').getContext('2d');
+    const formatData = dashboardData.formatData || [];
+    const formatLabels = formatData.map(item => item.format);
+    const formatCounts = formatData.map(item => item.count);
+
+    const formatDonutChart = new Chart(formatCtx, {
+        type: 'doughnut',
+        data: {
+            labels: formatLabels,
+            datasets: [{
+                data: formatCounts,
+                backgroundColor: backgroundColors.slice(0, formatLabels.length),
+                hoverBackgroundColor: hoverBackgroundColors.slice(0, formatLabels.length),
+                hoverBorderColor: 'rgba(234, 236, 244, 1)',
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    display: formatLabels.length <= 8
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw;
+                            const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            cutout: '60%',
+        }
+    });
+    
     // ==================== REVENUE CHART WITH TIME PERIOD SWITCHING ====================
     const revenueCtx = document.getElementById('revenueLineChart').getContext('2d');
     
