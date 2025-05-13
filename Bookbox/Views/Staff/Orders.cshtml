@@ -101,14 +101,7 @@
         </div>
     </div>
 
-    @* @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3" role="alert">
-            <i class="fas fa-check-circle me-2"></i>
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    } *@
+    @* Success message removed - now handled by a modal dialog in OrderDetails.cshtml *@
 
     <!-- Main orders table card -->
     <div class="card shadow rounded-3 border-0 mb-4">
@@ -308,85 +301,10 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/announcement.css" asp-append-version="true" />
-    <style>
-        /* Small avatar circle for customer display */
-        .avatar-circle {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* Text color for purple elements */
-        .text-purple {
-            color: #6f42c1 !important;
-        }
-        
-        /* For the badge to allow copy button */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-        }
-        
-        .copy-btn:hover {
-            opacity: 0.8;
-        }
-        
-        /* Adjusted border-left for cards */
-        .border-left-purple {
-            border-left: 0.25rem solid #6f42c1 !important;
-        }
-        
-        /* Sort icons styling */
-        .sort-icons {
-            display: flex;
-            flex-direction: column;
-            line-height: 0.5;
-        }
-        
-        .sort-icons a {
-            color: #aaa;
-            font-size: 0.7rem;
-            text-decoration: none;
-        }
-        
-        .sort-icons a.active {
-            color: #6f42c1;
-        }
-        
-        /* No results message */
-        .no-results {
-            text-align: center;
-            padding: 2rem;
-            color: #6c757d;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/ordersstaff.css" asp-append-version="true" />
 }
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Initialize clipboard for copy functionality
-            new ClipboardJS('.copy-btn').on('success', function(e) {
-                // Show tooltip or notification
-                $(e.trigger).tooltip({
-                    title: 'Copied!',
-                    placement: 'top',
-                    trigger: 'manual'
-                }).tooltip('show');
-                
-                setTimeout(function() {
-                    $(e.trigger).tooltip('hide');
-                }, 1000);
-                
-                e.clearSelection();
-            });
-            
-            // Add tooltips to action buttons
-            $('[title]').tooltip();
-        });
-    </script>
+    <script src="~/js/ordersstaffjs.js" asp-append-version="true"></script>
 }
