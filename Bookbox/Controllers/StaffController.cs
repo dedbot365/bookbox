@@ -19,18 +19,18 @@ namespace Bookbox.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IOrderEmailService _orderEmailService;
         private readonly IOrderService _orderService;
-        private readonly IChartService _chartService; // Add IChartService
+        private readonly IChartService _chartService; 
 
         public StaffController(
             ApplicationDbContext context, 
             IOrderEmailService orderEmailService, 
             IOrderService orderService,
-            IChartService chartService) // Add IChartService parameter
+            IChartService chartService) 
         {
             _context = context;
             _orderEmailService = orderEmailService;
             _orderService = orderService;
-            _chartService = chartService; // Store chart service
+            _chartService = chartService; 
         }
         
         public async Task<IActionResult> Dashboard()
@@ -107,6 +107,7 @@ namespace Bookbox.Controllers
         
         public async Task<IActionResult> Orders(string searchTerm = "", string sortBy = "date_desc", string statusFilter = "")
         {
+            var query = _context.Orders.Include(o => o.User);
             // Start with all orders query
             var ordersQuery = _context.Orders
                 .Include(o => o.User)
@@ -142,10 +143,12 @@ namespace Bookbox.Controllers
                 "order_desc" => ordersQuery.OrderByDescending(o => o.OrderNumber),
                 _ => ordersQuery.OrderByDescending(o => o.OrderDate) // default sorting
             };
-            
-            ViewData["CurrentSort"] = sortBy;
-            
             var orders = await ordersQuery.ToListAsync();
+            ViewData["CurrentSort"] = sortBy;
+            ViewData["StatusFilter"] = statusFilter;
+            ViewData["SearchTerm"] = searchTerm;
+            
+            
             return View(orders);
         }
         

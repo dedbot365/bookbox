@@ -227,7 +227,6 @@
                                     </div>
                                 </div>
                             </th>
-                            <th>Redeem Code</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -243,9 +242,18 @@
                                 <td class="fw-semibold">@order.OrderNumber</td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="avatar-circle bg-light me-2">
-                                            <i class="fas fa-user text-secondary"></i>
-                                        </div>
+                                        @if (!string.IsNullOrEmpty(order.User?.ImageUrlText))
+                                        {
+                                            <img src="@order.User.ImageUrlText" alt="@order.User.Username" 
+                                                 class="rounded-circle me-2 shadow-sm" 
+                                                 style="width: 32px; height: 32px; object-fit: cover;">
+                                        }
+                                        else
+                                        {
+                                            <div class="avatar-circle bg-light me-2">
+                                                <i class="fas fa-user text-secondary"></i>
+                                            </div>
+                                        }
                                         <div>
                                             <div class="fw-medium">@order.User?.FirstName @order.User?.LastName</div>
                                             <small class="text-muted">@order.User?.Username</small>
@@ -254,14 +262,6 @@
                                 </td>
                                 <td>@order.OrderDate.ToString("MMM dd, yyyy")<br /><small class="text-muted">@order.OrderDate.ToString("HH:mm")</small></td>
                                 <td class="fw-medium">NPR @order.TotalAmount.ToString("N0")</td>
-                                <td>
-                                    <span class="badge bg-primary position-relative">
-                                        @order.ClaimCode
-                                        <button class="btn btn-sm text-white copy-btn p-0 ms-2" data-clipboard-text="@order.ClaimCode" title="Copy code">
-                                            <i class="fas fa-copy"></i>
-                                        </button>
-                                    </span>
-                                </td>
                                 <td>
                                     @if (order.Status == Bookbox.Constants.OrderStatus.Pending)
                                     {
