@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Create Announcement";
+    Layout = "_DashboardLayout";
 }
 
 <div class="container-fluid mt-4">
@@ -9,56 +10,85 @@
     <p class="mb-4">Create a new announcement to display to users.</p>
 
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold">Announcement Information</h6>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="previewAnnouncementBtn">
+                <i class="fas fa-eye me-1"></i> Preview
+            </button>
         </div>
         <div class="card-body">
-            <form asp-action="Create" method="post">
+            <form asp-action="Create" method="post" id="announcementForm">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-                <div class="mb-3">
-                    <label asp-for="Title" class="form-label">Title</label>
-                    <input asp-for="Title" class="form-control" />
+                <div class="mb-4">
+                    <label asp-for="Title" class="form-label fw-semibold">Title</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-heading text-primary"></i>
+                        </span>
+                        <input asp-for="Title" class="form-control border-start-0 ps-0" placeholder="Enter announcement title..." />
+                    </div>
                     <span asp-validation-for="Title" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Content" class="form-label">Content</label>
-                    <textarea asp-for="Content" class="form-control" rows="5"></textarea>
+                <div class="mb-4">
+                    <label asp-for="Content" class="form-label fw-semibold">Content</label>
+                    <textarea asp-for="Content" id="announcementContent" class="form-control" rows="6" placeholder="Enter announcement content..."></textarea>
                     <span asp-validation-for="Content" class="text-danger"></span>
-                    <small class="form-text text-muted">You can use basic HTML tags to format the content.</small>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="StartDate" class="form-label">Start Date</label>
-                            <input asp-for="StartDate" type="date" class="form-control" />
-                            <span asp-validation-for="StartDate" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="EndDate" class="form-label">End Date</label>
-                            <input asp-for="EndDate" type="date" class="form-control" />
-                            <span asp-validation-for="EndDate" class="text-danger"></span>
-                            <small class="form-text text-muted">Leave blank for announcements with no end date.</small>
-                        </div>
+                    <div class="form-text mt-2">
+                        <i class="fas fa-info-circle me-1 text-primary"></i>
+                        You can use basic HTML tags to format the content.
                     </div>
                 </div>
 
-                <div class="mb-3 form-check">
-                    <input asp-for="IsActive" class="form-check-input" type="checkbox" />
-                    <label asp-for="IsActive" class="form-check-label">Active</label>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="StartDate" class="form-label fw-semibold">Start Date</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fas fa-calendar-alt text-primary"></i>
+                            </span>
+                            <input asp-for="StartDate" type="date" class="form-control date-picker border-start-0 ps-0" />
+                        </div>
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="EndDate" class="form-label fw-semibold">End Date</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fas fa-calendar-alt text-primary"></i>
+                            </span>
+                            <input asp-for="EndDate" type="date" class="form-control date-picker border-start-0 ps-0" />
+                        </div>
+                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Leave blank for announcements with no end date.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4 p-3 bg-light rounded">
+                    <div class="form-check form-switch">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" />
+                        <label asp-for="IsActive" class="form-check-label fw-semibold" for="isActiveSwitch">Active</label>
+                    </div>
                     <span asp-validation-for="IsActive" class="text-danger"></span>
-                    <div class="form-text text-muted">If checked, the announcement will be displayed during the specified period.</div>
+                    <div class="form-text mt-1">
+                        <i class="fas fa-info-circle me-1"></i>
+                        If active, the announcement will be displayed during the specified period.
+                    </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-0 mt-4">
                     <hr />
                     <div class="d-flex justify-content-between">
-                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Create Announcement</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                            <i class="fas fa-arrow-left me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-check me-2"></i>Create Announcement
+                        </button>
                     </div>
                 </div>
             </form>
@@ -66,6 +96,45 @@
     </div>
 </div>
 
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="previewModalLabel">Announcement Preview</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="announcement-preview">
+                    <h4 id="previewTitle" class="mb-3">Title will appear here</h4>
+                    <div class="border-top pt-3">
+                        <div id="previewContent" class="mb-3">Content will appear here</div>
+                    </div>
+                    <div class="announcement-preview-details text-muted small">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Start Date:</strong> <span id="previewStartDate"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>End Date:</strong> <span id="previewEndDate"></span></p>
+                            </div>
+                        </div>
+                        <p><strong>Status:</strong> <span id="previewStatus" class="badge"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/announcement-form.css" asp-append-version="true" />
+}
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/announcement-form.js" asp-append-version="true"></script>
 }

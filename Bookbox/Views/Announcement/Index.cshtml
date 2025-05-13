@@ -12,6 +12,10 @@
     Layout = "_DashboardLayout";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/announcement.css" asp-append-version="true" />
+}
+
 <div class="container-fluid mt-4 mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -21,7 +25,7 @@
             @if (TempData["SuccessMessage"] != null)
             {
                 <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
-                    @TempData["SuccessMessage"]
+                    <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
@@ -29,14 +33,14 @@
             @if (TempData["ErrorMessage"] != null)
             {
                 <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
-                    @TempData["ErrorMessage"]
+                    <i class="fas fa-exclamation-circle me-2"></i> @TempData["ErrorMessage"]
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
         </div>
         <div>
             <a asp-action="Create" class="btn btn-primary">
-                <i class="fas fa-plus"></i> New Announcement
+                <i class="fas fa-plus me-2"></i> New Announcement
             </a>
         </div>
     </div>
@@ -52,7 +56,9 @@
             <!-- Results Header -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold">All Announcements</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bullhorn me-2"></i> All Announcements
+                    </h6>
                     <div class="d-flex align-items-center">
                         <label for="sortBy" class="me-2">Sort by:</label>
                         <select id="sortBy" name="sortBy" class="form-select form-select-sm" style="width: auto;" onchange="updateSort(this.value)">
@@ -78,8 +84,8 @@
                             </p>
                         </div>
                         
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped" id="announcementTable">
+                        <div class="table-responsive announcement-table">
+                            <table class="table table-bordered table-hover" id="announcementTable">
                                 <thead>
                                     <tr>
                                         <th>Title</th>
@@ -95,7 +101,7 @@
                                     @foreach (var item in Model)
                                     {
                                         <tr>
-                                            <td>@item.Title</td>
+                                            <td class="announcement-title-cell">@item.Title</td>
                                             <td>
                                                 @{
                                                     bool isActive = item.IsActive;
@@ -130,7 +136,7 @@
                                             <td>@(item.User?.Username ?? "Unknown")</td>
                                             <td>@item.LastModified.ToString("MMM dd, yyyy HH:mm")</td>
                                             <td>
-                                                <div class="btn-group" role="group">
+                                                <div class="announcement-actions">
                                                     <a asp-action="Details" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-info">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
@@ -156,10 +162,10 @@
                         @if (totalPages > 1)
                         {
                             <nav class="mt-4" aria-label="Announcement pagination">
-                                <ul class="pagination justify-content-center">
+                                <ul class="pagination announcement-pagination justify-content-center">
                                     <li class="page-item @(currentPage == 1 ? "disabled" : "")">
                                         <a class="page-link" href="@Url.Action("Index", "Announcement", new { page = currentPage - 1, searchTerm = ViewData["SearchTerm"], status = ViewData["SelectedStatus"], startDateFrom = ViewData["StartDateFrom"], startDateTo = ViewData["StartDateTo"], endDateFrom = ViewData["EndDateFrom"], endDateTo = ViewData["EndDateTo"], sortBy = ViewData["SortBy"] })">
-                                            Previous
+                                            <i class="fas fa-chevron-left"></i> Previous
                                         </a>
                                     </li>
                                     
@@ -174,7 +180,7 @@
                                     
                                     <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
                                         <a class="page-link" href="@Url.Action("Index", "Announcement", new { page = currentPage + 1, searchTerm = ViewData["SearchTerm"], status = ViewData["SelectedStatus"], startDateFrom = ViewData["StartDateFrom"], startDateTo = ViewData["StartDateTo"], endDateFrom = ViewData["EndDateFrom"], endDateTo = ViewData["EndDateTo"], sortBy = ViewData["SortBy"] })">
-                                            Next
+                                            Next <i class="fas fa-chevron-right"></i>
                                         </a>
                                     </li>
                                 </ul>
@@ -183,10 +189,10 @@
                     }
                     else
                     {
-                        <div class="text-center py-5">
-                            <i class="fas fa-bullhorn fa-4x text-muted mb-3"></i>
+                        <div class="announcement-empty-state">
+                            <i class="fas fa-bullhorn fa-4x"></i>
                             <h4>No announcements found</h4>
-                            <p class="text-muted">
+                            <p>
                                 @if (ViewData["SearchTerm"] != null || ViewData["SelectedStatus"] != null || 
                                     ViewData["StartDateFrom"] != null || ViewData["StartDateTo"] != null ||
                                     ViewData["EndDateFrom"] != null || ViewData["EndDateTo"] != null)
@@ -198,7 +204,7 @@
                                     <span>There are no announcements in the system yet.</span>
                                     <br />
                                     <a asp-action="Create" class="btn btn-outline-primary mt-3">
-                                        <i class="fas fa-plus"></i> Create Your First Announcement
+                                        <i class="fas fa-plus me-2"></i> Create Your First Announcement
                                     </a>
                                 }
                             </p>
@@ -262,12 +268,14 @@
                     <input type="hidden" id="delete-announcement-id" name="id" />
                     @Html.AntiForgeryToken()
                     <p>Are you sure you want to delete this announcement "<span id="delete-announcement-title"></span>"?</p>
-                    <p class="text-danger">This action cannot be undone.</p>
+                    <p class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i> This action cannot be undone.</p>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" form="deleteAnnouncementForm" class="btn btn-danger">Delete Announcement</button>
+                <button type="submit" form="deleteAnnouncementForm" class="btn btn-danger">
+                    <i class="fas fa-trash me-2"></i> Delete Announcement
+                </button>
             </div>
         </div>
     </div>
@@ -289,10 +297,8 @@
                 var id = $(this).data('id');
                 var title = $(this).data('title');
                 
-                console.log('Delete button clicked. ID:', id, 'Title:', title);
-                
                 if (!title) {
-                    title = "Unknown"; // Fallback in case title is empty
+                    title = "Unknown";
                 }
                 
                 // Set the form action directly to the controller action

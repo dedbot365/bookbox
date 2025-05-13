@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Announcement Details";
+    Layout = "_DashboardLayout";
     // Define the Nepal timezone for date conversions
     TimeZoneInfo nepalTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Kathmandu");
     DateTime localStartDate = TimeZoneInfo.ConvertTimeFromUtc(Model.StartDate, nepalTimeZone);
