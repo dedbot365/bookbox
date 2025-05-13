@@ -117,8 +117,10 @@ namespace Bookbox.Controllers
                     }
                     
                     var book = await _bookService.AddBookAsync(bookDTO, userId);
-                    TempData["SuccessMessage"] = "Book added successfully!";
-                    return RedirectToAction(nameof(Details), new { id = book!.BookId });
+                    TempData["SuccessMessage"] = $"Book '{book.Title}' added successfully!";
+                    
+                    // Redirect to Index instead of Details
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (InvalidOperationException ex)
                 {
