@@ -64,40 +64,41 @@
 #userSearchForm .form-control {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    border-color: rgba(255,255,255,0.5);
-    background-color: rgba(255,255,255,0.2);
-    color: white;
+    border-color: #e0e0e0;
+    background-color: #fff;
+    color: #333;
     padding-right: 20px;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    box-shadow: 0 0.15rem 0.5rem rgba(58, 59, 69, 0.05);
 }
 
-/* Add white placeholder text */
+/* Add placeholder text styling */
 #userSearchForm .form-control::placeholder {
-    color: rgba(255, 255, 255, 0.8);
+    color: #aaa;
     opacity: 1;
 }
 
 /* Support for older browsers */
 #userSearchForm .form-control::-webkit-input-placeholder {
-    color: rgba(255, 255, 255, 0.8);
+    color: #aaa;
     opacity: 1;
 }
 
 #userSearchForm .form-control::-moz-placeholder {
-    color: rgba(255, 255, 255, 0.8);
+    color: #aaa;
     opacity: 1;
 }
 
 #userSearchForm .form-control:-ms-input-placeholder {
-    color: rgba(255, 255, 255, 0.8);
+    color: #aaa;
     opacity: 1;
 }
 
 #userSearchForm .form-control:focus {
-    /* Remove the glow effect */
-    box-shadow: none; 
+    box-shadow: 0 0 0 0.25rem rgba(77, 68, 144, 0.15);
+    border-color: #6a55c7;
 }
 
 #userSearchForm .btn {
@@ -113,19 +114,19 @@
 }
 
 .search-container {
-    max-width: 500px;
     width: 100%;
     transition: all 0.3s ease;
-    position: relative;
-    left: 0; /* Center the search container */
-}
-
-/* Remove the scale effect on focus */
-.search-container:focus-within {
-    transform: none;
+    margin: 0 auto;
 }
 
 /* Add this new rule to improve the search container's behavior */
 .search-container .input-group {
     width: 100%;
+    box-shadow: 0 0.15rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+/* Enhance the search input */
+#userSearchForm .form-control {
+    padding: 0.65rem 1rem;
+    font-size: 1rem;
 }

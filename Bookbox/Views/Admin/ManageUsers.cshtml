@@ -4,147 +4,144 @@
     Layout = "_DashboardLayout";
 }
 
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-lg border-0 rounded-3 mb-4">
-                <div class="card-header bg-gradient-primary text-white py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-users fa-2x me-3"></i>
-                            <h2 class="mb-0 fw-bold">Manage Users</h2>
+<div class="container-fluid mt-4 mb-5">
+    <div class="mb-4">
+        <div>
+            <h1 class="h3 mb-0">Manage Users</h1>
+            <p class="text-muted mb-0">View and manage user accounts and permissions.</p>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-users me-2"></i> All Users
+                </h6>
+                
+                <div style="max-width: 500px; width: 60%;">
+                    <form id="userSearchForm" method="get" action="@Url.Action("ManageUsers", "Admin")">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search by name..." 
+                                   name="searchTerm" id="searchTerm" value="@ViewBag.SearchTerm">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            @if (ViewBag.SearchTerm != null)
+                            {
+                                <a href="@Url.Action("ManageUsers", "Admin")" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            }
                         </div>
-                        <div class="search-container mx-auto" style="max-width: 500px; width: 100%;">
-                            <form id="userSearchForm" method="get" action="@Url.Action("ManageUsers", "Admin")">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Search by name..." 
-                                           name="searchTerm" id="searchTerm" value="@ViewBag.SearchTerm">
-                                    <button class="btn btn-light" type="submit">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                        <div style="width: 150px;"><!-- Empty div for balance --></div>
-                    </div>
-                </div>
-                <div class="card-body p-0">
+                    </form>
                     @if (ViewBag.SearchTerm != null)
                     {
-                        <div class="p-3 bg-light border-bottom">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span>
-                                    Search results for: <strong>@ViewBag.SearchTerm</strong>
-                                    <span class="text-muted">(@ViewBag.TotalItems results)</span>
-                                </span>
-                                <a href="@Url.Action("ManageUsers", "Admin")" class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-times me-1"></i> Clear
-                                </a>
-                            </div>
+                        <div class="small text-muted mt-1 text-end">
+                            Results for: <strong>@ViewBag.SearchTerm</strong>
+                            <span>(@ViewBag.TotalItems)</span>
                         </div>
                     }
-                    
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0" id="usersTable">
-                            <thead class="bg-light text-dark">
-                                <tr>
-                                    <th class="px-4 py-3">User</th>
-                                    <th class="py-3">Email</th>
-                                    <th class="py-3">Contact</th>
-                                    <th class="py-3">Registered Date</th>
-                                    <th class="py-3">Orders</th>
-                                    <th class="py-3">Role</th>
-                                    <th class="py-3 text-center">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var user in Model)
-                                {
-                                    <tr class="border-bottom">
-                                        <td class="px-4 py-3">
-                                            <div class="d-flex align-items-center">
-                                                @if (!string.IsNullOrEmpty(user.ImageUrlText))
-                                                {
-                                                    <img src="@user.ImageUrlText" alt="Profile" class="rounded-circle me-3 shadow-sm" style="width: 45px; height: 45px; object-fit: cover;">
-                                                }
-                                                else
-                                                {
-                                                    <div class="bg-secondary rounded-circle text-white d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 45px; height: 45px;">
-                                                        <i class="fas fa-user"></i>
-                                                    </div>
-                                                }
-                                                <div>
-                                                    <h6 class="mb-0 fw-semibold">@user.FirstName @user.LastName</h6>
-                                                    <small class="text-muted">@@@user.Username</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="py-3">@user.Email</td>
-                                        <td class="py-3">@(string.IsNullOrEmpty(user.ContactNo) ? "Not provided" : user.ContactNo)</td>
-                                        <td class="py-3"><span class="badge bg-light text-dark">@user.RegisteredDate.ToString("MMM d, yyyy")</span></td>
-                                        <td class="py-3">
-                                            <span class="badge bg-@(user.SuccessfulOrderCount > 0 ? "success" : "secondary")">@user.SuccessfulOrderCount</span>
-                                        </td>
-                                        <td class="py-3 role-display">
-                                            <span class="badge bg-@(user.UserType == Bookbox.Constants.UserType.Staff ? "primary" : "info")">
-                                                @user.UserType
-                                            </span>
-                                        </td>
-                                        <td class="py-3 text-center">
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-sm btn-primary rounded-start view-user-btn" 
-                                                        data-bs-toggle="tooltip" title="View Details"
-                                                        data-user-id="@user.UserId.ToString("D")">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-warning rounded-end edit-user-btn" 
-                                                        data-bs-toggle="tooltip" title="Edit User"
-                                                        data-user-id="@user.UserId.ToString("D")"
-                                                        data-username="@user.Username"
-                                                        data-current-role="@((int)user.UserType)"
-                                                        data-full-name="@user.FirstName @user.LastName"
-                                                        data-image-url="@user.ImageUrlText">
-                                                    <i class="fas fa-user-edit"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
-                
-                @if (ViewBag.TotalPages > 1)
-                {
-                    <div class="card-footer bg-white py-3">
-                        <nav aria-label="User pagination">
-                            <ul class="pagination justify-content-center mb-0">
-                                <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                                    <a class="page-link" href="@Url.Action("ManageUsers", "Admin", new { page = ViewBag.CurrentPage - 1, searchTerm = ViewBag.SearchTerm })">
-                                        <i class="fas fa-chevron-left small"></i>
-                                    </a>
-                                </li>
-                                
-                                @for (int i = Math.Max(1, ViewBag.CurrentPage - 2); i <= Math.Min(ViewBag.TotalPages, ViewBag.CurrentPage + 2); i++)
-                                {
-                                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                                        <a class="page-link" href="@Url.Action("ManageUsers", "Admin", new { page = i, searchTerm = ViewBag.SearchTerm })">
-                                            @i
-                                        </a>
-                                    </li>
-                                }
-                                
-                                <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
-                                    <a class="page-link" href="@Url.Action("ManageUsers", "Admin", new { page = ViewBag.CurrentPage + 1, searchTerm = ViewBag.SearchTerm })">
-                                        <i class="fas fa-chevron-right small"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                }
+        </div>
+        
+        <div class="card-body">
+            <div class="table-responsive announcement-table">
+                <table class="table table-bordered table-hover" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Contact</th>
+                            <th>Registered Date</th>
+                            <th>Orders</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        @if (!string.IsNullOrEmpty(user.ImageUrlText))
+                                        {
+                                            <img src="@user.ImageUrlText" alt="Profile" class="rounded-circle me-3 shadow-sm" style="width: 40px; height: 40px; object-fit: cover;">
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-secondary rounded-circle text-white d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 40px; height: 40px;">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                        }
+                                        <div>
+                                            <div class="fw-semibold">@user.FirstName @user.LastName</div>
+                                            <small class="text-muted">@@@user.Username</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@user.Email</td>
+                                <td>@(string.IsNullOrEmpty(user.ContactNo) ? "Not provided" : user.ContactNo)</td>
+                                <td>@user.RegisteredDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <span class="badge bg-@(user.SuccessfulOrderCount > 0 ? "success" : "secondary")">@user.SuccessfulOrderCount</span>
+                                </td>
+                                <td class="role-display">
+                                    <span class="badge bg-@(user.UserType == Bookbox.Constants.UserType.Staff ? "primary" : "info")">
+                                        @user.UserType
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="announcement-actions">
+                                        <button type="button" class="btn btn-sm btn-info view-user-btn" 
+                                                data-user-id="@user.UserId.ToString("D")">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-primary edit-user-btn" 
+                                                data-user-id="@user.UserId.ToString("D")"
+                                                data-username="@user.Username"
+                                                data-current-role="@((int)user.UserType)"
+                                                data-full-name="@user.FirstName @user.LastName"
+                                                data-image-url="@user.ImageUrlText">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
+            
+            <!-- Pagination -->
+            @if (ViewBag.TotalPages > 1)
+            {
+                <nav class="mt-4" aria-label="User pagination">
+                    <ul class="pagination announcement-pagination justify-content-center">
+                        <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("ManageUsers", "Admin", new { page = ViewBag.CurrentPage - 1, searchTerm = ViewBag.SearchTerm })">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                        
+                        @for (int i = Math.Max(1, ViewBag.CurrentPage - 2); i <= Math.Min(ViewBag.TotalPages, ViewBag.CurrentPage + 2); i++)
+                        {
+                            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("ManageUsers", "Admin", new { page = i, searchTerm = ViewBag.SearchTerm })">
+                                    @i
+                                </a>
+                            </li>
+                        }
+                        
+                        <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action("ManageUsers", "Admin", new { page = ViewBag.CurrentPage + 1, searchTerm = ViewBag.SearchTerm })">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
         </div>
     </div>
 </div>
@@ -152,8 +149,8 @@
 <!-- User Details Modal -->
 <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-gradient-primary text-white">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="userDetailsModalLabel">User Details</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -219,8 +216,8 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -229,8 +226,8 @@
 <!-- Edit User Modal -->
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-gradient-primary text-white">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="editUserModalLabel">Edit User Role</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -247,43 +244,43 @@
                     <input type="hidden" id="editUserId" name="userId">
                     
                     <div class="mb-3">
-                        <label for="editUserRole" class="form-label">User Role</label>
-                        <select id="editUserRole" name="userType" class="form-select form-select-lg">
+                        <label for="editUserRole" class="form-label fw-semibold">User Role</label>
+                        <select id="editUserRole" name="userType" class="form-select">
                             <option value="2">Member</option>
                             <option value="3">Staff</option>
                         </select>
-                        <div class="form-text">
-                            <span class="text-info"><i class="fas fa-info-circle me-1"></i></span>
+                        <div class="form-text mt-2">
+                            <i class="fas fa-info-circle me-1 text-primary"></i>
                             Changing user role affects their permissions in the system.
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary rounded-pill px-4" id="saveRoleChanges">Save Changes</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" id="saveRoleChanges">Save Changes</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Success Modal -->
-<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+<div class="modal fade operation-success-modal" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-gradient-primary text-white border-0">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
                 <h5 class="modal-title" id="successModalLabel">Success</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center p-4">
+            <div class="modal-body text-center">
                 <div class="mb-3">
-                    <i class="fas fa-check-circle text-success fa-4x mb-3"></i>
+                    <i class="fas fa-check-circle fa-4x mb-3 success-icon"></i>
                     <h4>Role Updated Successfully</h4>
-                    <p id="successMessage" class="mb-0"></p>
+                    <p id="successMessage" class="success-message mb-0"></p>
                 </div>
             </div>
-            <div class="modal-footer border-0 pt-0 justify-content-center">
-                <button type="button" class="btn btn-success rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">OK</button>
             </div>
         </div>
     </div>
@@ -291,6 +288,8 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/admin/manageUsers.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/announcement.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/announcement-operations.css" asp-append-version="true" />
 }
 
 @section Scripts {
