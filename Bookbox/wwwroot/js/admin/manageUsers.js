@@ -3,97 +3,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize tooltips
     initTooltips();
     
-    // Handle role changes
-    initRoleSelects();
-
     // Handle view user details buttons
     initViewDetailsButtons();
+    
+    // Handle edit user buttons
+    initEditUserButtons();
+    
+    // Handle save role changes
+    initSaveRoleChanges();
 });
 
 function initTooltips() {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.forEach(function(tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-}
-
-function initRoleSelects() {
-    document.querySelectorAll('.role-select').forEach(select => {
-        // Save original value to detect actual changes
-        select.dataset.originalValue = select.value;
-        
-        select.addEventListener('change', function() {
-            const userId = this.getAttribute('data-user-id');
-            const username = this.getAttribute('data-username');
-            const newRole = this.value;
-            const originalRole = this.dataset.originalValue;
-            const parentCell = this.closest('.role-cell');
-            
-            // If no actual change, do nothing
-            if (newRole === originalRole) {
-                return;
-            }
-            
-            // Create spinner
-            const spinner = createSpinner();
-            
-            // Remember the original content
-            const originalHtml = parentCell.innerHTML;
-            
-            // Show spinner
-            parentCell.innerHTML = '';
-            parentCell.appendChild(spinner);
-            
-            // Prepare form data
-            const formData = new FormData();
-            formData.append('userId', userId);
-            formData.append('userType', newRole);
-
-            // Make AJAX request
-            fetch('/Admin/UpdateUserRoleAjax', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Server returned ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Restore the cell with original select
-                parentCell.innerHTML = originalHtml;
-                
-                // Update the select value and original value data attribute
-                const newSelect = parentCell.querySelector('.role-select');
-                if (newSelect) {
-                    newSelect.value = newRole;
-                    newSelect.dataset.originalValue = newRole;
-                }
-                
-                if (data.success) {
-                    // Show success modal
-                    showSuccessModal(data.message);
-                } else {
-                    // Show error message
-                    showErrorToast(data.message);
-                    
-                    // Reset the select to original value
-                    if (newSelect) {
-                        newSelect.value = originalRole;
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error updating role:', error);
-                
-                // Restore original content
-                parentCell.innerHTML = originalHtml;
-                
-                // Show error message
-                showErrorToast('Failed to update user role. Please try again.');
-            });
-        });
     });
 }
 
@@ -134,6 +57,100 @@ function initViewDetailsButtons() {
     });
 }
 
+function initEditUserButtons() {
+    document.querySelectorAll('.edit-user-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            const username = this.getAttribute('data-username');
+            const fullName = this.getAttribute('data-full-name');
+            const currentRole = this.getAttribute('data-current-role');
+            const imageUrl = this.getAttribute('data-image-url');
+            
+            // Set values in the edit modal
+            document.getElementById('editUserId').value = userId;
+            document.getElementById('editUserName').textContent = fullName;
+            document.getElementById('editUserUsername').textContent = '@' + username;
+            document.getElementById('editUserRole').value = currentRole;
+            
+            // Update user image
+            const imageContainer = document.getElementById('editUserImageContainer');
+            if (imageUrl) {
+                imageContainer.innerHTML = `<div class="avatar-circle"><img src="${imageUrl}" alt="${fullName}" class="shadow"></div>`;
+            } else {
+                imageContainer.innerHTML = `<div class="avatar-circle bg-secondary text-white d-flex align-items-center justify-content-center">
+                    <i class="fas fa-user fa-3x"></i>
+                </div>`;
+            }
+            
+            // Show modal
+            const editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+            editModal.show();
+        });
+    });
+}
+
+function initSaveRoleChanges() {
+    document.getElementById('saveRoleChanges').addEventListener('click', function() {
+        const userId = document.getElementById('editUserId').value;
+        const userRoleSelect = document.getElementById('editUserRole');
+        const newRole = userRoleSelect.value;
+        const userName = document.getElementById('editUserName').textContent;
+        
+        // Show loading state
+        const saveBtn = this;
+        const originalText = saveBtn.innerHTML;
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Saving...';
+        
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('userId', userId);
+        formData.append('userType', newRole);
+
+        // Make AJAX request
+        fetch('/Admin/UpdateUserRoleAjax', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Reset button state
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalText;
+            
+            // Close edit modal
+            const editModal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+            editModal.hide();
+            
+            if (data.success) {
+                // Update the role badge in the table
+                updateUserRoleDisplay(userId, newRole);
+                
+                // Show success modal
+                showSuccessModal(data.message);
+            } else {
+                // Show error message
+                showErrorToast(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating role:', error);
+            
+            // Reset button state
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalText;
+            
+            // Show error message
+            showErrorToast('Failed to update user role. Please try again.');
+        });
+    });
+}
+
 function updateUserDetails(user) {
     // Basic details
     document.getElementById('detailUsername').textContent = user.username;
@@ -167,6 +184,28 @@ function updateUserDetails(user) {
     }
 }
 
+function updateUserRoleDisplay(userId, roleValue) {
+    // Find the row with this user
+    const row = document.querySelector(`[data-user-id="${userId}"]`).closest('tr');
+    if (!row) return;
+    
+    // Find the role display cell
+    const roleCell = row.querySelector('.role-display');
+    if (!roleCell) return;
+    
+    // Update badge class and text
+    const roleName = roleValue === "2" ? "Member" : "Staff";
+    const badgeClass = roleValue === "2" ? "info" : "primary";
+    
+    roleCell.innerHTML = `<span class="badge bg-${badgeClass}">${roleName}</span>`;
+    
+    // Also update the data attribute on the edit button
+    const editButton = row.querySelector('.edit-user-btn');
+    if (editButton) {
+        editButton.setAttribute('data-current-role', roleValue);
+    }
+}
+
 function showSuccessModal(message) {
     const successModal = new bootstrap.Modal(document.getElementById('successModal'));
     document.getElementById('successMessage').textContent = message;
@@ -174,21 +213,40 @@ function showSuccessModal(message) {
 }
 
 function showErrorToast(message) {
-    // You could implement a toast notification here
-    alert(message);
-}
-
-function createSpinner() {
-    const spinner = document.createElement('div');
-    spinner.className = 'spinner-border spinner-border-sm text-primary';
-    spinner.setAttribute('role', 'status');
+    // Create a Bootstrap toast
+    const toastContainer = document.createElement('div');
+    toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+    toastContainer.style.zIndex = '9999';
     
-    const span = document.createElement('span');
-    span.className = 'visually-hidden';
-    span.textContent = 'Loading...';
+    const toastEl = document.createElement('div');
+    toastEl.className = 'toast align-items-center text-white bg-danger border-0';
+    toastEl.setAttribute('role', 'alert');
+    toastEl.setAttribute('aria-live', 'assertive');
+    toastEl.setAttribute('aria-atomic', 'true');
     
-    spinner.appendChild(span);
-    return spinner;
+    toastEl.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toastEl);
+    document.body.appendChild(toastContainer);
+    
+    const toast = new bootstrap.Toast(toastEl, {
+        delay: 5000
+    });
+    
+    toast.show();
+    
+    // Remove from DOM after hiding
+    toastEl.addEventListener('hidden.bs.toast', function () {
+        document.body.removeChild(toastContainer);
+    });
 }
 
 function createLoadingSpinner() {
