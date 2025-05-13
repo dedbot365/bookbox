@@ -12,7 +12,6 @@
 <div class="container-fluid mt-4">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
         <h1 class="h2">Staff Dashboard</h1>
-        <p class="lead mb-0">Manage inventory, process orders, and view store statistics</p>
     </div>
 
     <!-- Revenue Section - Financial Performance -->
@@ -99,8 +98,9 @@
         </div>
     </div>
     
-    <!-- Key Stats Cards -->
+    <!-- Orders Status Cards - All in one row -->
     <div class="row mb-4">
+        <!-- Total Orders -->
         <div class="col-md-3 mb-4">
             <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
@@ -118,26 +118,7 @@
             </div>
         </div>
 
-        <div class="col-md-3 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Books</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(ViewBag.TotalBooks ?? 0)</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-book fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-    <!-- Orders Status Cards -->
-    <div class="row mb-4">
+        <!-- Completed Orders -->
         <div class="col-md-3 mb-4">
             <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
@@ -155,6 +136,7 @@
             </div>
         </div>
 
+        <!-- Pending Orders -->
         <div class="col-md-3 mb-4">
             <div class="card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
@@ -172,6 +154,7 @@
             </div>
         </div>
 
+        <!-- Cancelled Orders -->
         <div class="col-md-3 mb-4">
             <div class="card border-left-danger shadow h-100 py-2">
                 <div class="card-body">
@@ -183,6 +166,26 @@
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Books - Now after order stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Books</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(ViewBag.TotalBooks ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-book fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
