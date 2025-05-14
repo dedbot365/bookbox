@@ -212,5 +212,39 @@ namespace Bookbox.Services
                 await SendEmailAsync(user.Email, subject, body);
             }
         }
+
+        public async Task SendRegistrationConfirmationEmailAsync(User user)
+        {
+            var subject = "Welcome to BookBox - Registration Successful";
+            var body = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+                    <h2>Welcome to BookBox, {user.FirstName}!</h2>
+                    <p>Thank you for creating an account with us. Your registration was successful!</p>
+                    
+                    <div style='background-color: #f5f5f5; padding: 15px; margin: 15px 0; border-radius: 5px;'>
+                        <h3>Your Account Information:</h3>
+                        <p><strong>Username:</strong> {user.Username}</p>
+                        <p><strong>Email:</strong> {user.Email}</p>
+                    </div>
+                    
+                    <div style='margin: 20px 0;'>
+                        <h3>What's Next?</h3>
+                        <ul style='line-height: 1.6;'>
+                            <li>Explore our collection of books</li>
+                            <li>Add interesting titles to your wishlist</li>
+                            <li>Enjoy exclusive member discounts</li>
+                            <li>Receive personalized recommendations</li>
+                        </ul>
+                    </div>
+                    
+                    <p>If you have any questions or need assistance, please don't hesitate to contact our customer support.</p>
+                    
+                    <p>Happy reading!</p>
+                    <p>The BookBox Team</p>
+                </div>
+            ";
+
+            await SendEmailAsync(user.Email, subject, body);
+        }
     }
 }

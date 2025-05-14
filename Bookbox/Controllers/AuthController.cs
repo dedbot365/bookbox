@@ -15,11 +15,13 @@ namespace Bookbox.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IUserService _userService; // Add IUserService
+        private readonly IEmailService _emailService; // Add this field
 
-        public AuthController(IAuthService authService, IUserService userService)
+        public AuthController(IAuthService authService, IUserService userService, IEmailService emailService)
         {
             _authService = authService;
             _userService = userService; // Initialize it
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -140,8 +142,11 @@ namespace Bookbox.Controllers
                 return View(model);
             }
 
+            // Send registration confirmation email
+            await _emailService.SendRegistrationConfirmationEmailAsync(result);
+
             // Registration successful, redirect to login page
-            TempData["SuccessMessage"] = "Registration successful! Please log in.";
+            TempData["SuccessMessage"] = "Registration successful! Please check your email for confirmation and log in.";
             return RedirectToAction(nameof(Login));
         }
 
