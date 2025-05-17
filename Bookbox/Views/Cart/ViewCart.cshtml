@@ -85,7 +85,7 @@
                                             itemPrice = discountedPrice;
                                         }
                                         
-                                        <tr class="cart-item-row" data-price="@(itemPrice)" data-quantity="@(item.Quantity)" data-itemid="@(item.CartItemId)">
+                                        <tr class="cart-item-row" data-price="@(itemPrice)" data-original-price="@(item.Book.Price)" data-quantity="@(item.Quantity)" data-itemid="@(item.CartItemId)">
                                             <td>
                                                 <input type="checkbox" class="form-check-input item-checkbox" id="check-@item.CartItemId" checked data-itemid="@item.CartItemId" />
                                             </td>
@@ -136,18 +136,17 @@
                                                         <i class="fas fa-plus"></i>
                                                     </button>
                                                 </div>
-                                            </td>
-                                            <td class="text-end">
+                                            </td>                                            <td class="text-end">
                                                 @if (isDiscounted)
                                                 {
-                                                    <span class="text-muted text-decoration-line-through">NPR @item.Book.Price.ToString("0.00")</span><br />
-                                                    <span class="text-danger">NPR @discountedPrice.ToString("0.00")</span>
+                                                    <span class="text-muted text-decoration-line-through">NPR @(item.Book.Price * item.Quantity).ToString("0.00")</span><br />
+                                                    <span class="text-danger">NPR @(discountedPrice * item.Quantity).ToString("0.00")</span>
                                                 }
                                                 else
                                                 {
-                                                    <span>NPR @item.Book.Price.ToString("0.00")</span>
+                                                    <span>NPR @(item.Book.Price * item.Quantity).ToString("0.00")</span>
                                                 }
-                                            </td>                                            <td>
+                                            </td><td>
                                                 <button type="button" class="btn btn-link text-danger item-delete-btn"
                                                         data-itemid="@item.CartItemId" data-itemtitle="@item.Book.Title">
                                                     <i class="fas fa-trash"></i>

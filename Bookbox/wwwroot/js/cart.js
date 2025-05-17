@@ -2,6 +2,9 @@
  * Cart page functionality
  */
 $(document).ready(function () {
+    // Initialize item prices display
+    initializeItemPrices();
+    
     // Initial calculation
     calculateTotals();
     
@@ -89,6 +92,23 @@ $(document).ready(function () {
     }
     
     /**
+     * Initialize the display of item prices based on quantity
+     */
+    function initializeItemPrices() {
+        $('.cart-item-row').each(function() {
+            var row = $(this);
+            var unitPrice = parseFloat(row.data('price'));
+            var quantity = parseInt(row.data('quantity'));
+            var totalPrice = unitPrice * quantity;
+            
+            // For regular price items
+            if (!row.find('.text-decoration-line-through').length) {
+                row.find('td.text-end span').text('NPR ' + totalPrice.toFixed(2));
+            }
+        });
+    }
+    
+    /**
      * Handle quantity changes
      */
     $('.quantity-btn').click(function() {
@@ -110,12 +130,9 @@ $(document).ready(function () {
         
         // AJAX call to update quantity
         updateItemQuantity(itemId, change, currentQty);
-    });
-
-    /**
+    });    /**
      * Update quantity via AJAX
-     */
-    function updateItemQuantity(itemId, change, currentQty) {
+     */    function updateItemQuantity(itemId, change, currentQty) {
         $.ajax({
             url: cartUrls.updateQuantity,
             type: 'POST',
@@ -126,20 +143,84 @@ $(document).ready(function () {
             }),
             success: function(response) {
                 if (response.success) {
+                    // Calculate the new quantity
+                    var newQty = currentQty + change;
+                    
                     // Update the displayed quantity
-                    $('.quantity-display-' + itemId).text(currentQty + change);
+                    $('.quantity-display-' + itemId).text(newQty);
+                    
+                    // Get the cart item row
+                    var row = $('tr[data-itemid="' + itemId + '"]');
                     
                     // Update the data-quantity attribute for calculations
-                    $('tr[data-itemid="' + itemId + '"]').data('quantity', currentQty + change);
+                    row.attr('data-quantity', newQty);
                     
-                    // Recalculate totals
+                    // Get the unit price from data attribute
+                    var unitPrice = parseFloat(row.data('price'));
+                    
+                    // Calculate the new total price for this item
+                    var totalPrice = unitPrice * newQty;
+                    
+                    // Update the price display
+                    updateItemPriceDisplay(row, totalPrice);
+                    
+                    // Update disabled state of buttons based on new quantity and stock
+                    if (typeof response.maxStock !== 'undefined') {
+                        updateQuantityButtonStates(itemId, newQty, response.maxStock);
+                    } else {
+                        // Fallback if maxStock not available
+                        if (newQty <= 1) {
+                            $('button[data-action="decrease"][data-id="' + itemId + '"]').prop('disabled', true);
+                        } else {
+                            $('button[data-action="decrease"][data-id="' + itemId + '"]').prop('disabled', false);
+                        }
+                    }
+                    
+                    // Recalculate cart totals
                     calculateTotals();
-                    
-                    // Reload the page to refresh prices
-                    location.reload();
                 }
             }
         });
+    }
+      /**
+     * Update item price display based on quantity
+     */
+    function updateItemPriceDisplay(row, totalPrice) {
+        var priceColumn = row.find('td.text-end');
+        
+        // Check if there's a discounted price
+        if (priceColumn.find('.text-decoration-line-through').length > 0) {
+            // Item has a discount
+            var originalPrice = parseFloat(row.data('original-price'));
+            var quantity = parseInt(row.attr('data-quantity'));
+            var originalTotalPrice = originalPrice * quantity;
+            
+            // Update the displayed prices
+            priceColumn.find('.text-decoration-line-through').text('NPR ' + originalTotalPrice.toFixed(2));
+            priceColumn.find('.text-danger').text('NPR ' + totalPrice.toFixed(2));
+        } else {
+            // No discount
+            priceColumn.find('span').text('NPR ' + totalPrice.toFixed(2));
+        }
+    }
+    
+    /**
+     * Update button states based on quantity
+     */
+    function updateQuantityButtonStates(itemId, newQty, maxStock) {
+        // Disable decrease button if quantity is 1
+        if (newQty <= 1) {
+            $('button[data-action="decrease"][data-id="' + itemId + '"]').prop('disabled', true);
+        } else {
+            $('button[data-action="decrease"][data-id="' + itemId + '"]').prop('disabled', false);
+        }
+        
+        // Disable increase button if quantity equals or exceeds stock
+        if (maxStock !== undefined && newQty >= maxStock) {
+            $('button[data-action="increase"][data-id="' + itemId + '"]').prop('disabled', true);
+        } else {
+            $('button[data-action="increase"][data-id="' + itemId + '"]').prop('disabled', false);
+        }
     }
 
     /**

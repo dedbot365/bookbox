@@ -159,8 +159,7 @@ namespace Bookbox.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Cart/UpdateQuantity
-        [HttpPost]
+        // POST: Cart/UpdateQuantity        [HttpPost]
         public async Task<IActionResult> UpdateQuantity([FromBody] UpdateQuantityRequest request)
         {
             if (request == null)
@@ -176,7 +175,15 @@ namespace Bookbox.Controllers
             if (result)
             {
                 int cartCount = await _cartService.GetCartItemCountAsync(userId);
-                return Json(new { success = true, cartCount });
+                
+                // Get the updated cart item to access the book stock
+                var cartItem = await _context.CartItems
+                    .Include(ci => ci.Book)
+                    .FirstOrDefaultAsync(ci => ci.CartItemId == request.CartItemId);
+                
+                int maxStock = cartItem?.Book?.Stock ?? 0;
+                
+                return Json(new { success = true, cartCount, maxStock });
             }
             
             return Json(new { success = false });
