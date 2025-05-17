@@ -1,0 +1,49 @@
+/* Member Dashboard CSS */
+
+/* Card border styles */
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+
+/* Revenue/expense stat styling */
+.revenue-stat {
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.revenue-stat:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    transform: translateY(-3px);
+}
+
+.revenue-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* Text color for purple elements */
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+/* Purple border style */
+.border-left-purple {
+    border-left: 0.25rem solid #6f42c1 !important;
+}
