@@ -1,0 +1,40 @@
+/* Cart Page Styles */
+
+/* Cart Item Styles */
+.placeholder-image {
+    height: 80px;
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+/* Toast notification styling */
+.toast {
+    z-index: 1050;
+}
+
+/* Quantity controls */
+.quantity-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Cart summary section */
+.shipping-address {
+    font-size: 0.9rem;
+}
+
+/* Empty cart styling */
+.empty-cart-message {
+    padding: 3rem 0;
+}
+
+/* Delete confirmation modal styling */
+.modal-delete-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
