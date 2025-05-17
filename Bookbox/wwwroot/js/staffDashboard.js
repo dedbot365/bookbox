@@ -396,13 +396,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Initialize with monthly view for orders
-    document.querySelector('.timeframe-option[data-timeframe="monthly"]')?.classList.add('active');
-    updateOrderChart('monthly');
+    // Initialize with daily view for orders
+    document.querySelector('.timeframe-option[data-timeframe="daily"]')?.classList.add('active');
+    updateOrderChart('daily');
     
-    // Initialize with monthly view for revenue
-    document.querySelector('.revenue-timeframe-option[data-timeframe="monthly"]')?.classList.add('active');
-    updateRevenueChart('monthly');
+    // Initialize with daily view for revenue
+    document.querySelector('.revenue-timeframe-option[data-timeframe="daily"]')?.classList.add('active');
+    updateRevenueChart('daily');
     
     // Genre, order status, top books, and format charts are already implemented in the view
 });
