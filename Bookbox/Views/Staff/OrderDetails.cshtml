@@ -74,15 +74,15 @@
                                         <td class="align-middle">
                                             @if (item.DiscountedPrice < item.Price)
                                             {
-                                                <div>NPR @item.DiscountedPrice.ToString("N0")</div>
-                                                <small class="text-decoration-line-through text-muted">NPR @item.Price.ToString("N0")</small>
+                                                <div>NPR @item.DiscountedPrice</div>
+                                                <small class="text-decoration-line-through text-muted">NPR @item.Price</small>
                                             }
                                             else
                                             {
-                                                <div>NPR @item.Price.ToString("N0")</div>
+                                                <div>NPR @item.Price</div>
                                             }
                                         </td>
-                                        <td class="text-end align-middle fw-semibold">NPR @((item.DiscountedPrice > 0 ? item.DiscountedPrice : item.Price) * item.Quantity).ToString("N0")</td>
+                                        <td class="text-end align-middle fw-semibold">NPR @((item.DiscountedPrice > 0 ? item.DiscountedPrice : item.Price) * item.Quantity)</td>
                                     </tr>
                                 }
                             </tbody>
@@ -91,12 +91,12 @@
                                 {
                                     <tr>
                                         <td colspan="3" class="text-end fw-bold">Discount:</td>
-                                        <td class="text-end text-danger">-NPR @Model.DiscountApplied.ToString("N0")</td>
+                                        <td class="text-end text-danger">-NPR @Model.DiscountApplied</td>
                                     </tr>
                                 }
                                 <tr>
                                     <td colspan="3" class="text-end fw-bold">Total:</td>
-                                    <td class="text-end fw-bold">NPR @Model.TotalAmount.ToString("N0")</td>
+                                    <td class="text-end fw-bold">NPR @Model.TotalAmount</td>
                                 </tr>
                             </tfoot>
                         </table>
