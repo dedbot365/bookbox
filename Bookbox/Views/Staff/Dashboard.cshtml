@@ -287,6 +287,21 @@
 
     <!-- Charts Row -->
     <div class="row mb-4">
+        <!-- Books by Genre Pie Chart -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Books by Genre</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="genrePieChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small" id="genre-legend">
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Orders Line Chart -->
         <div class="col-lg-8 mb-4">
             <div class="card shadow mb-4">
@@ -313,21 +328,7 @@
             </div>
         </div>
 
-        <!-- Books by Genre Pie Chart -->
-        <div class="col-lg-4 mb-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Books by Genre</h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-pie">
-                        <canvas id="genrePieChart"></canvas>
-                    </div>
-                    <div class="mt-4 text-center small" id="genre-legend">
-                    </div>
-                </div>
-            </div>
-        </div>
+        
     </div>
 
     <!-- Order Status Distribution -->
