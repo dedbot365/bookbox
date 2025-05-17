@@ -5,7 +5,20 @@
     ViewData["Title"] = "Your Cart";
 }
 
+<!-- Toast Notification Container -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 5">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i> <span id="toastMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
 <div class="container mt-4">
+    @Html.AntiForgeryToken()
     <div class="row">
         <!-- Cart Items -->
         <div class="col-lg-8">
@@ -205,22 +218,14 @@
                     </div>
                     <hr>
                     
-                    <!-- Voucher Code Section -->
-                    <div class="mb-3">
-                        <label for="voucherCode" class="form-label">Enter Voucher Code</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="voucherCode" placeholder="Enter voucher code">
-                            <button class="btn btn-outline-secondary" type="button">Apply</button>
-                        </div>
-                    </div>
+                   
                     
-                    <!-- Checkout Button -->
+                       <!-- Checkout Button -->
                     <form id="checkoutForm" asp-controller="Cart" asp-action="PrepareCheckout" method="post">
                         <div id="selectedItemsContainer">
                             <!-- JavaScript will inject hidden inputs here -->
-                        </div>
-                        <button type="submit" id="checkout-btn" class="btn btn-primary w-100 disabled">
-                            Proceed to Checkout (<span id="checkout-items-count">0</span>)
+                        </div>                        <button type="submit" id="checkout-btn" class="btn btn-primary w-100 disabled">
+                            <i class="fas fa-shopping-cart me-2"></i> Proceed to Checkout (<span id="checkout-items-count">0</span>)
                         </button>
                     </form>
                 </div>
@@ -229,54 +234,73 @@
     </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to remove the selected items from your cart?</p>
+                <p class="text-muted small">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmDelete" class="btn btn-danger">Delete Items</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Initial calculation
             calculateTotals();
             
-            // Handle "Select All" checkbox
-            $('#selectAll').change(function() {
-                $('.item-checkbox').prop('checked', $(this).is(':checked'));
-                calculateTotals();
-            });
-            
-            // Handle individual checkbox changes
+            // Handle checkbox changes
             $('.item-checkbox').change(function() {
-                // Update "Select All" checkbox state
-                if (!$(this).is(':checked')) {
-                    $('#selectAll').prop('checked', false);
-                } else {
-                    // Check if all items are selected
-                    if ($('.item-checkbox:checked').length === $('.item-checkbox').length) {
-                        $('#selectAll').prop('checked', true);
-                    }
-                }
                 calculateTotals();
             });
             
-            // Function to calculate totals based on checked items
+            // Select All functionality
+            $('#selectAll').change(function() {
+                // Check or uncheck all items based on selectAll state
+                $('.item-checkbox').prop('checked', $(this).prop('checked'));
+                
+                // Recalculate totals
+                calculateTotals();
+            });
+            
+            // Make sure selectAll stays in sync with individual checkboxes
+            $(document).on('change', '.item-checkbox', function() {
+                // If any checkbox is unchecked, uncheck the selectAll
+                if (!$(this).prop('checked')) {
+                    $('#selectAll').prop('checked', false);
+                }
+                // If all checkboxes are checked, check the selectAll
+                else if ($('.item-checkbox:checked').length === $('.item-checkbox').length) {
+                    $('#selectAll').prop('checked', true);
+                }
+            });
+            
             function calculateTotals() {
+                // Calculate subtotal based on checked items
                 var subtotal = 0;
                 var selectedItemsCount = 0;
+                var selectedItems = [];
                 
-                // Clear previous selected items
-                $('#selectedItemsContainer').empty();
-                
-                $('.cart-item-row').each(function() {
-                    var $row = $(this);
-                    var itemId = $row.data('itemid');
-                    var $checkbox = $('#check-' + itemId);
+                $('.item-checkbox:checked').each(function() {
+                    var row = $(this).closest('tr');
+                    var price = parseFloat(row.data('price'));
+                    var quantity = parseInt(row.data('quantity'));
+                    var itemId = $(this).data('itemid');
                     
-                    if ($checkbox.is(':checked')) {
-                        var price = parseFloat($row.data('price'));
-                        var quantity = parseInt($row.data('quantity'));
-                        subtotal += price * quantity;
-                        selectedItemsCount += quantity;
-                        
-                        // Add hidden input for selected item
-                        $('#selectedItemsContainer').append('<input type="hidden" name="selectedItems" value="' + itemId + '">');
-                    }
+                    subtotal += price * quantity;
+                    selectedItemsCount += quantity;
+                    selectedItems.push(itemId);
                 });
                 
                 // Format the subtotal to 2 decimal places
@@ -295,6 +319,18 @@
                 $('#shipping-fee').text(shippingFee.toFixed(2));
                 $('#total-price').text(formattedTotal);
                 $('#checkout-items-count').text(selectedItemsCount);
+                
+                // Update hidden inputs for form submission
+                $('#selectedItemsContainer').empty();
+                $.each(selectedItems, function(index, itemId) {
+                    $('#selectedItemsContainer').append(
+                        $('<input>').attr({
+                            type: 'hidden',
+                            name: 'selectedItems',
+                            value: itemId
+                        })
+                    );
+                });
                 
                 // Enable/disable checkout button based on selection
                 if (selectedItemsCount > 0) {
@@ -348,8 +384,7 @@
                     }
                 });
             });
-            
-            // Delete selected items button
+              // Store selected items when delete button is clicked
             $('#deleteSelected').click(function() {
                 var selectedItems = [];
                 
@@ -357,15 +392,73 @@
                     selectedItems.push($(this).data('itemid'));
                 });
                 
+                // Store the selected items as data attribute in the modal
+                $('#deleteConfirmationModal').data('selectedItems', selectedItems);
+                  // Change the modal content based on whether items are selected
                 if (selectedItems.length === 0) {
-                    alert('Please select at least one item to delete');
-                    return;
+                    // No items selected - show warning message with icon
+                    $('#deleteConfirmationModal .modal-header').removeClass('bg-danger').addClass('bg-warning');
+                    $('#deleteConfirmationModalLabel').text('No Items Selected');
+                    $('#deleteConfirmationModal .modal-body').html(
+                        '<div class="text-center py-3">' +
+                        '<i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>' +
+                        '<h5>Please select at least one item to delete.</h5>' +
+                        '<p class="text-muted">Use the checkboxes to select items from your cart.</p>' +
+                        '</div>'
+                    );
+                    $('#confirmDelete').hide(); // Hide the delete button
+                } else {
+                    // Items selected - show normal confirmation message
+                    $('#deleteConfirmationModal .modal-header').removeClass('bg-warning').addClass('bg-danger');
+                    $('#deleteConfirmationModalLabel').text('Confirm Deletion');
+                    $('#deleteConfirmationModal .modal-body').html(
+                        '<p>Are you sure you want to remove the selected items from your cart?</p>' +
+                        '<p class="text-muted small">This action cannot be undone.</p>'
+                    );
+                    $('#confirmDelete').show(); // Show the delete button
                 }
                 
-                if (confirm('Are you sure you want to remove the selected items?')) {
-                    // Implement AJAX call to remove multiple items
-                    // This would require a new endpoint in your CartController
-                }
+                // Show the custom modal
+                $('#deleteConfirmationModal').modal('show');
+            });
+            
+            // Handle confirm delete button in modal
+            $('#confirmDelete').click(function() {
+                // Get the stored selected items
+                var selectedItems = $('#deleteConfirmationModal').data('selectedItems');
+                
+                // AJAX call to delete selected items
+                $.ajax({
+                    url: '@Url.Action("DeleteSelectedItems")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(selectedItems),
+                    headers: {
+                        'RequestVerificationToken': $('input:hidden[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        // Hide the modal
+                        $('#deleteConfirmationModal').modal('hide');
+                        
+                        if (response.success) {
+                            // Show success message as toast or notification
+                            $('#toastMessage').text(response.message || 'Items removed successfully');
+                            var toastEl = $('#successToast');
+                            var toast = new bootstrap.Toast(toastEl);
+                            toast.show();
+                            
+                            // Reload the page to update the cart
+                            location.reload();
+                        } else {
+                            alert(response.message || 'Failed to remove items');
+                        }
+                    },
+                    error: function() {
+                        // Hide the modal
+                        $('#deleteConfirmationModal').modal('hide');
+                        alert('An error occurred while trying to remove items');
+                    }
+                });
             });
         });
     </script>

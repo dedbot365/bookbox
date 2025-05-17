@@ -341,12 +341,15 @@ namespace Bookbox.Controllers
             }
             
             return View(order);
-        }
-
-        // GET: Cart/ViewCart
+        }        // GET: Cart/ViewCart
         public async Task<IActionResult> ViewCart()
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(); // Or handle appropriately
+            }
+            
             var cartItems = await _cartService.GetUserCartItemsAsync(userId);
             
             decimal totalPrice = 0;
@@ -401,16 +404,19 @@ namespace Bookbox.Controllers
             
             // Redirect to checkout
             return RedirectToAction("Index", "Checkout");
-        }
-
-        // Add this new endpoint to CartController.cs
+        }        // POST: Cart/RemoveItemAjax
         [HttpPost]
         public async Task<IActionResult> RemoveItemAjax([FromBody] UpdateQuantityRequest request)
         {
             if (request == null)
                 return Json(new { success = false });
             
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Json(new { success = false, error = "Invalid user identification" });
+            }
+            
             var result = await _cartService.RemoveCartItemAsync(userId, request.CartItemId);
             
             if (result)
@@ -420,6 +426,42 @@ namespace Bookbox.Controllers
             }
             
             return Json(new { success = false });
+        }
+          // POST: Cart/DeleteSelectedItems
+        [HttpPost]
+        public async Task<IActionResult> DeleteSelectedItems([FromBody] List<Guid> selectedItemIds)
+        {
+            if (selectedItemIds == null || !selectedItemIds.Any())
+                return Json(new { success = false, message = "No items selected" });
+            
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Json(new { success = false, error = "Invalid user identification" });
+            }
+            
+            int deletedCount = 0;
+            
+            foreach (var itemId in selectedItemIds)
+            {
+                var result = await _cartService.RemoveCartItemAsync(userId, itemId);
+                if (result)
+                {
+                    deletedCount++;
+                }
+            }
+            
+            if (deletedCount > 0)
+            {
+                int cartCount = await _cartService.GetCartItemCountAsync(userId);
+                return Json(new { 
+                    success = true, 
+                    message = $"{deletedCount} item(s) removed from cart", 
+                    cartCount 
+                });
+            }
+            
+            return Json(new { success = false, message = "Failed to remove items" });
         }
     }
 }
