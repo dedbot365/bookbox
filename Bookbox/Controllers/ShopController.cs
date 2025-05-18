@@ -41,9 +41,16 @@ namespace Bookbox.Controllers
             // Apply filters through the filter service
             var filteredBooks = allBooks.AsQueryable();
             filteredBooks = _filterService.ApplyFilters(filteredBooks, ViewData, searchTerm, genre, format, publisher, language, minPrice, maxPrice, inStock);
-            
-            // Category filters
+              // Category filters
             string category = Request.Query["category"].ToString();
+            
+            // If the category is bestsellers, ensure sortBy is set to bestselling for proper ordering
+            if (category == "bestsellers")
+            {
+                sortBy = "bestselling";
+                ViewData["SortBy"] = sortBy;
+            }
+            
             filteredBooks = _filterService.ApplyCategory(filteredBooks, ViewData, category);
             
             // Apply sorting

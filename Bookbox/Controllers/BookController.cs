@@ -24,20 +24,25 @@ namespace Bookbox.Controllers
             _reviewService = reviewService;
         }
 
-        // GET: Book
-        [Authorize(Roles = "Admin,Staff")]
+        // GET: Book        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> Index(string searchTerm = "", string genre = "", string format = "", 
             decimal? minPrice = null, decimal? maxPrice = null, bool? inStock = null, string sortBy = "newest", 
             string category = "", int page = 1)
         {
             int pageSize = 9;
-            
-            // Get all books for filtering
+              // Get all books for filtering
             var allBooks = await _bookService.GetAllBooksAsync();
             
             // Apply filters through the filter service
             var filteredBooks = allBooks.AsQueryable();
             filteredBooks = _filterService.ApplyFilters(filteredBooks, ViewData, searchTerm, genre, format, "", "", minPrice, maxPrice, inStock);
+            
+            // If the category is bestsellers, ensure sortBy is set to bestselling for proper ordering
+            if (category == "bestsellers")
+            {
+                sortBy = "bestselling";
+                ViewData["SortBy"] = sortBy;
+            }
             
             // Category filters
             filteredBooks = _filterService.ApplyCategory(filteredBooks, ViewData, category);
