@@ -139,12 +139,12 @@
                                             </td>                                            <td class="text-end">
                                                 @if (isDiscounted)
                                                 {
-                                                    <span class="text-muted text-decoration-line-through">NPR @(item.Book.Price * item.Quantity).ToString("0.00")</span><br />
-                                                    <span class="text-danger">NPR @(discountedPrice * item.Quantity).ToString("0.00")</span>
+                                                    <span class="text-muted text-decoration-line-through">NPR @(item.Book.Price * item.Quantity)</span><br />
+                                                    <span class="text-danger">NPR @(discountedPrice * item.Quantity)</span>
                                                 }
                                                 else
                                                 {
-                                                    <span>NPR @(item.Book.Price * item.Quantity).ToString("0.00")</span>
+                                                    <span>NPR @(item.Book.Price * item.Quantity)</span>
                                                 }
                                             </td><td>
                                                 <button type="button" class="btn btn-link text-danger item-delete-btn"
