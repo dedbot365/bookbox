@@ -130,9 +130,12 @@ $(document).ready(function () {
         
         // AJAX call to update quantity
         updateItemQuantity(itemId, change, currentQty);
-    });    /**
+    });
+    
+    /**
      * Update quantity via AJAX
-     */    function updateItemQuantity(itemId, change, currentQty) {
+     */
+    function updateItemQuantity(itemId, change, currentQty) {
         $.ajax({
             url: cartUrls.updateQuantity,
             type: 'POST',
@@ -154,6 +157,8 @@ $(document).ready(function () {
                     
                     // Update the data-quantity attribute for calculations
                     row.attr('data-quantity', newQty);
+                    // FIXED: Also update jQuery's data cache so calculateTotals gets the new value
+                    row.data('quantity', newQty);
                     
                     // Get the unit price from data attribute
                     var unitPrice = parseFloat(row.data('price'));
@@ -182,7 +187,8 @@ $(document).ready(function () {
             }
         });
     }
-      /**
+    
+    /**
      * Update item price display based on quantity
      */
     function updateItemPriceDisplay(row, totalPrice) {
