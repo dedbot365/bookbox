@@ -124,24 +124,69 @@ Bookbox/
 Screenshots of key application pages and features, organized by user role and feature:
 
 ### Browsing & Shopping
-- **[Home Page](screenshots/home/)** - Landing page with featured books and announcements
-- **[Shop & Browse](screenshots/shop/)** - Book catalog with filtering and search functionality
-- **[Book Details](screenshots/book-details/)** - Individual book information with reviews and ratings
-- **[Shopping Cart](screenshots/shopping-cart/)** - Cart management with quantity adjustment
-- **[Checkout](screenshots/checkout/)** - Order completion and payment process
-- **[User Profile](screenshots/profile/)** - User account management and personal information
-- **[Authentication](screenshots/authentication/)** - Login and registration pages
+
+#### Home Page
+![Home Page](screenshots/home/image.png)
+Landing page with featured books and announcements
+
+#### Shop & Browse
+![Shop & Browse](screenshots/shop/image.png)
+Book catalog with filtering and search functionality
+
+#### Book Details
+![Book Details](screenshots/book-details/image.png)
+Individual book information with reviews and ratings
+
+#### Shopping Cart
+![Shopping Cart](screenshots/shopping-cart/image.png)
+Cart management with quantity adjustment
+
+#### Checkout
+![Checkout](screenshots/checkout/image.png)
+Order completion and payment process
+
+#### User Profile
+![User Profile](screenshots/profile/image.png)
+User account management and personal information
+
+#### Authentication
+![Authentication](screenshots/authentication/image.png)
+Login and registration pages
 
 ### Member Dashboard
-- **[Dashboard](screenshots/Member-Features/dashboard/)** - Member account overview and quick access
-- **[Order Management](screenshots/Member-Features/order-management/)** - Order tracking and history
-- **[Wishlist](screenshots/Member-Features/Wishlist/)** - Saved books and favorites collection
+
+#### Dashboard
+![Member Dashboard](screenshots/Member-Features/dashboard/image.png)
+Member account overview and quick access
+
+#### Order Management
+![My Orders](screenshots/Member-Features/order-management/My%20Orders.png)
+Order tracking and history
+
+![Order Details](screenshots/Member-Features/order-management/order.png)
+Detailed order information
+
+#### Wishlist
+![Wishlist](screenshots/Member-Features/Wishlist/image.png)
+Saved books and favorites collection
 
 ### Admin & Staff Management
-- **[Dashboard](screenshots/Admin-Features/dashboard/)** - Analytics and system overview
-- **[Manage Books](screenshots/Admin-Features/manage-books/)** - Book inventory and catalog management
-- **[Manage Users](screenshots/Admin-Features/manage-users/)** - User account administration
-- **[Announcements](screenshots/Admin-Features/announcements/)** - Create and manage site announcements
+
+#### Dashboard
+![Admin Dashboard](screenshots/Admin-Features/dashboard/image.png)
+Analytics and system overview
+
+#### Manage Books
+![Manage Books](screenshots/Admin-Features/manage-books/image.png)
+Book inventory and catalog management
+
+#### Manage Users
+![Manage Users](screenshots/Admin-Features/manage-users/image.png)
+User account administration
+
+#### Announcements
+![Announcements](screenshots/Admin-Features/announcements/image.png)
+Create and manage site announcements
 
 ## �🔑 Key Services
 
