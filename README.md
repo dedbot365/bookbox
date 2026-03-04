@@ -119,7 +119,22 @@ Bookbox/
 └── Constants/           # Application constants
 ```
 
-## 🔑 Key Services
+## � Screenshots
+
+Screenshots of key application pages and features:
+
+- **[Home Page](screenshots/home/)** - Landing page with featured books and announcements
+- **[Shop & Browse](screenshots/shop/)** - Book catalog with filtering and search functionality
+- **[Book Details](screenshots/book-details/)** - Individual book information with reviews and ratings
+- **[Shopping Cart](screenshots/shopping-cart/)** - Cart management with quantity adjustment
+- **[Checkout](screenshots/checkout/)** - Order completion and payment process
+- **[User Profile](screenshots/profile/)** - User account management and order history
+- **[Authentication](screenshots/authentication/)** - Login and registration pages
+- **[Bookmarks](screenshots/bookmarks/)** - Saved books collection
+- **[Order Management](screenshots/order-management/)** - Order tracking and history
+- **[Admin Dashboard](screenshots/admin-dashboard/)** - Analytics and system management interface
+
+## �🔑 Key Services
 
 - **IAuthService**: User authentication and authorization
 - **IBookService**: Book CRUD operations
