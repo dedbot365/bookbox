@@ -51,6 +51,7 @@ main {
   padding: 1rem;
   background-color: #f8f9fa;
   overflow: hidden;
+  position: relative;
 }
 
 .card-img-container img {
@@ -66,6 +67,175 @@ main {
   width: 100%;
   height: 100%;
   background-color: #f0f0f0;
+}
+
+/* Modern Badge Container */
+.badge-container {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+}
+
+.badge-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  animation: slideInBadge 0.3s ease;
+}
+
+@keyframes slideInBadge {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.badge-coming-soon {
+  background: linear-gradient(135deg, #ffc107, #ff9800);
+  color: white;
+}
+
+.badge-sale {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  color: white;
+}
+
+/* Rating Section */
+.rating-section {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.95rem;
+}
+
+.rating-section i {
+  font-size: 0.95rem;
+}
+
+.review-count {
+  color: #6c757d;
+  font-size: 0.85rem;
+  margin-left: 4px;
+}
+
+/* Metadata Badges */
+.metadata-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge-meta {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.badge-genre {
+  background-color: #e7f1ff;
+  color: #0066cc;
+}
+
+.badge-format {
+  background-color: #f0f4ff;
+  color: #4a5cc9;
+}
+
+/* Price Section */
+.price-section {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 12px;
+}
+
+.price-with-discount {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 0.95rem;
+}
+
+.discounted-price {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #ff6b6b;
+}
+
+.discount-badge {
+  background-color: #ff6b6b;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.regular-price {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #2c3e50;
+}
+
+.coming-soon-text {
+  color: #ffc107;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.sale-timer {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #ff6b6b;
+  font-weight: 500;
+  margin-top: 6px;
+}
+
+/* Stock Status */
+.stock-status {
+  margin-top: auto;
+}
+
+.stock-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.stock-badge.in-stock {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.stock-badge.out-of-stock {
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 .book-title {
@@ -89,6 +259,54 @@ main {
   font-weight: 700;
   color: #0d6efd;
   font-size: 1.25rem;
+}
+
+/* Modern Card Footer Styling */
+.book-card .card-footer {
+  padding: 12px 16px !important;
+  background-color: #f9fafb !important;
+}
+
+.book-card .card-footer .btn {
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  border-radius: 5px;
+}
+
+.book-card .card-footer .btn-primary {
+  background-color: #0066cc;
+  border-color: #0066cc;
+}
+
+.book-card .card-footer .btn-primary:hover {
+  background-color: #0052a3;
+  border-color: #0052a3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+}
+
+.book-card .card-footer .btn-outline-primary,
+.book-card .card-footer .btn-outline-danger {
+  border-width: 1.5px;
+}
+
+.book-card .card-footer .btn-outline-primary:hover {
+  background-color: #0066cc;
+  border-color: #0066cc;
+  transform: translateY(-2px);
+}
+
+.book-card .card-footer .btn-outline-danger:hover {
+  background-color: #ff6b6b;
+  border-color: #ff6b6b;
+  transform: translateY(-2px);
+}
+
+/* Enhanced Card Body */
+.book-card .card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Category Cards */

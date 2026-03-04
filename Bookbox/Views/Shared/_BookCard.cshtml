@@ -151,7 +151,7 @@
 else
 {
     <!-- Vertical layout (for home and shop pages) -->
-    <div class="card h-100 book-card">
+    <div class="card h-100 book-card modern-card">
         <a href="@detailsUrl" class="text-decoration-none text-dark">
             <div class="card-img-container position-relative">
                 @if (!string.IsNullOrEmpty(Model.ImageUrl))
@@ -164,108 +164,122 @@ else
                         <i class="fas fa-book fa-4x text-secondary"></i>
                     </div>
                 }
-                @if (!Model.IsComingSoon && Model.Discounts.Any(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow)))
-                {
-                    var discount = Model.Discounts.First(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow));
-                    <div class="position-absolute top-0 end-0 d-flex">
-                        <span class="badge bg-danger me-1">ON SALE</span>
-                        @if (discount.EndDate.HasValue)
-                        {
-                            var badgeDaysRemaining = (discount.EndDate.Value - DateTime.UtcNow).Days;
-                            <span class="badge bg-warning text-dark">@badgeDaysRemaining @(badgeDaysRemaining == 1 ? "day" : "days") left</span>
-                        }
-                    </div>
-                }
+                
+                <!-- Badge Section - Top Right with better organization -->
+                <div class="badge-container">
+                    @if (Model.IsComingSoon)
+                    {
+                        <span class="badge-item badge-coming-soon">
+                            <i class="fas fa-clock-o me-1"></i> Coming Soon
+                        </span>
+                    }
+                    else if (bookDiscount != null && !Model.IsComingSoon && Model.Discounts.Any(d => d.IsOnSale && d.StartDate <= DateTime.UtcNow && (d.EndDate == null || d.EndDate > DateTime.UtcNow)))
+                    {
+                        <span class="badge-item badge-sale">
+                            <i class="fas fa-fire me-1"></i> SALE
+                        </span>
+                    }
+                </div>
             </div>
-            <div class="card-body">
+            
+            <div class="card-body d-flex flex-column">
                 <h5 class="card-title book-title">@Model.Title</h5>
                 <p class="card-text book-author">by @Model.Author</p>
                 
-                <!-- Always show Rating Stars -->
-                <div class="mb-2">
+                <!-- Rating and Review Count -->
+                <div class="rating-section mb-2">
                     @for (int i = 1; i <= 5; i++)
                     {
                         if (reviewCount > 0 && i <= Math.Floor(avgRating))
                         {
-                            <i class="fas fa-star text-warning small"></i>
+                            <i class="fas fa-star text-warning"></i>
                         }
                         else if (reviewCount > 0 && i - avgRating < 1 && i - avgRating > 0)
                         {
-                            <i class="fas fa-star-half-alt text-warning small"></i>
+                            <i class="fas fa-star-half-alt text-warning"></i>
                         }
                         else
                         {
-                            <i class="far fa-star text-warning small"></i>
+                            <i class="far fa-star text-warning"></i>
                         }
                     }
                     @if (reviewCount > 0)
                     {
-                        <span class="text-muted small ms-1">(@reviewCount)</span>
+                        <span class="review-count">(@reviewCount)</span>
+                    }
+                    else
+                    {
+                        <span class="review-count">No reviews</span>
                     }
                 </div>
                 
-                <p class="card-text mb-0">
-                    <span class="badge bg-secondary">@Model.Genre</span>
-                    <span class="badge bg-info">@Model.Format</span>
-                </p>
+                <!-- Metadata Badges (Genre & Format) -->
+                <div class="metadata-badges mb-2">
+                    <span class="badge-meta badge-genre">@Model.Genre</span>
+                    <span class="badge-meta badge-format">@Model.Format</span>
+                </div>
 
+                <!-- Price Section -->
                 @if (Model.IsComingSoon)
                 {
-                    <div class="mt-2">
-                        <span class="badge bg-warning text-dark">Coming Soon</span>
+                    <div class="price-section mt-auto pt-2">
+                        <span class="coming-soon-text">Coming Soon</span>
                     </div>
                 }
                 else
                 {
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                        @if (bookDiscount != null)
+                    <div class="price-section mt-auto pt-2">
+                        @if (bookDiscount != null && daysRemaining > 0)
                         {
-                            <div>
-                                <span class="text-muted"><s>NPR @Model.Price.ToString("0.00")</s></span>
-                                <span class="book-price text-danger">NPR @discountedPrice.ToString("0.00")</span>
+                            <div class="price-with-discount">
+                                <span class="original-price">NPR @Model.Price.ToString("0.00")</span>
+                                <span class="discounted-price">NPR @discountedPrice.ToString("0.00")</span>
+                                <span class="discount-badge">-@bookDiscount.DiscountPercentage%</span>
+                            </div>
+                            <div class="sale-timer">
+                                <i class="fas fa-hourglass-half me-1"></i>@daysRemaining @(daysRemaining == 1 ? "day" : "days") left
                             </div>
                         }
                         else
                         {
-                            <span class="book-price">NPR @Model.Price.ToString("0.00")</span>
+                            <span class="regular-price">NPR @Model.Price.ToString("0.00")</span>
                         }
-                        <span class="badge @(Model.Stock > 0 ? "bg-success" : "bg-danger")">
-                            @(Model.Stock > 0 ? "In Stock" : "Out of Stock")
-                        </span>
-                    </div>
-                }
-                @if (!Model.IsComingSoon && bookDiscount != null && daysRemaining > 0)
-                {
-                    <div class="mt-1">
-                        <span class="badge bg-warning">Sale ends in @daysRemaining days</span>
+                        
+                        <!-- Stock Status -->
+                        <div class="stock-status mt-2">
+                            <span class="stock-badge @(Model.Stock > 0 ? "in-stock" : "out-of-stock")">
+                                <i class="fas @(Model.Stock > 0 ? "fa-check-circle" : "fa-ban") me-1"></i>
+                                @(Model.Stock > 0 ? $"In Stock ({Model.Stock})" : "Out of Stock")
+                            </span>
+                        </div>
                     </div>
                 }
             </div>
         </a>
         
         <!-- For the card footer section -->
-        <div class="card-footer bg-white border-top-0">
+        <div class="card-footer bg-white border-top-0 pt-0">
             <div class="d-flex flex-wrap gap-2 justify-content-between">
                 <!-- Add to Cart button only for logged-in Members and non-coming-soon books -->
                 @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Member") && !Model.IsComingSoon)
                 {
-                    <div>
+                    <div class="flex-grow-1">
                         @if (Model.Stock > 0)
                         {
-                            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline">
+                            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-inline w-100">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="bookId" value="@Model.BookId" />
                                 <input type="hidden" name="price" value="@discountedPrice" />
                                 <input type="hidden" name="quantity" value="1" />
                                 <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
-                                <button type="submit" class="btn btn-success btn-sm">
+                                <button type="submit" class="btn btn-primary btn-sm w-100">
                                     <i class="fas fa-shopping-cart me-1"></i> Add to Cart
                                 </button>
                             </form>
                         }
                         else
                         {
-                            <button class="btn btn-secondary btn-sm" disabled>
+                            <button class="btn btn-secondary btn-sm w-100" disabled>
                                 <i class="fas fa-shopping-cart me-1"></i> Out of Stock
                             </button>
                         }
@@ -286,8 +300,8 @@ else
                             <form asp-action="Remove" asp-controller="Bookmark" asp-route-id="@Model.BookId" 
                                   asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString" method="post" class="d-inline">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-danger btn-sm">
-                                    <i class="fas fa-heart-broken me-1"></i> Remove from Wishlist
+                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Remove from Wishlist">
+                                    <i class="fas fa-heart"></i>
                                 </button>
                             </form>
                         }
@@ -296,8 +310,8 @@ else
                             <form asp-action="Add" asp-controller="Bookmark" asp-route-id="@Model.BookId" 
                                   asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString" method="post" class="d-inline">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-heart me-1"></i> Wishlist
+                                <button type="submit" class="btn btn-outline-primary btn-sm" title="Add to Wishlist">
+                                    <i class="fas fa-heart"></i>
                                 </button>
                             </form>
                         }
