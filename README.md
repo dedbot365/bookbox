@@ -121,18 +121,27 @@ Bookbox/
 
 ## � Screenshots
 
-Screenshots of key application pages and features:
+Screenshots of key application pages and features, organized by user role and feature:
 
+### Browsing & Shopping
 - **[Home Page](screenshots/home/)** - Landing page with featured books and announcements
 - **[Shop & Browse](screenshots/shop/)** - Book catalog with filtering and search functionality
 - **[Book Details](screenshots/book-details/)** - Individual book information with reviews and ratings
 - **[Shopping Cart](screenshots/shopping-cart/)** - Cart management with quantity adjustment
 - **[Checkout](screenshots/checkout/)** - Order completion and payment process
-- **[User Profile](screenshots/profile/)** - User account management and order history
+- **[User Profile](screenshots/profile/)** - User account management and personal information
 - **[Authentication](screenshots/authentication/)** - Login and registration pages
-- **[Bookmarks](screenshots/bookmarks/)** - Saved books collection
-- **[Order Management](screenshots/order-management/)** - Order tracking and history
-- **[Admin Dashboard](screenshots/admin-dashboard/)** - Analytics and system management interface
+
+### Member Dashboard
+- **[Dashboard](screenshots/Member-Features/dashboard/)** - Member account overview and quick access
+- **[Order Management](screenshots/Member-Features/order-management/)** - Order tracking and history
+- **[Wishlist](screenshots/Member-Features/Wishlist/)** - Saved books and favorites collection
+
+### Admin & Staff Management
+- **[Dashboard](screenshots/Admin-Features/dashboard/)** - Analytics and system overview
+- **[Manage Books](screenshots/Admin-Features/manage-books/)** - Book inventory and catalog management
+- **[Manage Users](screenshots/Admin-Features/manage-users/)** - User account administration
+- **[Announcements](screenshots/Admin-Features/announcements/)** - Create and manage site announcements
 
 ## �🔑 Key Services
 
